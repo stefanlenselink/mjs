@@ -1,3 +1,7 @@
+mjs 3.0-rc4
+ * added add_to_playlist_recursive via <alt-enter>
+ * Fixed window-refreshing
+ * code-cleanups
 mjs 3.0-rc3
  * It is now possible to listen to webradio. Just put the url in a
    playlistfile.

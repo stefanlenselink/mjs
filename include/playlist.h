@@ -12,6 +12,7 @@ void	 free_playlist(wlist *);
 int	 jump_to_song(flist *);
 int	 playback_title(Window *);
 
+void	add_to_playlist_recursive(wlist *, flist *, flist *);
 void	add_to_playlist(wlist *, flist *, flist *);
 wlist	*stop_player(wlist *);
 wlist	*pause_player(wlist *);

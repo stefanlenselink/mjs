@@ -29,7 +29,13 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * return adds files to the playlist and changes directory.
    * left-arrow goes back one directory
    * right-arrow enters directory
-   * ALT-ENTER or INSERT inserts selected file into playlist
+   * ALT-ENTER inserts selected file into playlist at the place of the
+     selector
+   * ALT-ENTER while a directory is selected adds the contents of that
+     directory recursively to the playlist
+   * INSERT inserts selected file into the playlist right in front
+     of the playing file
+   
    * Pressing a letter will take you to the first directory starting with
      that letter, pressing another one within 750ms will take you to the
      first directory starting with those two letters, etc.

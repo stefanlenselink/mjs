@@ -418,22 +418,18 @@ sort_mp3_search(const void *a, const void *b)
 }
 
 flist *
-delete_file(Window *win, flist *file)
+delete_file(flist *file)
 {
 	wlist *list = play->contents.list;
 	flist *fnext, *fprev, *ftmp;
-	int i, maxx, maxy;
 	if (!list)
 		return NULL;
 	if (!file)
 		return NULL;
-	if (file->flags & F_PLAY)
-		return file;
-	maxx = win->width;
-	maxy = win->height - 3;
 	free_flist(file);
 	list->length--;
 	if ((fnext = file->next)) {
+		// file is not the last file of the list
 		if ((fprev = file->prev)) {
 			fprev->next = fnext;
 			fnext->prev = fprev;
@@ -441,6 +437,7 @@ delete_file(Window *win, flist *file)
 			fnext->prev = NULL;
 			list->head = fnext;
 		}
+		// if file was selected make fnext selected
 		if (file->flags & F_SELECTED) 
 		 	fnext->flags |= F_SELECTED;
 		if (file == list->top)
@@ -448,19 +445,17 @@ delete_file(Window *win, flist *file)
 	 	free(file);
 	 	ftmp = fnext;
 	} else 
+		// file is the last file of the list
 		if ((fprev = file->prev)) {
 			fprev->next = NULL;
 			list->tail = fprev;
 			list->where--;
 			if (file->flags & F_SELECTED) 
 				fprev->flags |= F_SELECTED;
-			if (list->top == file) {
-				for (i = 0, ftmp = fprev; ftmp && ftmp->prev && (i < maxy); ftmp = ftmp->prev, i++);
-				list->top = ftmp;
-			}
 			free(file);
 			ftmp = fprev;
 		} else {
+			// no previous file, the list is empty
 			free(file);
 			list->head = list->top = list->tail = NULL;
 			list->where = 0;
@@ -484,36 +479,29 @@ check_file(flist *file)
 /* find the next valid entry in the search direction */
 
 flist *
-next_valid(Window *win, flist *file, int c)
+next_valid(flist *file, int c)
 {
-	flist *ftmp = file;
-	int fix_selected = 0;
+	flist *ftmp = NULL;
 	if (!file)
-		return file;
+		return NULL;
 	if (!strncasecmp(file->fullpath, "http", 4))
 		return file;
-	if (file->flags & F_SELECTED)
-		fix_selected = 1;
 	switch (c) {
 		case KEY_HOME:
 		case KEY_DOWN:
 		case KEY_NPAGE:
 			while (!check_file(file))
-				file = delete_file(win, file);
+				file = delete_file(file);
 			break;
 		case KEY_END:
 		case KEY_UP:
 		case KEY_PPAGE:
 			while (!check_file(file)) {
 				ftmp = file->prev;
-				delete_file(win, file);
+				delete_file(file);
 				file = ftmp;
 			}
 			break;
-	}
-	if (fix_selected) {
-		win->contents.list->selected = file;
-		file->flags |= F_SELECTED;
 	}
 	return file;
 

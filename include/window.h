@@ -16,5 +16,6 @@ int	 std_menubar(Window *);
 __inline__ void	 printf_menubar(Window *, char *);
 int	 clear_menubar(Window *);
 void	 do_scrollbar(Window *);
+__inline__ void clear_info();
 
 #endif /* _window_h */

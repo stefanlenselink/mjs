@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include <ctype.h>
 #include <dirent.h>

@@ -112,8 +112,10 @@ main(int argc, char *argv[])
 	if (!initscr())
 		exit(1);
 	curs_set(0);
+	leaveok(stdscr,TRUE);
 	cbreak();
 	noecho();
+//	use_default_colors();
 	start_color();
 	nonl();
 	init_ansi_pair();
@@ -433,8 +435,13 @@ read_key(Window *window)
 // remove selected from playlist		
 		case KEY_DC:
 			if (active == play){
-				wlist *playlist = play->contents.list;				
-				playlist->selected = delete_file(play, playlist->selected);
+				wlist *playlist = play->contents.list;
+				if ((p_status==PLAYING) & (play->contents.list->playing == play->contents.list->selected)){
+					jump_forward(play->contents.list);
+					play->update(play);
+					doupdate();
+				}
+				playlist->selected = delete_file(playlist->selected);
 				info->update(play);
 				play->update(play);
 				doupdate();
@@ -479,9 +486,10 @@ read_key(Window *window)
 				free_playlist(play->contents.list);
 				play->contents.list = (wlist *)calloc(1, sizeof(wlist));
 				play->update(play);
+				clear_info();
+				info->update(info);
 				}
 			menubar->activate(menubar);
-			info->update(play);
 			update_panels();
 			doupdate();	
 			break;
@@ -574,11 +582,9 @@ read_key(Window *window)
 
 // Stop the player		
 		case KEY_F(7):
-			if (p_status) {
-				stop_player(play->contents.list);
-				clear_play_info();
-				doupdate();
-				}
+			stop_player(play->contents.list);
+			clear_play_info();
+			doupdate();
 			p_status=STOPPED;
 			break;
 
@@ -588,7 +594,7 @@ read_key(Window *window)
 				case STOPPED:
 /* fix me */		
 					if (!play->contents.list->selected)
-						play->contents.list->selected=next_valid(play,play->contents.list->top,KEY_DOWN);
+						play->contents.list->selected=next_valid(play->contents.list->top,KEY_DOWN);
 					jump_to_song(play->contents.list->selected); /* Play */
 					doupdate(); 
 					break;
@@ -631,7 +637,6 @@ read_key(Window *window)
 			if (p_status==PLAYING) {
 				jump_forward(play->contents.list);
 				play->update(play);
-				doupdate();
 			}
 			break;
 
@@ -668,6 +673,7 @@ read_key(Window *window)
 		default:
 			break;
 	}
+	doupdate();
 	return c;
 }
 
@@ -677,25 +683,31 @@ process_return(wlist *mp3list, int c, int alt)
 	if (!mp3list)
 		return;
 	if ((mp3list->selected->flags & F_DIR)) {
-		// change to another directory
-		char *prevpwd = NULL;
-		
-		if ((!(mp3list->flags & F_VIRTUAL)) & (!strcmp("../", mp3list->selected->fullpath)))
-			prevpwd = getcwd(NULL, 0);
-
-		chdir(mp3list->selected->fullpath);
-		free_list(mp3list->head);
-		memset(mp3list, 0, sizeof(wlist));
-		mp3list->head = read_mp3_list(mp3list);
-		if (mp3list->head)
-			sort_songs(mp3list);
-		if (prevpwd) {
-			while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) 
-				move_selector( files, KEY_DOWN );
-			free(prevpwd);
+		if (!alt) {
+			// change to another directory
+			char *prevpwd = NULL;
+			
+			if ((!(mp3list->flags & F_VIRTUAL)) & (!strcmp("../", mp3list->selected->fullpath)))
+				prevpwd = getcwd(NULL, 0);
+	
+			chdir(mp3list->selected->fullpath);
+			free_list(mp3list->head);
+			memset(mp3list, 0, sizeof(wlist));
+			mp3list->head = read_mp3_list(mp3list);
+			if (mp3list->head)
+				sort_songs(mp3list);
+			if (prevpwd) {
+				while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) 
+					move_selector( files, KEY_DOWN );
+				free(prevpwd);
+			}
+		} else {
+			// add songs from directory
+			if (previous_selected)
+				free (previous_selected);
+			previous_selected = strdup(mp3list->selected->fullpath);
+			add_to_playlist_recursive(play->contents.list, play->contents.list->tail, mp3list->selected);
 		}
-		files->update(files);
-		
 	} else if (mp3list->selected->flags & F_PLAYLIST){
 		char *filename = strdup( mp3list->selected->fullpath );
 		// add mp3's in file to playlist
@@ -709,16 +721,20 @@ process_return(wlist *mp3list, int c, int alt)
 			play->contents.list->selected->flags |= F_SELECTED;
 		}
 		free(filename);	
-		menubar->activate(menubar);
+//		menubar->activate(menubar);
 		info->update(files);
-		files->update(files);		
 
 	} else if (strcmp(previous_selected, mp3list->selected->fullpath)){ /* we dont want to add the last file multiple times */
 		if (previous_selected)
 			free (previous_selected);
 		previous_selected = strdup(mp3list->selected->fullpath);
 		
-		if ((alt) || (c == KEY_IC))
+		if (c == KEY_IC) {
+			if (play->contents.list->playing)
+				add_to_playlist(play->contents.list, play->contents.list->playing, mp3list->selected);
+			else 
+				add_to_playlist(play->contents.list, play->contents.list->selected, mp3list->selected);
+		} else if (alt)
 			add_to_playlist(play->contents.list, play->contents.list->selected, mp3list->selected);
 		else
 			add_to_playlist(play->contents.list, play->contents.list->tail, mp3list->selected);
@@ -728,6 +744,7 @@ process_return(wlist *mp3list, int c, int alt)
 				files->update(files);
 	} 
 	play->update(play);
+	files->update(files);
 	doupdate();
 }
 
@@ -792,7 +809,8 @@ clear_play_info(void)
 {
 	my_mvwnclear(playback->win, 1, 1, playback->width-2);
 	update_panels();
-	doupdate();
+	if (conf->c_flags & C_FIX_BORDERS)
+		redrawwin(playback->win);
 }
 
 int

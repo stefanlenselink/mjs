@@ -166,6 +166,8 @@ static mpgreturn *read_cmd(int fd, mpgreturn *status)
 			if (tmpstatus == 0)
 				p_status = 0;
 			break;
+		case 's':
+			exit(0);
 		default:
 			break;
 	}

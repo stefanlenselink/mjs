@@ -139,7 +139,7 @@ jump_to_song(flist *selected)
 	FILE *activefile;
 	time_t timevalue;
 
-	selected = next_valid(play, selected, KEY_DOWN);
+	selected = next_valid(selected, KEY_DOWN);
 	
 	if (!playlist || !selected)
 		return 0;
@@ -287,6 +287,36 @@ randomize_list(wlist *playlist)
 	newlist->next = NULL;
 	free(farray);
 	return playlist;
+}
+
+
+void
+add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
+{
+	char *prevpwd = NULL;
+	wlist *templist = NULL;
+	if (!(file->flags & F_DIR))
+		return;
+	templist = calloc(1, sizeof(wlist));
+	prevpwd = getcwd(NULL, 0);
+	chdir(file->fullpath);
+	memset(templist, 0, sizeof(wlist));
+	templist->head = read_mp3_list(templist);
+	if (templist->head)
+		sort_songs(templist);
+	templist->selected = templist->head->next; // skip ../ entry
+	while (templist->selected) {
+		if (templist->selected->flags & F_DIR)
+			add_to_playlist_recursive(playlist, playlist->tail, templist->selected);
+		else if (!(templist->selected->flags & F_PLAYLIST))
+			add_to_playlist(playlist, playlist->tail, templist->selected);
+		
+		templist->selected = next_valid(templist->selected->next, KEY_DOWN);
+	}
+	free_list(templist->head);
+	free(templist);
+	chdir(prevpwd);
+	free(prevpwd);
 }
 
 void

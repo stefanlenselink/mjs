@@ -8,7 +8,7 @@
 #include "files.h"
 #include "extern.h"
 
-static void	 clear_info(void);
+//static void	 clear_info(void);
 static u_char	*parse_title(Window *, u_char *, int);
 
 int
@@ -81,12 +81,14 @@ show_list(Window *window)
 				my_mvwnaddstr(win, i, 2, color, x, line);
 			}
 			ftmp = ftmp->next;
-		} else /* blank the line */
+		} else  /* blank the line */ 
 			my_mvwnaddstr(win, i, 2, colors[FILE_BACK], x, "");
-	if (active->flags & W_LIST)
+	if (window->flags & W_LIST)
 		do_scrollbar(active);
 	update_title(window);
 	update_panels();
+	if (conf->c_flags & C_FIX_BORDERS)
+		redrawwin(win);
 	return 1;
 }
 
@@ -111,14 +113,13 @@ move_selector(Window *window, int c)
 		case '\r':
 			if (active == play) {
 				wlist->selected->flags &= ~F_SELECTED;
-				wlist->selected = next_valid(window, wlist->head, KEY_HOME);
+				wlist->selected = next_valid(wlist->head, KEY_HOME);
 				wlist->where = 1;
 				wlist->wheretop = 1;
 				
 				for (j = 0; wlist->selected->next && wlist->selected != wlist->playing; j++) {
-					wlist->selected = next_valid(window, wlist->selected->next, KEY_DOWN);
+					wlist->selected = next_valid(wlist->selected->next, KEY_DOWN);
 					wlist->where++;
-					wlist->wheretop++;
 				}
 				wlist->selected->flags |= F_SELECTED;
 				return window;
@@ -126,19 +127,19 @@ move_selector(Window *window, int c)
 			break;				
 		case KEY_HOME: 
 			wlist->selected->flags &= ~F_SELECTED;
-			wlist->selected = next_valid(window, wlist->head, c);
+			wlist->selected = next_valid(wlist->head, c);
 			wlist->selected->flags |= F_SELECTED;
 			wlist->where = 1;
 			wlist->wheretop = 1;
 			return window;
 		case KEY_END: 
 			wlist->selected->flags &= ~F_SELECTED;
-			wlist->selected = next_valid(window, wlist->tail, c);
+			wlist->selected = next_valid(wlist->tail, c);
 			wlist->selected->flags |= F_SELECTED;
 			wlist->where = wlist->length;
 			return window;
 		case KEY_DOWN:
-			if ((file = next_valid(window, wlist->selected->next, c))) {
+			if ((file = next_valid(wlist->selected->next, c))) {
 				wlist->selected->flags &= ~F_SELECTED;
 				file->flags |= F_SELECTED;
 				wlist->selected = file;
@@ -147,7 +148,7 @@ move_selector(Window *window, int c)
 			}
 			break;
 		case KEY_UP:
-			if ((file = next_valid(window, wlist->selected->prev, c))) {
+			if ((file = next_valid(wlist->selected->prev, c))) {
 				wlist->selected->flags &= ~F_SELECTED;
 				file->flags |= F_SELECTED;
 				wlist->selected = file;
@@ -158,11 +159,11 @@ move_selector(Window *window, int c)
 		case KEY_NPAGE:
 			wlist->selected->flags &= ~F_SELECTED;
 			for (j = 0; wlist->selected->next && j < length-1; j++) {
-				wlist->selected = next_valid(window, wlist->selected->next, KEY_DOWN);
+				wlist->selected = next_valid(wlist->selected->next, KEY_DOWN);
 				wlist->where++;
 				wlist->wheretop++;
 				}
-			wlist->selected = next_valid(window, wlist->selected, c);
+			wlist->selected = next_valid(wlist->selected, c);
 			wlist->selected->flags |= F_SELECTED;
 			return window;
 		case KEY_PPAGE:
@@ -170,9 +171,9 @@ move_selector(Window *window, int c)
 			for (j = 0; wlist->selected->prev && j < length-1; j++) {
 				wlist->where--;
 				wlist->wheretop--;
-				wlist->selected = next_valid(window, wlist->selected->prev, KEY_UP);
+				wlist->selected = next_valid(wlist->selected->prev, KEY_UP);
 				}
-			wlist->selected = next_valid(window, wlist->selected, c);
+			wlist->selected = next_valid(wlist->selected, c);
 			wlist->selected->flags |= F_SELECTED;
 			return window;
 		default:
@@ -221,13 +222,15 @@ void change_active(Window *new)
 	doupdate();
 }
 
-static void
+__inline__ void
 clear_info(void)
 {
 	int i = info->height - 2;
 	for (; i; i--)
 		my_mvwnclear(info->win, i, 9, info->width - 10);
-
+	update_panels();
+	if (conf->c_flags & C_FIX_BORDERS)
+		redrawwin(info->win);
 }
 
 int

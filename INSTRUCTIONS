@@ -22,6 +22,7 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * 'F3' lets you search files
    * 'F4' shows your last search results
    * 'F5' will randomize the playlist
+   * 'F6' will save your playlist (if enabled in .mjsrc)
    * 'F7' will stop the player
    * 'F8' will pause the player
    * 'F9' will go back one song

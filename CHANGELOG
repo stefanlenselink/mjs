@@ -1,3 +1,5 @@
+mjs 2.9.10
+ * Fixed color configuration (Bug has lived a long time unnoticed...)
 mjs 2.9.9
  * Code Cleanups
  * Fixed artist field being 1 character to long (containing garbage)

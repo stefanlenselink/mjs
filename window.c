@@ -55,14 +55,14 @@ show_list(Window *window)
 			else 	
 				line = ftmp->filename;
 			if ((window->flags & W_ACTIVE) && (ftmp->flags & F_PAUSED))
-				my_mvwnaddstr(win, i, 2, colors[PLAYING] | A_BLINK, x, line);
+				my_mvwnaddstr(win, i, 2, colors[UNSEL_PLAYING] | A_BLINK, x, line);
 			else {
 				if (window==play)
 					if (ftmp->flags & F_PLAY)
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
 							color = colors[SEL_PLAYING];
 						else
-							color = colors[PLAYING];
+							color = colors[UNSEL_PLAYING];
 					else			
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
 							color = colors[SELECTED];

@@ -25,7 +25,7 @@ static void set_color_defaults (void);
 static void set_window (Window *, char *, char *);
 static int break_line (const char *, char *, char *, char *);
 
-u_int32_t colors[22];
+u_int32_t colors[17];
 
 Config *
 read_config (Config * conf)
@@ -246,7 +246,7 @@ set_color (char *color, char *value)
 		colors[PLAYLIST] =
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "playing"))
-		colors[PLAYING] =
+		colors[UNSEL_PLAYING] =
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "sel_playing"))
 		colors[SEL_PLAYING] =
@@ -405,7 +405,6 @@ static void
 set_color_defaults (void)
 {
 	colors[ACTIVE] = merge_colors (B_GREEN, BLUE);
-	colors[INACTIVE] = merge_colors (YELLOW, BLUE);
 	colors[SELECTED] = merge_colors (YELLOW, RED);
 	colors[UNSELECTED] = merge_colors (WHITE, BLUE);
 	colors[DIRECTORY] = merge_colors (WHITE, BLUE);
@@ -413,13 +412,14 @@ set_color_defaults (void)
 	colors[SCROLL] = merge_colors (YELLOW, BLUE);
 	colors[SCROLLBAR] = merge_colors (YELLOW, BLUE);
 	colors[PLAYLIST] = merge_colors (WHITE, BLUE);
-	colors[PLAYING] = merge_colors (B_CYAN, BLUE);
+	colors[UNSEL_PLAYING] = merge_colors (B_CYAN, BLUE);
 	colors[SEL_PLAYING] = merge_colors (B_CYAN, RED);
 	colors[FILE_BACK] = merge_colors (BLACK, BLUE);
 	colors[INFO_BACK] = merge_colors (BLACK, BLUE);
 	colors[PLAY_BACK] = merge_colors (BLACK, BLUE);
 	colors[MENU_BACK] = merge_colors (BLACK, BLUE);
 	colors[MENU_TEXT] = merge_colors (B_RED, BLUE);
+	colors[INACTIVE] = merge_colors (YELLOW, BLUE);
 }
 
 static int

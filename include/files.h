@@ -6,7 +6,7 @@
 #endif
 
 flist	*read_mp3_list(wlist *);
-flist	*read_mp3_list_file(wlist *, char *);
+wlist	*read_mp3_list_file(wlist *, char *);
 int	write_mp3_list_file(wlist *, char *);
 wlist	*sort_songs(wlist *);
 wlist	*sort_search(wlist *);

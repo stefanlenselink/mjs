@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 2.9.1
+VERSION = 2.9.3
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c
@@ -34,6 +34,7 @@ $(PROGRAM): $(OBJS)
 	$(CC) $(PROFILE) $(ARCHFLAGS) -o $(PROGRAM) $(OBJS) $(LIBRARY) $(LIBS)
 
 static : $(OBJS)
+	@echo "" 
 	$(CC) -static $(PROFILE) $(ARCHFLAGS) -o $(PROGRAM) $(OBJS) $(LIBRARY) $(LIBS)
 
 clean:
@@ -47,10 +48,12 @@ install: all
 	touch /var/state/mp3active
 	chmod a+rw /var/state/mp3active
 
+	@echo -e "\nDon't forget to cp mjsrc.EXAMPLE to ~/.mjsrc and change it as needed !!!\nYou may also read INSTALL for further instructions.\n"
+	@echo -e "(c) mvgalen 2001 mvgalen@users.sourceforge.net\n\n"
 release: dist
 
 dist: clean
-	cd ..; tar cvzf mjs-$(VERSION).tgz mjs-$(VERSION)
+	cd ..; tar cvzf mjs-$(VERSION).tar.gz mjs
 
 mostlyclean:
 	rm -f *~ core *.core *.o

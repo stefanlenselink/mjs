@@ -1,6 +1,8 @@
 mjs 3.0-rc2
  * It is now possible to type the first letters of a directory to jump
    to it.
+ * Fixed algorithm which makes sure a song is not added twice to the
+   playlist.
 mjs 3.0-rc1
  * Code cleanups
  * Minor change to config-file format (background colors)

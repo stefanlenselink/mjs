@@ -63,12 +63,11 @@ read_mp3_list(wlist *list)
 			ftmp->flags |= F_DIR;
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-			ftmp->filename = malloc(dent->d_namlen+3);
+			ftmp->filename = malloc(dent->d_namlen+2);
 #else
-			ftmp->filename = malloc(strlen(dent->d_name)+3);
+			ftmp->filename = malloc(strlen(dent->d_name)+2);
 #endif /* *BSD */
-			ftmp->filename[0]='/';
-			strcpy(ftmp->filename+1, dent->d_name);
+			strcpy(ftmp->filename, dent->d_name);
 			strcat(ftmp->filename, "/");
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         

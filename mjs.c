@@ -572,13 +572,13 @@ read_key(Window *window)
 // Jump to directory with matching first letter
 		case 'a'...'z':
 		case 'A'...'Z': {
-			if (!strncasecmp(mp3list->selected->filename+1, (char *)&c,1)) {	// At least one dirname starting with S
+			if (!strncasecmp(mp3list->selected->filename, (char *)&c,1)) {	// At least one dirname starting with S
 				do {	
 					move_selector(files, KEY_DOWN);
 					if (mp3list->selected == mp3list->tail) 
 						move_selector(files, KEY_HOME);
 					}
-				while (strncasecmp(mp3list->selected->filename+1, (char *)&c,1));
+				while (strncasecmp(mp3list->selected->filename, (char *)&c,1));
 				}
 			else {
 				move_selector(files, KEY_HOME);
@@ -591,7 +591,7 @@ read_key(Window *window)
 						break;
 						}
 					}
-				while (strncasecmp(mp3list->selected->filename+1, (char *)&c,1));
+				while (strncasecmp(mp3list->selected->filename, (char *)&c,1));
 				}
 
 			files->update(files);

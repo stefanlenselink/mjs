@@ -1,6 +1,11 @@
 mjs 2.9 :
-* Fixed segfault when zero searchresults
-* cleanup of color code
-* made bottomtext configurable
-* some more config-file options
-* added more comments to config-file
+ * Fixed segfault when zero searchresults
+ * cleanup of color code
+ * made bottomtext configurable
+ * some more config-file options
+ * added more comments to config-file
+mjs 2.9.1 (cvs) :
+ * Bottomline text is always centered
+ * Code cleanups
+ * moved bottomlinetext to menubar title.default in config file
+ * Showing of relative path in the files window possible

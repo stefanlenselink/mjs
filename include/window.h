@@ -12,7 +12,8 @@ int	 update_title(Window *);
 void	 change_active(Window *);
 int	 active_win(Window *);
 int	 inactive_win(Window *);
+int	 std_bottom_line(Window *);
+int	 clear_bottom_line(Window *);
 void	 do_scrollbar(Window *);
-int	 inactive_edit(Window *);
 
 #endif /* _window_h */

@@ -380,11 +380,17 @@ do_scrollbar(Window *window)
 		barcolor = colors[WIN_INACTIVE_SCROLLBAR];
 	}
 
-	mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | color, top);
-	mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | barcolor, bar);
-	if (bottom > 0)
-		mvwvline(win, 1 + top + bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom);
-
+	if (conf->c_flags & C_FIX_BORDERS){
+		mvwvline(win, 1, x, ACS_CKBOARD | A_ALTCHARSET | color, top);
+		mvwvline(win, 1 + top, x, ACS_CKBOARD | A_ALTCHARSET | barcolor, bar);
+		if (bottom > 0)
+			mvwvline(win, 1 + top + bar, x, ACS_CKBOARD | A_ALTCHARSET | color, bottom);
+	} else {
+		mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | color, top);
+		mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | barcolor, bar);
+		if (bottom > 0)
+			mvwvline(win, 1 + top + bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom);
+	}
 	update_panels();
 }
 

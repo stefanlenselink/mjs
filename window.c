@@ -258,11 +258,24 @@ inactive_win(Window *window)
 	return 1;
 }
 
-int
-inactive_edit(Window *window)
+int 
+clear_bottom_line(Window *window)
 {
-	/* this is kind of stupid but its how its gotta be! */
-	return hide_panel(window->panel);
+	wmove(menubar->win, 0, 0);
+	wclrtoeol(menubar->win);
+	wbkgd(menubar->win, colors[MENU_BACK]);
+	return 1;
+}
+
+int
+std_bottom_line(Window *window)
+{
+	char version_str[128];
+	int x = window->width-2;
+	clear_bottom_line(window);
+	snprintf(version_str, 128, "%s   v%s", window->title_dfl, VERSION);
+	my_mvwaddstr(menubar->win, 0, (x-strlen(version_str))/2, colors[MENU_TEXT], version_str);
+	return 1;
 }
 
 int

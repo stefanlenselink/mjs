@@ -40,7 +40,7 @@
 set mpgpath		/usr/local/bin/mpg123
 set mp3dir		/pub/mp3
 set logfile		/var/log/mp3log
-set statefile		/var/state/mp3actief
+set statefile		/var/state/mp3active
 set resultsfile		/tmp/findresults
 set playlistpath	/pub/mp3/- Playlists
 set bottomtext		MP3 Jukebox D.S.V. Nieuwe Delft - De Bolk   

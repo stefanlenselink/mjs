@@ -35,8 +35,9 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * left-arrow goes back one directory
    * right-arrow enters directory
    * alt-enter inserts selected file into playlist
-   * Pressing an letter will take you to the first directory starting with
-     that letter   
+   * Pressing a letter will take you to the first directory starting with
+     that letter, pressing another one within 750ms will take you to the
+     first directory starting with those two letters, etc.
 
 * in the playlist window is where the good stuff goes on:
    * with + and - you can move mp3's forward or backward in the playlist 

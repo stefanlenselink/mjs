@@ -21,7 +21,8 @@ pid_t pid;
 static struct sigaction handler;
 int p_status = STOPPED;
 flist *prevsel = NULL;		// previous selected number
-char typedletters[10] = "\0";	// letters previously typed when jumping
+char typed_letters[10] = "\0";	// letters previously typed when jumping
+int typed_letters_timeout = 0;		// timeout for previously typed letters
 
 /* some internal functions */
 static int	read_key(Window *);
@@ -93,6 +94,7 @@ int
 main(int argc, char *argv[])
 {
 	wlist *mp3list = NULL;
+	struct timeval wait1000 = {0, 1000000};
 	fd_set fds;
 	
 	srand(time(NULL));
@@ -230,25 +232,24 @@ main(int argc, char *argv[])
 	start_mpg_child();
 	send_cmd(LOAD, "/usr/local/share/intro.mp3");
 	for (;;) {
-		struct timeval wait1700 = {0, 1700000};
-		int timeout = 0;
 		FD_ZERO(&fds);
 		FD_SET(0, &fds);
 		add_player_descriptor(&fds);
-		if (select(FD_SETSIZE, &fds, NULL, NULL, &wait1700) > 0) {
+		if (select(FD_SETSIZE, &fds, NULL, NULL, &wait1000) > 0) {
 			if (FD_ISSET(0, &fds)){
 				active->input(active);
-				timeout = 25;
-				}
-
-			else 
+			} else 
 				check_player_output(&fds);
+		} 
+		if (wait1000.tv_usec == 0 ) {
+			wait1000.tv_usec = 250000;		
+			if (typed_letters_timeout >= 0) {
+				if (typed_letters_timeout == 0)
+					typed_letters[0] = '\0';
+				typed_letters_timeout--;
+			}
 		}
-		if (timeout >= 0) {
-			if (timeout == 0)
-				typedletters[0] = '\0';
-			timeout--;
-		}
+		
 		
 	}
 	bailout(-1);
@@ -579,36 +580,34 @@ read_key(Window *window)
 			}
 			break;
 
-// Jump to directory with matching first letter
+// Jump to directory with matching first letters
 		case 'a'...'z':
 		case 'A'...'Z':
 		case '0'...'9': {
-			if (strlen(typedletters) < 10)
-				strcat(typedletters, (char *)&c);
-			if (!strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters))) {	// At least one dirname starting with c	
-				while (strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters))){
-					move_selector(files, KEY_DOWN);
-					if (mp3list->selected == mp3list->tail) 
-						move_selector(files, KEY_HOME);
+			flist *prevselected = mp3list->selected;
+			if (strlen(typed_letters) < 10) {
+				strcat(typed_letters, (char *)&c);
+				typed_letters_timeout = 3;
+			}
+			
+			move_selector(files, KEY_HOME);
+			
+			do {	
+				move_selector(files, KEY_DOWN);
+				if (mp3list->selected == mp3list->tail) {
+					while (mp3list->selected != prevselected)
+						move_selector(files, KEY_UP);
+					files->update(files);
+					doupdate();
+					typed_letters_timeout = 0;
+					break;
 					}
-				}
-			else {
-				move_selector(files, KEY_HOME);
-				do {	
-					move_selector(files, KEY_DOWN);
-					if (mp3list->selected == mp3list->tail) {
-						move_selector(files, KEY_HOME);
-						files->update(files);
-						doupdate();
-						break;
-						}
-					}
-				while (strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters)));
-				}
+			} while (strncasecmp(mp3list->selected->filename, (char *)&typed_letters, strlen(typed_letters)));
+			
 			files->update(files);
 			doupdate();
-			}
 			break;
+		}
 		default:
 			break;
 	}

@@ -208,7 +208,14 @@ read_mp3_list_file(wlist *list, char *filename)
 			update_panels();
 			doupdate();
 			}
-		fgets(buf, 255, fp);
+		if (!fgets(buf, 255, fp)){
+			// end-of-file reached or got zero characters
+			fclose(fp);
+			free(buf);	
+			free(playlistname);
+			list->length = length;
+			return list->head;
+		}
 		lengte=strrchr(buf,'/')-buf;
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
 		if (buf=='\0')
@@ -289,6 +296,7 @@ endloop:
 		}
 	fclose(fp);
 	free(buf);
+	free(playlistname);
 	list->length = length;
 	return list->head;
 

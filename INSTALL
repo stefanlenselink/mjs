@@ -1,6 +1,25 @@
 Needed libraries:
-ncurses
-panel
+* ncurses
+* panel
+
+Needed program:
+* Patched mpg123 or mpg321
+
+So, why do I need to patch mpg123 : Because when using mpg123's
+remote interface and buffering, when you hit stop, ffw or fbw, pause
+or next/previous track, it will keep playing until it has played it's
+buffer empty before doing the wanted action.
+
+Download the patched sources from 
+http://sourceforge.net/project/showfiles.php?group_id=37569&release_id=91418
+, compile and install them.
+
+Or download the latest mpg123 (pre0.59s) from www.mpg123.de and patch it
+E.g. do patch -i <location of patch-mpg123-pre-s> in the mpg123 source
+directory.
+
+It is also possible to use mpg321, although it
+does not support buffering and webradio sounds bad.
 
 Quick installation:
 

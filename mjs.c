@@ -11,7 +11,6 @@
 #include "config.h"
 #include "inputline.h"
 #include "extern.h"
-#include "unistd.h"
 #include "list.h"
 
 /*
@@ -451,7 +450,7 @@ read_key (Window * window)
 	case '\r':
 		// File selection / directory navigation                
 		if (active == files)
-			process_return (window->contents.list, c, alt);
+			process_return (window->contents.list, alt);
 		else {
 			move_selector (window, c);
 			play->update(play);
@@ -743,12 +742,12 @@ read_key (Window * window)
 }
 
 void
-process_return (wlist * fileslist, int c, int alt)
+process_return (wlist * fileslist, int alt)
 {
 
 	if (!fileslist)
 		return;
-	wlist * playlist = play->contents.list;
+	wlist *playlist = play->contents.list;
 
 
 
@@ -844,12 +843,22 @@ update_menu (Input * inputline)
 void
 update_status (void)
 {
-	if (!play->contents.list)
+	FILE *logfile;
+	time_t timevalue;
+	wlist *list = play->contents.list;
+	if (!list)
 		return;
 
+	logfile = fopen(conf->logfile,"a");
+
 	if (p_status == STOPPED) {
+	if ((list->playing!=NULL) & (logfile!=NULL)) {
+		timevalue = time(NULL);
+		fprintf(logfile,"%.24s\t%s\n",ctime(&timevalue), list->playing->fullpath);
+		fclose(logfile);
+	}
 		clear_play_info ();
-		play_next_song (play->contents.list);
+		play_next_song (list);
 		doupdate ();
 	}
 }

@@ -12,7 +12,7 @@ LIBRARY = -L/usr/local/lib
 PROFILE = #-pg
 LIBS = -lncurses -lpanel 
 #ARCHFLAGS = -mcpu=pentium
-WARNINGS = -Wall -Wbad-function-cast -Wcast-align
+WARNINGS = -Wall -Wbad-function-cast -Wcast-align -Wshadow -W
 OPTFLAGS = -O2
 # Comment this out for debugging
 OPTFLAGS += -g3

@@ -7,6 +7,10 @@
 #include "struct.h"
 #endif
 
+#ifndef _extern_h
+#include "extern.h"
+#endif
+
 Config	*read_config(Config *);
 
 #endif /* _config_h */

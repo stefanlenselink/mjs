@@ -46,9 +46,7 @@ int
 jump_to_song(wlist *list, flist *next)
 {
 	char buf[BIG_BUFFER_SIZE+1];
-	FILE *logfile;
 	FILE *activefile;
-	time_t timevalue;
 
 	next = next_valid(list, next, KEY_DOWN);
 	
@@ -68,16 +66,10 @@ jump_to_song(wlist *list, flist *next)
 	update_title(playback);
 	doupdate();
 
-	timevalue = time(NULL);
 	activefile = fopen(conf->statefile,"w");
 	if (activefile) {
 		fprintf(activefile,"         Now playing:  %s  (by)  %s  (from)  %s    \n", list->playing->filename, list->playing->artist, list->playing->album);
 		fclose(activefile);
-	}
-	logfile = fopen(conf->logfile,"a");
-	if (logfile) {
-		fprintf(logfile,"%.24s\t%s\n",ctime(&timevalue), list->playing->fullpath);
-		fclose(logfile);
 	}
 	return 1;
 }

@@ -1,7 +1,11 @@
 CC = gcc
 prefix = /usr/local/bin
 
-INCLUDES = -Iinclude
+VERSION = 3.1-rc3
+
+OBJS = mjscount.o config_stripped.o
+
+INCLUDES = -I../include -Iinclude
 LIBRARY = -L/usr/local/lib
 PROFILE = #-pg
 LIBS =
@@ -23,8 +27,12 @@ default: all
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
-mjscount: mjscount.c 
-	$(CC) $(CFLAGS) $(INCLUDES) mjscount.c -o mjscount
+mjscount: $(OBJS)
+	$(CC) $(PROFILE) $(ARCHFLAGS) -o mjscount $(OBJS) $(LIBRARY) $(LIBS)
+
+static : $(OBJS)
+	@echo "" 
+	$(CC) -static $(PROFILE) $(ARCHFLAGS) -o mjscount $(OBJS) $(LIBRARY) $(LIBS)
 
 clean:
 	rm -f *~ *.o mjscount core *.core ktrace.out gmon.out DEADJOE
@@ -37,3 +45,6 @@ mostlyclean:
 
 # file dependencies
 
+config_stripped.o: ../include/top.h ../include/defs.h ../include/struct.h
+config_stripped.o: ../include/config.h 
+mjscount.o: ../include/top.h ../include/struct.h ../include/config.h

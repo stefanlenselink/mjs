@@ -9,7 +9,7 @@ void	bailout(int);
 int	do_search(Input *);
 int 	do_save(Input *);
 void	unsuspend(int);
-void	process_return(wlist *, int, int);
+void	process_return(wlist *, int);
 int	update_menu(Input *);
 void	update_status(void);
 void	show_playinfo(mpgreturn *);

@@ -6,8 +6,6 @@
 #endif
 
 void	init_ansi_pair(void);
-void	free_list(flist *);
-void	free_flist(flist *);
 
 int	my_waddstr(WINDOW *, u_int32_t, const u_char *);
 int	my_mvwaddstr(WINDOW *, int, int, u_int32_t, const u_char *);

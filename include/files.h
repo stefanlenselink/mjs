@@ -5,12 +5,11 @@
 #include "struct.h"
 #endif
 
-flist	*read_mp3_list(wlist *);
-wlist	*read_mp3_list_file(wlist *, char *);
+void	read_mp3_list(wlist *);
+void	read_mp3_list_file(wlist *, char *, int);
 int	write_mp3_list_file(wlist *, char *);
 wlist	*sort_songs(wlist *);
 wlist	*sort_search(wlist *);
-flist	*delete_file(flist *);
-flist	*next_valid(flist *, int);
+flist	*next_valid(wlist *, flist *, int);
 
 #endif /* _files_h */

@@ -132,6 +132,8 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_MONO;
 	else if (!strcasecmp (option, "allow_playlist_saving"))
 		conf->c_flags |= YESNO (value) * C_ALLOW_P_SAVE;
+	else if (!strcasecmp (option, "keep_playlist_at_exit"))
+		conf->c_flags |= YESNO (value) * C_P_SAVE_EXIT;
 	else if (!strcasecmp (option, "show_track_numbers"))
 		conf->c_flags |= YESNO (value) * C_TRACK_NUMBERS;
 	else if (!strcasecmp (option, "fix_window_borders"))

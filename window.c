@@ -43,7 +43,7 @@ show_list(Window *window)
 	// find the list->top entry
 	list->top=list->head;
 	if ((list->wheretop > 0) & (list->length > y)) {
-		for (i = 0; (i < list->wheretop)&&(list->top->next); i++)
+		for (i = 0; (i < list->wheretop) && (list->top->next); i++)
 			list->top = list->top->next;
 	}
 
@@ -100,12 +100,12 @@ Window *
 move_selector(Window *window, int c)
 {
 	flist *file;
-	wlist *wlist = window->contents.list;
+	wlist *list = window->contents.list;
 	int j, maxx, maxy, length;
 	
-	if (!wlist)
+	if (!list)
 		return NULL;
-	if (!wlist->selected)
+	if (!list->selected)
 		return NULL;
 	
 	getmaxyx(window->win, maxy, maxx);
@@ -116,67 +116,67 @@ move_selector(Window *window, int c)
 		case '\n':
 		case '\r':
 			if (active == play) {
-				wlist->selected->flags &= ~F_SELECTED;
-				wlist->selected = next_valid(wlist->head, KEY_HOME);
-				wlist->where = 0;
-				wlist->wheretop = 0;
+				list->selected->flags &= ~F_SELECTED;
+				list->selected = next_valid(list, list->head, KEY_HOME);
+				list->where = 0;
+				list->wheretop = 0;
 				
-				for (j = 0; wlist->selected->next && wlist->selected != wlist->playing; j++) {
-					wlist->selected = next_valid(wlist->selected->next, KEY_DOWN);
-					wlist->where++;
+				for (j = 0; list->selected->next && list->selected != list->playing; j++) {
+					list->selected = next_valid(list, list->selected->next, KEY_DOWN);
+					list->where++;
 				}
-				wlist->selected->flags |= F_SELECTED;
+				list->selected->flags |= F_SELECTED;
 				return window;
 			}
 			break;				
 		case KEY_HOME: 
-			wlist->selected->flags &= ~F_SELECTED;
-			wlist->selected = next_valid(wlist->head, c);
-			wlist->selected->flags |= F_SELECTED;
-			wlist->where = 0;
-			wlist->wheretop = 0;
+			list->selected->flags &= ~F_SELECTED;
+			list->selected = next_valid(list, list->head, c);
+			list->selected->flags |= F_SELECTED;
+			list->where = 0;
+			list->wheretop = 0;
 			return window;
 		case KEY_END: 
-			wlist->selected->flags &= ~F_SELECTED;
-			wlist->selected = next_valid(wlist->tail, c);
-			wlist->selected->flags |= F_SELECTED;
-			wlist->where = wlist->length;
+			list->selected->flags &= ~F_SELECTED;
+			list->selected = next_valid(list, list->tail, c);
+			list->selected->flags |= F_SELECTED;
+			list->where = list->length;
 			return window;
 		case KEY_DOWN:
-			if ((file = next_valid(wlist->selected->next, c))) {
-				wlist->selected->flags &= ~F_SELECTED;
+			if ((file = next_valid(list, list->selected->next, c))) {
+				list->selected->flags &= ~F_SELECTED;
 				file->flags |= F_SELECTED;
-				wlist->selected = file;
-				wlist->where++;
+				list->selected = file;
+				list->where++;
 				return window;
 			}
 			break;
 		case KEY_UP:
-			if ((file = next_valid(wlist->selected->prev, c))) {
-				wlist->selected->flags &= ~F_SELECTED;
+			if ((file = next_valid(list, list->selected->prev, c))) {
+				list->selected->flags &= ~F_SELECTED;
 				file->flags |= F_SELECTED;
-				wlist->selected = file;
-				wlist->where--;
+				list->selected = file;
+				list->where--;
 				return window;
 			}
 			break;
 		case KEY_NPAGE:
-			wlist->selected->flags &= ~F_SELECTED;
-			for (j = 0; wlist->selected->next && j < length-1; j++) {
-				wlist->selected = next_valid(wlist->selected->next, KEY_DOWN);
-				wlist->where++;
+			list->selected->flags &= ~F_SELECTED;
+			for (j = 0; list->selected->next && j < length-1; j++) {
+				list->selected = next_valid(list, list->selected->next, KEY_DOWN);
+				list->where++;
 				}
-			wlist->selected = next_valid(wlist->selected, c);
-			wlist->selected->flags |= F_SELECTED;
+			list->selected = next_valid(list, list->selected, c);
+			list->selected->flags |= F_SELECTED;
 			return window;
 		case KEY_PPAGE:
-			wlist->selected->flags &= ~F_SELECTED;
-			for (j = 0; wlist->selected->prev && j < length-1; j++) {
-				wlist->selected = next_valid(wlist->selected->prev, KEY_UP);
-				wlist->where--;
+			list->selected->flags &= ~F_SELECTED;
+			for (j = 0; list->selected->prev && j < length-1; j++) {
+				list->selected = next_valid(list, list->selected->prev, KEY_UP);
+				list->where--;
 				}
-			wlist->selected = next_valid(wlist->selected, c);
-			wlist->selected->flags |= F_SELECTED;
+			list->selected = next_valid(list, list->selected, c);
+			list->selected->flags |= F_SELECTED;
 			return window;
 		default:
 			break;

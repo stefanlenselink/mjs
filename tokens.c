@@ -10,11 +10,12 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 	int len = 0;
 	char *artist;
 	
-	if (!fmt || !file)
+	if (!(fmt) || !(file))
 		return (const char *)line;
 
 	/* check for existence of these, set default values if necessary */
-	
+	if (file == NULL)
+		abort();
 	if (file->artist)
 		artist = file->artist;
 	else

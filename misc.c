@@ -181,31 +181,4 @@ my_mvwnclear(WINDOW *win, int y, int x, int n)
 	wmove(win, y, x);
 }
 
-void
-free_list(flist *list)
-{
-	flist *ftmp;
-	
-	for (ftmp = list; ftmp; ftmp = ftmp->next) {
-		free_flist(ftmp);
-		free(ftmp->prev);
-	}
-	free(ftmp);
-}
 
-void
-free_flist(flist *file)
-{
-	if (!file)
-		return;
-	if (file->filename)
-		free(file->filename);
-	if (file->artist)
-		free(file->artist);
-	if (file->path)
-		free(file->path);
-	if (file->fullpath)
-		free(file->fullpath);
-	if (file->album)
-		free(file->album);
-}

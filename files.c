@@ -6,12 +6,13 @@
 #include "misc.h"
 #include "info.h"
 #include "extern.h"
+#include "list.h"
 
 static int	sort_mp3(const void *, const void *);
 static int	sort_mp3_search(const void *, const void *);
 static int	check_file(flist *);
 
-flist *
+void
 read_mp3_list(wlist *list)
 {
 	char *dir = NULL;
@@ -20,15 +21,14 @@ read_mp3_list(wlist *list)
 	struct stat st;
 	flist *ftmp = NULL;
 
-	list->where = 0;
-	list->wheretop = 0;
-	list->length = 0;
+	wlist_clear(list);
+
 	list->flags &= ~F_VIRTUAL;
 	dir = getcwd(NULL, 0);
 	errno = 0;
 	if (errno) {
 		my_mvwprintw(menubar->win, 0, 0, colors[MENU_TEXT], "Error with opendir(): %s", strerror(errno)); 
-		return NULL;
+		return;
 		}
 
 	if ((strncmp(dir,conf->mp3path,strlen(conf->mp3path))) && (strcmp(dir,conf->playlistpath))){
@@ -44,11 +44,7 @@ read_mp3_list(wlist *list)
 			ftmp->fullpath = strdup(conf->mp3path);
 		ftmp->path = strdup(dir);
 
-		ftmp->next = NULL;
-		ftmp->prev = NULL;
-		list->head = list->tail = ftmp;
-		
-		list->length++;
+		wlist_add(list, list->tail, ftmp);
 	}
 		
 	dptr = opendir(dir);
@@ -124,22 +120,11 @@ read_mp3_list(wlist *list)
 			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
 
 		}
-	
-		ftmp->prev = list->tail;
-		ftmp->next = NULL;
-
-		if (list->tail)
-			list->tail->next = ftmp;
-		list->tail = ftmp;
-		if (!list->head)
-			list->head = ftmp;
-		
-		list->length++;
-}
+		wlist_add(list, list->tail, ftmp);
+	}
 	closedir(dptr);
 	free(dir);
-	list->selected = list->top = list->head;
-	return list->head;
+	return;
 }
 
 int
@@ -158,8 +143,8 @@ write_mp3_list_file(wlist *list, char *filename)
 }
 
 
-wlist *
-read_mp3_list_file(wlist *list, char *filename)
+void
+read_mp3_list_file(wlist *list, char *filename, int append)
 {
 	char *buf = NULL;
 	char *file = NULL;
@@ -167,17 +152,16 @@ read_mp3_list_file(wlist *list, char *filename)
 	char *dir = NULL;
 	char * playlistname = NULL;
 	struct stat st;
-	flist *ftmp = NULL, *tail = NULL;
+	flist *ftmp = NULL;
 	int length = 0, n = 0;
 	int playlist = 0;
 	
 	errno=0;
 	if (!(fp = fopen(filename,"r")))
-		return list;
+		return;
 
 	buf = calloc(256, sizeof(char));
 
-	//length++;
 	fgets(buf, 255, fp);
 	if (!strncmp("Playlist for mjs",buf,16))
 		playlist = 1;
@@ -189,16 +173,10 @@ read_mp3_list_file(wlist *list, char *filename)
 		playlistname[strlen(filename)-length-5]='\0';
 	}
 
-	if (list) {
-		if (list->tail) 
-		// we've got an existing list, append the new entries
-			tail = list->tail;
-	} else {
-		// no existing list, make a new one
-		list = calloc(1, sizeof(wlist));
-		list->where = 0;
-		list->wheretop = 0;
-		list->length = 1;
+	if (!append | !list->head) 
+		wlist_clear(list);
+
+	if (!append) {
 		list->flags |= F_VIRTUAL;
 		ftmp = calloc(1, sizeof(flist));
 		ftmp->flags |= F_DIR;
@@ -208,13 +186,7 @@ read_mp3_list_file(wlist *list, char *filename)
 			ftmp->path = strdup(playlistname);
 		else
 			ftmp->path = strdup("Search Results");
-		ftmp->next = NULL;
-		ftmp->prev = NULL;
-		list->selected = NULL;
-		list->tail = NULL;
-		list->head = ftmp;
-		list->top = ftmp;
-		tail = ftmp;
+		wlist_add(list, list->tail, ftmp);
 	}
 			
 	while (!feof(fp)) {
@@ -229,12 +201,7 @@ read_mp3_list_file(wlist *list, char *filename)
 			fclose(fp);
 			free(buf);	
 			free(playlistname);
-			list->tail = tail;
-			if (!list->top)
-				list->top = list->head;
-			if (!list->selected)
-				list->selected = list->top;
-			return list;
+			return;
 		}
 		length=strrchr(buf,'/')-buf;
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
@@ -310,34 +277,17 @@ read_mp3_list_file(wlist *list, char *filename)
 			}
 		}
 
-		if (ftmp) {
-			ftmp->next = NULL;
-			if (tail) { // add to the tail of the existing list
-				tail->next = ftmp;
-				ftmp->prev = tail;
-				tail = ftmp;
-			} else { // the list is empty
-				ftmp->prev = NULL;
-				list->head = ftmp;
-				tail = ftmp;
-			}
-			list->length++;
-		}
+		if (ftmp) 
+			wlist_add(list, list->tail, ftmp);
 		free(file);
 		free(dir);
-		}
+	}
 	fclose(fp);
 	if (buf)
 		free(buf);
 	if (playlistname)
 		free(playlistname);
-	list->tail = tail;
-	if (!list->top)
-		list->top = list->head;
-	if (!list->selected)
-		list->selected = list->top;
-	return list;
-
+	return;
 }
 
 /* sort directories first, then files. alphabetically of course. */
@@ -436,54 +386,6 @@ sort_mp3_search(const void *a, const void *b)
 	return result;
 }
 
-flist *
-delete_file(flist *file)
-{
-	wlist *list = play->contents.list;
-	flist *fnext, *fprev, *ftmp;
-	if (!list)
-		return NULL;
-	if (!file)
-		return NULL;
-	free_flist(file);
-	list->length--;
-	if ((fnext = file->next)) {
-		// file is not the last file of the list
-		if ((fprev = file->prev)) {
-			fprev->next = fnext;
-			fnext->prev = fprev;
-		} else {
-			fnext->prev = NULL;
-			list->head = fnext;
-		}
-		// if file was selected make fnext selected
-		if (file->flags & F_SELECTED) 
-		 	fnext->flags |= F_SELECTED;
-		if (file == list->top)
-			list->top = fnext;
-	 	free(file);
-	 	ftmp = fnext;
-	} else 
-		// file is the last file of the list
-		if ((fprev = file->prev)) {
-			fprev->next = NULL;
-			list->tail = fprev;
-			list->where--;
-			if (file->flags & F_SELECTED) 
-				fprev->flags |= F_SELECTED;
-			free(file);
-			ftmp = fprev;
-		} else {
-			// no previous file, the list is empty
-			free(file);
-			list->head = list->top = list->tail = NULL;
-			list->where = 0;
-			ftmp = NULL;
-			}
-
-	return (list->selected = ftmp);
-}
-
 static int
 check_file(flist *file)
 {
@@ -498,7 +400,7 @@ check_file(flist *file)
 /* find the next valid entry in the search direction */
 
 flist *
-next_valid(flist *file, int c)
+next_valid(wlist *list, flist *file, int c)
 {
 	flist *ftmp = NULL;
 	if (!file)
@@ -509,16 +411,19 @@ next_valid(flist *file, int c)
 		case KEY_HOME:
 		case KEY_DOWN:
 		case KEY_NPAGE:
-			while (!check_file(file))
-				file = delete_file(file);
+			while (!check_file(file)) {
+				ftmp = file->next;
+				wlist_del(list, file);
+				file = next_valid(list, ftmp, c);
+			}
 			break;
 		case KEY_END:
 		case KEY_UP:
 		case KEY_PPAGE:
 			while (!check_file(file)) {
 				ftmp = file->prev;
-				delete_file(file);
-				file = ftmp;
+				wlist_del(list, file);
+				file = next_valid(list, ftmp, c);
 			}
 			break;
 	}

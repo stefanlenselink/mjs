@@ -101,8 +101,7 @@ typedef struct _config {
 	char playlistpath[256];
 	char bottomtext[256];
 	char output[256];
-//	u_int16_t c_flags;
-	unsigned char c_flags;
+	u_int16_t c_flags;
 #define C_PADVANCE 	0x0001
 #define C_FADVANCE 	0x0002
 #define C_MONO	   	0x0004
@@ -111,6 +110,7 @@ typedef struct _config {
 #define C_FIX_BORDERS	0x0020
 #define	C_ALLOW_P_SAVE	0x0040
 #define C_TRACK_NUMBERS 0x0080
+#define	C_P_SAVE_EXIT	0x0100
 	int buffer;
 	int jump;
 } Config;

@@ -7,7 +7,7 @@
 
 void	 calculate_duration(flist *);
 void	 play_next_song(void);
-void	 free_playlist(wlist *);
+//void	 free_playlist(wlist *);
 
 int	 jump_to_song(flist *);
 int	 playback_title(Window *);
@@ -19,8 +19,6 @@ wlist	*pause_player(wlist *);
 wlist	*resume_player(wlist *);
 wlist	*jump_forward(wlist *);
 wlist	*jump_backward(wlist *);
-wlist	*move_backward(wlist *);
-wlist	*move_forward(wlist *);
 wlist	*randomize_list(wlist *);
 wlist	*read_playlist(wlist *, const char *);
 

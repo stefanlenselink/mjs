@@ -2,12 +2,12 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 3.0-rc5
+VERSION = 3.1-rc1
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
-	tokens.c window.c files.c
+	tokens.c window.c files.c list.c
 OBJS =	mjs.o misc.o info.o config.o playlist.o inputline.o mpgcontrol.o \
-	tokens.o window.o files.o
+	tokens.o window.o files.o list.o
 INCLUDES = -Iinclude
 LIBRARY = -L/usr/local/lib
 PROFILE = #-pg
@@ -70,6 +70,7 @@ config.o: include/top.h include/defs.h include/colors.h include/struct.h
 config.o: include/config.h include/extern.h
 files.o: include/top.h include/defs.h include/colors.h include/struct.h
 files.o: include/files.h include/misc.h include/info.h include/extern.h
+files.o: include/list.h
 info.o: include/top.h include/defs.h include/struct.h include/info.h
 info.o: include/misc.h include/window.h include/extern.h
 inputline.o: include/top.h include/defs.h include/struct.h
@@ -85,8 +86,10 @@ mpgcontrol.o: include/window.h include/mjs.h include/playlist.h
 mpgcontrol.o: include/extern.h
 playlist.o: include/top.h include/mpgcontrol.h include/misc.h
 playlist.o: include/window.h include/mjs.h include/extern.h
+playlist.o: include/list.h include/files.h
 tokens.o: include/top.h include/defs.h include/struct.h include/tokens.h
 tokens.o: include/extern.h
 window.o: include/top.h include/defs.h include/colors.h include/struct.h
 window.o: include/window.h include/misc.h include/tokens.h include/files.h
 window.o: include/extern.h
+list.o: include/top.h include/defs.h include/struct.h include/misc.h

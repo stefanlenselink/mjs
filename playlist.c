@@ -5,10 +5,11 @@
 #include "files.h"
 #include "mpgcontrol.h"
 #include "misc.h"
+#include "list.h"
 #include "window.h"
 #include "mjs.h"
 #include "extern.h"
-#include "time.h"
+//#include <time.h>
 
 void
 play_next_song(void)
@@ -73,61 +74,6 @@ jump_backward(wlist *playlist)
 	return playlist;
 }
 
-wlist *
-move_backward(wlist *playlist)
-{
-	flist *f1,*f2,*f3,*f4;
-
-	f3 = playlist->selected;
-	f2 = f3->prev;
-	f1 = f2->prev;
-	f4 = f3->next;
-
-	f3->prev = f1;
-	if (f1) 
-		f1->next = f3;
-	else {
-		playlist->head = f3;
-		playlist->top = f3;
-	}
-	f3->next = f2;
-	f2->prev = f3;
-	f2->next = f4;
-	if (f4)
-		f4->prev = f2;
-	else 
-		playlist->tail = f2;
-	playlist->where--;
-	return playlist;
-}
-
-wlist *
-move_forward(wlist *playlist)
-{
-	flist *f1,*f2,*f3,*f4;
-
-	f2 = playlist->selected;
-	f3 = f2->next;
-	f1 = f2->prev;
-	f4 = f3->next;
-
-	if (f1)
-		f1->next = f3;
-	else {
-		playlist->head = f3;
-		playlist->top = f3;
-	}
-	f3->prev = f1;
-	f3->next = f2;
-	f2->prev = f3;
-	f2->next = f4;
-	if (f4)
-		f4->prev = f2;
-	else	
-		playlist->tail = f2;
-	playlist->where++;
-	return playlist;
-}
 
 int
 jump_to_song(flist *selected)
@@ -139,7 +85,7 @@ jump_to_song(flist *selected)
 	FILE *activefile;
 	time_t timevalue;
 
-	selected = next_valid(selected, KEY_DOWN);
+	selected = next_valid(playlist, selected, KEY_DOWN);
 	
 	if (!playlist || !selected)
 		return 0;
@@ -305,8 +251,7 @@ add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
 	templist = calloc(1, sizeof(wlist));
 	prevpwd = getcwd(NULL, 0);
 	chdir(file->fullpath);
-	memset(templist, 0, sizeof(wlist));
-	templist->head = read_mp3_list(templist);
+	read_mp3_list(templist);
 	if (templist->head)
 		sort_songs(templist);
 	templist->selected = templist->head->next; // skip ../ entry
@@ -316,9 +261,9 @@ add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
 		else if (!(templist->selected->flags & F_PLAYLIST))
 			add_to_playlist(playlist, playlist->tail, templist->selected);
 		
-		templist->selected = next_valid(templist->selected->next, KEY_DOWN);
+		templist->selected = next_valid(templist, templist->selected->next, KEY_DOWN);
 	}
-	free_list(templist->head);
+	wlist_clear(templist);
 	free(templist);
 	chdir(prevpwd);
 	free(prevpwd);
@@ -328,14 +273,8 @@ add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
 void
 add_to_playlist(wlist *playlist, flist *position, flist *file)
 {
-	flist *newfile, *head = NULL, *tail = NULL;
+	flist *newfile;
 	
-	if (position) {
-		head = position;
-		tail = position->next;
-	}
-	
-	/* either create a new playlist, or grab the tail */
 	newfile = calloc(1, sizeof(flist));
 	
 	/* remove tracknumber if it exists and user wants it*/
@@ -363,33 +302,8 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	if (file->artist)
 		newfile->artist = strdup(file->artist);
 
-	if (head) {
-		head->next = newfile;
-		newfile->prev = head;
-	} else {
-		newfile->prev = NULL;
-		playlist->length = 0;
-		playlist->wheretop = 0;
-		playlist->where = 0;
-		playlist->head = playlist->top = newfile;
-	}
+	wlist_add(playlist, position, newfile); 
 
-	if (tail) {
-		newfile->next = tail;
-		tail->prev = newfile;
-	}
-	else {
-		newfile->next = NULL;
-		playlist->tail = newfile;
-	}
-
-	if (!playlist->selected) {
-		playlist->selected = newfile;
-		newfile->flags |= F_SELECTED;
-		playlist->where = 0;
-		playlist->wheretop = 0;
-	}
-	playlist->length++;
 	if (conf->c_flags & C_PADVANCE) {
 		playlist->selected->flags &= ~F_SELECTED; /* could be a wasted dupe */
 		playlist->selected = newfile;
@@ -400,17 +314,4 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	return;
 }
 
-void
-free_playlist(wlist *playlist)
-{
-	flist *ftmp;
-	
-	if (!playlist)
-		return;
-	for (ftmp = playlist->head; ftmp; ftmp = ftmp->next) {
-		free_flist(ftmp);
-		free(ftmp->prev);
-	}
-	free(ftmp);
-	memset(playlist, 0, sizeof(playlist));
-}
+

@@ -12,6 +12,7 @@
 #include "inputline.h"
 #include "extern.h"
 #include "unistd.h"
+#include "list.h"
 
 /*
  * intialize the external variables 
@@ -39,6 +40,7 @@ do_save (Input * input)
 	active = old_active;
 	sprintf (s, "%s/%s.mjs", conf->playlistpath, input->buf);
 	write_mp3_list_file (play->contents.list, s);
+	free (s);
 	free (input);
 	menubar->activate (menubar);
 	menubar->inputline = NULL;
@@ -76,9 +78,7 @@ do_search (Input * input)
 		handler.sa_handler = (SIGHANDLER) restart_mpg_child;
 		handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
 		sigaction (SIGCHLD, &handler, NULL);
-		free_list (mp3list->head);
-		free (mp3list);
-		mp3list = read_mp3_list_file (NULL, conf->resultsfile);
+		read_mp3_list_file (mp3list, conf->resultsfile, 0);
 		if (mp3list->head)
 			sort_search (mp3list);
 		files->update (files);
@@ -238,6 +238,19 @@ main (int argc, char *argv[])
 	wbkgd (play->win, colors[PLAY_WINDOW]);
 	wbkgd (menubar->win, colors[MENU_WINDOW]);
 	wbkgd (playback->win, colors[PLAYBACK_WINDOW]);
+
+	files->contents.list = mp3list = (wlist *) calloc (1, sizeof (wlist));
+	read_mp3_list (mp3list);
+	sort_songs (mp3list);
+	info->contents.play = NULL;
+	play->contents.list = (wlist *) calloc (1, sizeof (wlist));
+
+	if (conf->c_flags & C_P_SAVE_EXIT){
+		read_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs", 1);
+		if (play->contents.list->selected)
+			play->contents.list->selected->flags |= F_SELECTED;
+	}
+
 	menubar->activate (menubar);
 	init_info ();
 	play->deactivate (play);
@@ -246,12 +259,7 @@ main (int argc, char *argv[])
 	active->activate (active);
 	playback->deactivate (playback);
 
-	files->contents.list = mp3list = (wlist *) calloc (1, sizeof (wlist));
-	mp3list->head = read_mp3_list (mp3list);
-	sort_songs (mp3list);
-	play->contents.list = (wlist *) calloc (1, sizeof (wlist));
-	info->contents.play = NULL;
-
+	play->update(play);
 	files->update (files);
 	update_info (files);
 
@@ -291,9 +299,10 @@ bailout (int sig)
 	wclear (stdscr);
 	refresh ();
 	endwin ();
-	free_playlist (play->contents.list);
+
+	wlist_clear (play->contents.list);
 	free (play->contents.list);
-	free_list (files->contents.list->head);
+	wlist_clear (files->contents.list);
 	free (files->contents.list);
 
 	free (info);
@@ -391,8 +400,7 @@ read_key (Window * window)
 
 	case '-':
 		// Move selected forward in playlist                    
-		if ((active == play)
-		    && (!(play->contents.list->selected == play->contents.list->head))) {
+		if ((active == play) && !(play->contents.list->selected == play->contents.list->head)) {
 			move_backward (play->contents.list);
 			play->update (play);
 		}
@@ -401,8 +409,7 @@ read_key (Window * window)
 	case '+':
 	case '=':
 		// Move selected backwards in playlist                  
-		if ((active == play)
-		    && !(play->contents.list->selected == play->contents.list->tail) && (p_status == PLAYING)) {
+		if ((active == play) && !(play->contents.list->selected == play->contents.list->tail)) {
 			move_forward (play->contents.list);
 			play->update (play);
 		}
@@ -461,16 +468,17 @@ read_key (Window * window)
 				}
 				chdir ("../");
 			}
-			free_list (mp3list->head);
-			memset (mp3list, 0, sizeof (wlist));
-			mp3list->head = read_mp3_list (mp3list);
+			
+			read_mp3_list (mp3list);
 			if (mp3list->head)
 				sort_songs (mp3list);
+			
 			if (prevpwd) {
 				while (strcmp (mp3list->selected->fullpath, prevpwd))
 					move_selector (files, KEY_DOWN);
 				free (prevpwd);
 			}
+			
 			files->update (files);
 			play->update (play);
 		}
@@ -482,13 +490,13 @@ read_key (Window * window)
 			if (!(mp3list->selected->flags & F_DIR))
 				break;
 			chdir (mp3list->selected->fullpath);
-			free_list (mp3list->head);
-			memset (mp3list, 0, sizeof (wlist));
-			mp3list->head = read_mp3_list (mp3list);
+
+			read_mp3_list (mp3list);
 			if (mp3list->head) {
 				sort_songs (mp3list);
 				move_selector (files, KEY_DOWN);
 			}
+			
 			files->update (files);
 			play->update (play);
 		}
@@ -503,7 +511,8 @@ read_key (Window * window)
 				jump_forward (play->contents.list);
 				play->update (play);
 			}
-			playlist->selected = delete_file (playlist->selected);
+			//playlist->selected = delete_file (playlist->selected);
+			wlist_del(playlist, playlist->selected);
 			info->update (play);
 			play->update (play);
 		}
@@ -539,8 +548,9 @@ read_key (Window * window)
 				stop_player (play->contents.list);
 				clear_play_info ();
 			}
-			free_playlist (play->contents.list);
-			play->contents.list = (wlist *) calloc (1, sizeof (wlist));
+
+			wlist_clear(play->contents.list);
+
 			play->update (play);
 			clear_info ();
 			info->update (info);
@@ -574,9 +584,7 @@ read_key (Window * window)
 		// Show last search results
 		menubar->deactivate (menubar);
 		printf_menubar (menubar, SEARCHING);
-		free_list (mp3list->head);
-		free (mp3list);
-		mp3list = read_mp3_list_file (NULL, conf->resultsfile);
+		read_mp3_list_file (mp3list, conf->resultsfile, 0);
 		if (mp3list->head)
 			sort_search (mp3list);
 		menubar->activate (menubar);
@@ -639,7 +647,7 @@ read_key (Window * window)
 		case STOPPED:
 			// fix me 
 			if (!play->contents.list->selected)
-				play->contents.list->selected = next_valid (play->contents.list->top, KEY_DOWN);
+				play->contents.list->selected = next_valid (play->contents.list, play->contents.list->top, KEY_DOWN);
 			jump_to_song (play->contents.list->selected);	// Play 
 			break;
 		case PLAYING:
@@ -734,9 +742,7 @@ process_return (wlist * mp3list, int c, int alt)
 				prevpwd = getcwd (NULL, 0);
 
 			chdir (mp3list->selected->fullpath);
-			free_list (mp3list->head);
-			memset (mp3list, 0, sizeof (wlist));
-			mp3list->head = read_mp3_list (mp3list);
+			read_mp3_list (mp3list);
 			if (mp3list->head)
 				sort_songs (mp3list);
 			if (prevpwd) {
@@ -759,13 +765,10 @@ process_return (wlist * mp3list, int c, int alt)
 		printf_menubar (menubar, READING);
 		if ((alt > 0) ^ ((conf->c_flags & C_P_TO_F) > 0))	// load playlist directly with alt-enter
 		{
-			free_list (mp3list->head);
-			free (mp3list);
-			mp3list = read_mp3_list_file (NULL, filename);
-			mp3list->selected->flags |= F_SELECTED;
+			read_mp3_list_file (mp3list, filename, 0);
 			files->update (files);
 		} else {
-			play->contents.list = read_mp3_list_file (play->contents.list, filename);
+			read_mp3_list_file (play->contents.list, filename, 1);
 			play->contents.list->selected->flags |= F_SELECTED;
 			play->update (play);
 		}
@@ -789,6 +792,10 @@ process_return (wlist * mp3list, int c, int alt)
 			if (info->update (move_selector (files, KEY_DOWN)))
 				files->update (files);
 	}
+	if (((conf->c_flags & C_P_SAVE_EXIT) > 0) & (play->contents.list->head != NULL)){
+		write_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs");
+	}
+
 }
 
 void

@@ -7,57 +7,36 @@ child process. It goes berzerk if you orphan it.
 
 Customization:
 
-Thanks to Trent Gamblin, you now have the option of an MMS rc file. Either
+Thanks to Trent Gamblin, you have the option of an MMS rc file. Either
 create your own .mmsrc or set the env variable MMSRC. An example
-configuration file is provided, see "mmsrc".
-
-Mouse Support (Linux only):
-
-Also contributed by Trent Gamblin, support for GPM. I assume it works, I
-haven't checked it out in Linux yet. I'll work in mouse support for FreeBSD
-soon.
+configuration file is provided, see "mmsrc.EXAMPLE".
 
 Navigation:
 
 TAB cycles between active windows.
 ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
-Pressing 'q' will quit.
-F1 or 'l' will allow you to load a playlist. It overwrites the current playlist.
-F2 will save the current playlist to a file.
- * in ALL windows:
-   * 'f' OR the right arrow key will advance one song
-   * 'b' OR the left arrow key will go back one song
-   * 's' will stop the player
-   * 'p' will pause the player
-   * '+' will jump forward 1000 frames
-   * '-' will jump backward 1000 frames
- * in the files window or playlist window:
-   * 'e' will edit the ID3 tag of the selected mp3
- * in the files window:
-   * return is your friend. it adds files to the playlist and changes
-     directories.
-   * 'r' will rescan the current dir.
- * in the info window:
-   * 'r' will randomize the playlist.
- * in the playlist window is where the good stuff goes on:
-   * press enter on a song to play that one. when it finishes, the player
-     will advance to the next one until it comes to the end or encounters
-     an error in one of the mp3s (or mpg123 dies :)
-   * DEL will remove a song from the playlist (unless it is playing!)
-   * 'r' will randomize the playlist
- * in the ID3 edit window, up/down will move to the prev/next field. Input
-   WILL BE TRUNCATED to the proper size immediately when you leave the
-   field. No mouse support for anything in here... (Sorry, no Linux... 
-   Trent? =)) Just press <cr> through all the fields and whammo, it will be
-   saved. You have to rescan the dir with 'r' for it to update though (fixed
-   next release, I promise!)
 
-Mouse:
- * left clicking on an mp3 in the files or playlist window will select it.
-   if in the files window, left clicking again will add it to the playlist.
-   if in the playlist window, left clicking again will play it.
- * left clicking the '<' and '>' arrows will move the selection bar up and
-   down.
- * right clicking an mp3 in the playlist deletes it from the playlist.
- * left clicking above or below a scroll bar will scroll the list by one
-   page. right clicking will go to the beginning or end of the list.
+* in ALL windows:
+   * 'F1' reset mp3-jukebox
+   * 'F2' will clear the playlist after confirmation
+   * 'F3' lets you search files
+   * 'F4' shows your last search results
+   * 'F5' will randomize the playlist
+   * 'F7' will stop the player
+   * 'F8' will pause the player
+   * 'F9' will go back one song
+   * 'F10' will fast rewind
+   * 'F11' will fast forward
+   * 'F12' will advance one song
+
+ * in the files window:
+   * return adds files to the playlist and changes directory.
+   * left-arrow goes back one directory
+   * right-arrow enters directory
+   * alt-enter inserts selected file into playlist
+   * Pressing an letter will take you to the first directory starting with
+     that letter   
+* in the playlist window is where the good stuff goes on:
+   * with + and - you can move mp3's forward or backward in the playlist 
+   * DEL will remove a song from the playlist (unless it is playing!)
+

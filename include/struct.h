@@ -5,6 +5,11 @@
 #include "defs.h"
 #endif  /* _defs_h */
 
+#define STOPPED 0
+#define PLAYING 1
+#define PAUSED 2
+
+
 typedef struct {
 	char tag[3];
 	char title[30];
@@ -58,20 +63,22 @@ typedef struct {
 
 typedef struct _flist {
 	unsigned short flags;
-#define F_DIR      0x01
-#define F_PLAY     0x02
-#define F_SELECTED 0x04
-#define F_PAUSED   0x08
+#define F_DIR      	0x01
+#define F_PLAY     	0x02
+#define F_SELECTED 	0x04
+#define F_PAUSED   	0x08
+#define F_SEARCHDIR	0x10	
+#define F_PLAYLIST	0x20
 	short bitrate;
 	int frequency;
 	int where;
 	u_int32_t colors;
 	time_t length;
-	char *genre;
+	char *album;
 	char *filename;
 	char *path;
 	char *fullpath;
-	char *title;
+//	char *title;
 	char *artist;
 	struct _flist *next;
 	struct _flist *prev;
@@ -84,7 +91,9 @@ typedef struct {
 	flist *selected;                   /* currently selected file              */
 	flist *playing;                    /* currently PLAYING file               */
 	int length;                        /* length of the list we are tracking   */
-	int where;                         /* what position in the list are we?    */
+	int where;			   /* what position in the list are we?    */
+	int wheretop;			   /* at what position is the top */
+	time_t duration;
 } wlist;
 
 typedef struct _input {
@@ -138,13 +147,21 @@ typedef struct _win {
 
 typedef struct _config {
 	char mpgpath[256];
-	char dfl_plist[256];
+	char mp3path[256];
+	char statefile[256];
+	char logfile[256];
+	char resultsfile[256];
+	char playlistpath[256];
+	char bottomtext[256];
 	u_int16_t c_flags;
-#define C_PADVANCE 0x01
-#define C_FADVANCE 0x02
-#define C_SKIPINFO 0x04
-#define C_LOOP     0x08
-#define C_NUKE     0x10
+#define C_PADVANCE 	0x01
+#define C_FADVANCE 	0x02
+#define C_LOOP     	0x08
+#define C_P_TO_F 	0x10
+#define C_MONO	   	0x04
+#define C_SHOW_P_LENGTH	0x20
+#define C_ALT_SCROLL	0x40
+#define	C_ALLOW_P_SAVE	0x80
 	int buffer;
 	int jump;
 } Config;

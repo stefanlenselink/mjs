@@ -5,18 +5,18 @@
 #include "extern.h"
 
 const char *
-parse_tokens(flist *file, char *line, int size, const char *fmt)
+parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 {
 	int len = 0;
-	char *title, *artist, *genre;
+	char *title, *artist;
 	
 	if (!fmt || !file)
 		return (const char *)line;
 
 	/* check for existence of these, set default values if necessary */
-	if (file->title)
-		title = file->title;
-	else
+//	if (file->title)
+//		title = file->title;
+//	else
 		title = file->filename;
 	
 	if (file->artist)
@@ -24,13 +24,10 @@ parse_tokens(flist *file, char *line, int size, const char *fmt)
 	else
 		artist = "Unknown";
 	
-	if (file->genre)
-		genre = file->genre;
-	else
-		genre = Genres[255];
-
 	while (*fmt && (len < size)) {
 		if (*fmt == '%') {
+			int min;
+			double sec;
 			switch(*++fmt) {
 				case 't':   /* the song title */
 					strncat(line, title, size-len);
@@ -62,11 +59,9 @@ parse_tokens(flist *file, char *line, int size, const char *fmt)
 					len += snprintf(line+len, size-len, "%ld", file->length);				
 					break;
 				case 'T':   /* time in format [%m:%s] */
-					len += snprintf(line+len, size-len, "[%ld:%ld]", file->length / 60, file->length % 60);
-					break;
-				case 'g':   /* genre */
-					strncat(line, genre, size-len);
-					len += strlen(genre);
+					min = file->length / 60;
+					sec = (double)file->length - min * 60;
+					len += snprintf(line+len, size-len, "[%02d:%02.0f]", min, sec);
 					break;
 				case '%':
 					line[len++] = '%';

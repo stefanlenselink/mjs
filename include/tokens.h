@@ -5,6 +5,6 @@
 #include "struct.h"
 #endif
 
-const	char *parse_tokens(flist *, char *, int, const char *);
+const	char *parse_tokens(Window *, flist*, char *, int, const char *);
 
 #endif /* _tokens_h */

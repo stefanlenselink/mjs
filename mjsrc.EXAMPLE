@@ -2,10 +2,30 @@
 
 #
 # mpgpath: path to mpg123
-# playlist: path to default playlist to load
+
+# mp3dir: path to the base mp3 directory
+
+# logfile: path to the file in which to save played mp3 titles
+
+# statefile: path to the file in which to save te playing mp3 title
+
+# resultsfile: path to the file we grab our searchresults from
+
+# playlistpath: path to the directory where we save our playlists
+
+# bottom_text: Text to show on the bottomline
+
 # playlist_advance: advance the playlist selection after adding a file?
+
 # file_advance: advance the file selection after selecting a file?
-# skip_info_box: skip the info box when tabbing through windows?
+
+# mono_output: Let mpg123 produce single channel (mono) output only.
+# show_playlist_length: Let mpg123 show not only the remaining time per
+# track but also to the end of the playlist (not really accurate yet)
+
+# alternative_scrolling: move the list instead of the selector
+
+# allow_playlist_saving: Allow saving of the playlist to a file
 
 # buffer: size of the buffer mpg123 uses (integer, in kb)
 # NOTE -- When using the buffer, mpg123 spawns a child process to buffer
@@ -14,20 +34,28 @@
 # off any orphan mpg123's because they go berserk on your cpu.
 
 # jump: how many frames to jump with +/-
+
 # loop: loop over the playlist when we get to the end?
-# nuke_spaces: save id3 tags with space padding (false) or null padding (true)
-# According to the 'id3' standard I have found they are SUPPOSED to be null!
-# up yours, whatever pascal coders decided to space pad them!!!!!
+ 
+
 
 set mpgpath		/usr/local/bin/mpg123
-#set playlist		my_playlist
-set buffer		0
-set jump		1000
-set playlist_advance	false
-set file_advance	true
-set skip_info_box	true
-set loop		true
-set nuke_spaces		true
+set mp3dir		/pub/mp3
+set logfile		/var/log/mp3log
+set statefile		/var/state/mp3actief
+set resultsfile		/tmp/findresults
+set playlistpath	/pub/mp3/- Playlists
+set bottomtext		MP3 Jukebox D.S.V. Nieuwe Delft - De Bolk   
+set buffer		4000
+set jump		100
+set playlist_advance		false
+set file_advance		true
+set loop			false
+set playlists_to_files		false
+set mono_output			false
+set show_playlist_length 	true
+set alternative_scrolling	false
+set allow_playlist_saving	true
 
 #
 # Colors
@@ -37,25 +65,26 @@ set nuke_spaces		true
 # Foreground colors can, in addition to above, be:
 #     b_black, b_red, b_green, yellow, b_blue, b_magenta, b_cyan, white
 #
-
-color active		b_green:blue
-color inactive		yellow:blue
-color selected		yellow:red
-color unselected	white:blue
-color title		white:green
-color scroll		yellow:blue
-color scroll_bar	yellow:blue
-color playing		b_cyan:blue
-color sel_playing	b_cyan:red
-color file_back		black:blue
-color info_back		black:blue
-color play_back		black:blue
-color menu_back		black:blue
-color menu_text		b_red:blue
-color arrows		yellow:blue
-color edit_back		yellow:blue
-color edit_active	white:black
-color edit_inactive	yellow:blue
+color active            white:black
+color inactive 		grey:black
+color selected          b_black:grey
+color unselected	white:black
+color directory		grey:black
+color title		white:black
+color scroll            white:black
+color scroll_bar	grey:black
+color playlist		grey:black
+color playing           white:black
+color sel_playing	white:grey
+color file_back         black:black
+color info_back  	black:black
+color play_back		black:black
+color menu_back         white:grey 
+color menu_text		white:grey
+color arrows            yellow:blue
+color edit_back         yellow:blue
+color edit_active       white:black
+color edit_inactive     yellow:blue
 # not used, yet
 color edit_prompt	white:blue
 
@@ -88,30 +117,30 @@ color edit_prompt	white:blue
 
 # file selection window
 files height	h-1
-files width	w/4
+files width	w/2
 files y		0
 files x		0
-files format	%f
+files format	%t
 files title.default MP3  Files
 # info window
-info height	6
+info height	5
 info width	0
-info y		0
-info x		w/4
+info y		3
+info x		w/2
 info title.default MP3 Info
 # playlist window
-play height	h-10
+play height	h-8
 play width	0
-play y		9
-play x		w/4
-play format	%a - %t
+play y		7
+play x		w/2
+play format	%t %T
 play title.default Playlist
-play title.format Playlist - %f
+play title.format Playlist
 # the playback window
 playback height	3
 playback width	0
-playback y	6
-playback x	w/4
+playback y	0
+playback x	w/2
 playback title.default Playback Info
 playback title.format %t
 # "menubar"

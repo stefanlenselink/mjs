@@ -14,32 +14,76 @@ static u_char	*parse_title(Window *, u_char *, int);
 int
 show_list(Window *window)
 {
-	int x = window->width-4, y = window->height-1, i;
+	int top, x = window->width-4, y = window->height-1, i;
 	u_char buf[BUFFER_SIZE+1];
 	const u_char *line;
 	WINDOW *win = window->win;
 	flist *ftmp;
+	wlist *list = window->contents.list;
 
-	if (!window->contents.list)
+	if (!list)
 		return 0;
-	ftmp = window->contents.list->top;
+	top = list->where - (y/2);
+	list->top=list->head;
 
-	for (i = 1; i < y; i++) {
+	if (!(conf->c_flags & C_ALT_SCROLL)) {
+		if (list->where-3 == list->wheretop)
+			list->wheretop-=1;
+		else if ((list->where+4) == list->wheretop+y-1)
+				if ((list->wheretop+=1)>list->length)
+					list->wheretop=list->length;
+		if (list->where-3 < list->wheretop)
+			list->wheretop = list->where-((y-1)/2);
+		else if (list->where > list->wheretop + y-5)
+			list->wheretop = list->where-((y-1)/2);
+		top = list->wheretop-1;
+	}
+	if ((top>0)&(list->length > (y-1))) {
+		for (i = 0; i < top; i++)
+			list->top = list->top->next;
+	}
+
+	ftmp = list->top;
+
+	for (i = 1; i < y; i++)
 		if (ftmp && *ftmp->filename) {
 			if (window->format) {
 				memset(buf, 0, sizeof(buf));
-				line = parse_tokens(ftmp, buf, BUFFER_SIZE, window->format);
-			} else {
+				line = parse_tokens(window,ftmp, buf, BUFFER_SIZE, window->format);
+				} 
+			else 	
 				line = ftmp->filename;
-			}
 			if ((window->flags & W_ACTIVE) && (ftmp->flags & F_PAUSED))
 				my_mvwnaddstr(win, i, 2, ftmp->colors | A_BLINK, x, line);
-			else
+			else {
+				if (window==play)
+					if (ftmp->flags & F_PLAY)
+						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+							ftmp->colors = colors[SEL_PLAYING];
+						else
+							ftmp->colors = colors[PLAYING];
+					else			
+						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+							ftmp->colors = colors[SELECTED];
+						else
+							ftmp->colors = colors[PLAYLIST];
+				else	
+					if (ftmp->flags & (F_SEARCHDIR | F_DIR))
+						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+							ftmp->colors = colors[SELECTED];
+						else
+							ftmp->colors = colors[DIRECTORY];
+					else
+						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+							ftmp->colors = colors[SELECTED];
+						else 	
+							ftmp->colors = colors[UNSELECTED];
 				my_mvwnaddstr(win, i, 2, ftmp->colors, x, line);
+				}
 			ftmp = ftmp->next;
-		} else /* blank the line */
+			} 
+		else /* blank the line */
 			my_mvwnaddstr(win, i, 2, colors[FILE_BACK], x, "");
-	}
 	if (active->flags & W_LIST)
 		do_scrollbar(active);
 	update_title(window);
@@ -50,140 +94,69 @@ show_list(Window *window)
 Window *
 move_selector(Window *window, int c)
 {
-	flist *ftmp, *file, *list;
+	flist *file;
 	wlist *wlist = window->contents.list;
-	int i, j, maxx, maxy, length;
+	int j, maxx, maxy, length;
 	
 	if (!wlist)
 		return NULL;
 	
 	getmaxyx(window->win, maxy, maxx);
 	length = maxy - 2;
-	maxy -= 3;
 
-	/* check these two cases here because we can avoid the for() loop below */
-	if (c == KEY_HOME) {
-		wlist->selected->flags &= ~F_SELECTED;
-		if (wlist->selected->flags & F_PLAY)
-			wlist->selected->colors = colors[PLAYING];
-		else
-			wlist->selected->colors = colors[UNSELECTED];
-		wlist->top = wlist->selected = next_valid(window, wlist->head, c);
-		wlist->selected->flags |= F_SELECTED;
-		if (wlist->selected->flags & F_PLAY)
-			wlist->selected->colors = colors[SEL_PLAYING];
-		else
-			wlist->selected->colors = colors[SELECTED];
-		wlist->where = 1;
-		return window;
-	} else if (c == KEY_END) {
-		wlist->selected->flags &= ~F_SELECTED;
-		if (wlist->selected->flags & F_PLAY)
-			wlist->selected->colors = colors[PLAYING];
-		else
-			wlist->selected->colors = colors[UNSELECTED];
-		wlist->selected = next_valid(window, wlist->tail, c);
-		wlist->selected->flags |= F_SELECTED;
-		if (wlist->selected->flags & F_PLAY)
-			wlist->selected->colors = colors[SEL_PLAYING];
-		else
-			wlist->selected->colors = colors[SELECTED];
-		wlist->where = wlist->length;
-		if (length < wlist->length) {
-			for (i = 1, ftmp = wlist->tail; ftmp && (i < length); i++)
-				ftmp = ftmp->prev;
-			wlist->top = ftmp;
-		} else
-			wlist->top = wlist->head;
-		return window;
-	}
-	ftmp = list = wlist->top;
-	/* count the distance from the top to selected... only a few loops */
-	for (i = 0; ftmp && !(ftmp->flags & F_SELECTED) && (i < maxy); i++)
-		ftmp = ftmp->next;
-	if (!ftmp)
+	if (!wlist->selected)
 		return NULL;
 	switch (c) {
+		case KEY_HOME: 
+			wlist->selected->flags &= ~F_SELECTED;
+			wlist->selected = next_valid(window, wlist->head, c);
+			wlist->selected->flags |= F_SELECTED;
+			wlist->where = 1;
+		wlist->wheretop = 1;
+			return window;
+		case KEY_END: 
+			wlist->selected->flags &= ~F_SELECTED;
+			wlist->selected = next_valid(window, wlist->tail, c);
+			wlist->selected->flags |= F_SELECTED;
+			wlist->where = wlist->length;
+			return window;
 		case KEY_DOWN:
-			if ((file = next_valid(window, ftmp->next, c))) {
-				ftmp->flags &= ~F_SELECTED;
-				if (ftmp->flags & F_PLAY)
-					ftmp->colors = colors[PLAYING];
-				else
-					ftmp->colors = colors[UNSELECTED];
+			if ((file = next_valid(window, wlist->selected->next, c))) {
+				wlist->selected->flags &= ~F_SELECTED;
 				file->flags |= F_SELECTED;
-				if (file->flags & F_PLAY)
-					file->colors = colors[SEL_PLAYING];
-				else
-					file->colors = colors[SELECTED];
 				wlist->selected = file;
 				wlist->where++;
-				if (i == maxy)
-					wlist->top = list->next;
 				return window;
 			}
 			break;
 		case KEY_UP:
-			if ((file = next_valid(window, ftmp->prev, c))) {
-				ftmp->flags &= ~F_SELECTED;
-				if (ftmp->flags & F_PLAY)
-					ftmp->colors = colors[PLAYING];
-				else
-					ftmp->colors = colors[UNSELECTED];
+			if ((file = next_valid(window, wlist->selected->prev, c))) {
+				wlist->selected->flags &= ~F_SELECTED;
 				file->flags |= F_SELECTED;
-				if (file->flags & F_PLAY)
-					file->colors = colors[SEL_PLAYING];
-				else
-					file->colors = colors[SELECTED];
 				wlist->selected = file;
 				wlist->where--;
-				if (i == 0)
-					wlist->top = list->prev;
 				return window;
 			}
 			break;
 		case KEY_NPAGE:
-			ftmp->flags &= ~F_SELECTED;
-			if (ftmp->flags & F_PLAY)
-				ftmp->colors = colors[PLAYING];
-			else
-				ftmp->colors = colors[UNSELECTED];
-			for (j = 0; ftmp->next && j < length; j++) {
-				ftmp = ftmp->next;
+			wlist->selected->flags &= ~F_SELECTED;
+			for (j = 0; wlist->selected->next && j < length-1; j++) {
+				wlist->selected = wlist->selected->next;
 				wlist->where++;
-			}
-			ftmp = next_valid(window, ftmp, c);
-			if (i+j > maxy)
-				for (i = 0; i < j; i++)
-					list = list->next;
-			wlist->top = list;
-			wlist->selected = ftmp;
-			ftmp->flags |= F_SELECTED;
-			if (ftmp->flags & F_PLAY)
-				ftmp->colors = colors[SEL_PLAYING];
-			else
-				ftmp->colors = colors[SELECTED];
+				wlist->wheretop++;
+				}
+			wlist->selected = next_valid(window, wlist->selected, c);
+			wlist->selected->flags |= F_SELECTED;
 			return window;
 		case KEY_PPAGE:
-			ftmp->flags &= ~F_SELECTED;
-			if (ftmp->flags & F_PLAY)
-				ftmp->colors = colors[PLAYING];
-			else
-				ftmp->colors = colors[UNSELECTED];
-			for (j = 0; ftmp->prev && j < length; j++) {
+			wlist->selected->flags &= ~F_SELECTED;
+			for (j = 0; wlist->selected->prev && j < length-1; j++) {
 				wlist->where--;
-				ftmp = ftmp->prev;
-				if (list->prev)
-					list = list->prev;
-			}
-			ftmp = next_valid(window, ftmp, c);
-			wlist->top = list;
-			wlist->selected = ftmp;
-			ftmp->flags |= F_SELECTED;
-			if (ftmp->flags & F_PLAY)
-				ftmp->colors = colors[SEL_PLAYING];
-			else
-				ftmp->colors = colors[SELECTED];
+				wlist->wheretop--;
+				wlist->selected = wlist->selected->prev;
+				}
+			wlist->selected = next_valid(window, wlist->selected, c);
+			wlist->selected->flags |= F_SELECTED;
 			return window;
 		default:
 			break;
@@ -209,17 +182,14 @@ update_info(Window *window)
 	clear_info();
 
 	if (file) {
-		my_mvwnprintw(win, 1, 12, colors[UNSELECTED], i-13, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
+//		if (file->title)
+//			my_mvwnprintw(win, 1, 9, colors[UNSELECTED], i-10, "%s", file->title);
+//		else
+			my_mvwnprintw(win, 1, 9, colors[UNSELECTED], i-10, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
 		if (file->artist)
-			my_mvwnprintw(win, 2, 12, colors[UNSELECTED], i-13, "%s", file->artist);
-		if (file->title)
-			my_mvwnprintw(win, 3, 12, colors[UNSELECTED], i-13, "%s", file->title);
-		if (!(file->flags & F_DIR)) {
-			u_char length[7];
-			memset(length, 0, sizeof(length));
-			snprintf(length, 7, "%lu:%02lu", file->length/60, file->length%60);
-		 	my_mvwprintw(win, 4, 12, colors[UNSELECTED], "%-6s Genre: %-13s   Bitrate: %-3d", length, file->genre? : "Unknown", file->bitrate);
-		}
+			my_mvwnprintw(win, 2, 9, colors[UNSELECTED], i-10, "%s", file->artist);
+		if (file->album)
+			my_mvwnprintw(win, 3, 9, colors[UNSELECTED], i-10, "%s", file->album);
 	}
 	update_title(info);
 	update_panels();
@@ -243,12 +213,10 @@ clear_info(void)
 	WINDOW *win = info->win;
 	int i = info->width;
 	
-	my_mvwnclear(win, 1, 12, i-13);
-	my_mvwnclear(win, 2, 12, i-13);
-	my_mvwnclear(win, 3, 12, i-13);
-	my_mvwnclear(win, 4, 12, 7);
-	my_mvwnclear(win, 4, 26, 12);
-	my_mvwnclear(win, 4, 50, i-51);
+	my_mvwnclear(win, 1, 9, i-10);
+	my_mvwnclear(win, 2, 9, i-10);
+	my_mvwnclear(win, 3, 9, i-10);
+	my_mvwnclear(win, 4, 9, i-10);
 }
 
 int
@@ -374,14 +342,10 @@ do_scrollbar(Window *window)
 	/* because of rounding we may end up with too much, correct for that */
 	if (bottom < 0)
 		top += bottom;
-	mvwvline(win, 1, x, ACS_CKBOARD | A_ALTCHARSET | colors[SCROLL], top);
+	mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | colors[SCROLL], top);
 	mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[SCROLLBAR], bar);
 	if (bottom > 0)
-		mvwvline(win, 1+top+bar, x, ACS_CKBOARD | A_ALTCHARSET | colors[SCROLL], bottom);
-#ifdef GPM_SUPPORT
-	mvwaddch(win, 0, x, ACS_UARROW | A_ALTCHARSET | colors[ARROWS]);
-	mvwaddch(win, y+1, x, ACS_DARROW | A_ALTCHARSET | colors[ARROWS]);
-#endif
+		mvwvline(win, 1+top+bar, x, ACS_BOARD | A_ALTCHARSET | colors[SCROLL], bottom);
 	update_panels();
 }
 
@@ -392,11 +356,11 @@ parse_title(Window *win, u_char *title, int len)
 		
 	if (win->title_fmt) {
 		if (win->flags & W_LIST && win->contents.list && win->contents.list->selected)
-			p = (u_char *)parse_tokens(win->contents.list->selected, title, len, win->title_fmt);
+			p = (u_char *)parse_tokens(win, win->contents.list->selected, title, len, win->title_fmt);
 		else if (!(win->flags & W_LIST) && win->contents.play)
-			p = (u_char *)parse_tokens(win->contents.play, title, len, win->title_fmt);
+			p = (u_char *)parse_tokens(win, win->contents.play, title, len, win->title_fmt);
 		else if (info->contents.play)
-			p = (u_char *)parse_tokens(info->contents.play, title, len, win->title_fmt);
+			p = (u_char *)parse_tokens(win, info->contents.play, title, len, win->title_fmt);
 	}
 
 	return p;

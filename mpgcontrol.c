@@ -4,9 +4,11 @@
 #include "mpgcontrol.h"
 #include "misc.h"
 #include "window.h"
-#include "mms.h"
+#include "mjs.h"
 #include "playlist.h"
 #include "extern.h"
+#include "stdio.h"
+#include "time.h"
 
 static int inpipe[2], outpipe[2];
 static struct sigaction handler;
@@ -43,11 +45,18 @@ start_mpg_child(void)
 				char buf[128];
 				memset(buf, 0, sizeof(buf));
 				snprintf(buf, 127, "%d", conf->buffer? conf->buffer : 0);
-				execlp(conf->mpgpath, "mpg123", "-b", buf, "-R", "-", (char *)NULL);
+				if (conf->c_flags & C_MONO)
+					execlp(conf->mpgpath, "mpg123", "-m", "-b", buf, "-R", "-", (char *)NULL);
+				else
+					execlp(conf->mpgpath, "mpg123", "-b", buf, "-R", "-", (char *)NULL);
+
 			} else
-				execlp(conf->mpgpath, "mpg123", "-R", "-", (char *)NULL);
+				if (conf->c_flags & C_MONO)
+					execlp(conf->mpgpath, "mpg123", "-m", "-R", "-", (char *)NULL);
+				else
+					execlp(conf->mpgpath, "mpg123", "-R", "-", (char *)NULL);
 			if (errno)
-				exit(0);
+				exit(2);
 		default:
 			handler.sa_handler = (SIGHANDLER) restart_mpg_child;
 			handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
@@ -90,6 +99,9 @@ restart_mpg_child(void)
 int send_cmd(int type, ...)
 {
 	char buf[512], *filename;
+	FILE *log;
+	FILE *active;
+	time_t timevalue;
 	int fd = inpipe[1];
 	long int skip;
 	va_list args;
@@ -107,12 +119,34 @@ int send_cmd(int type, ...)
 			snprintf(buf, 511, "LOAD %s\n", filename);
 			write(fd, buf, strlen(buf));
 			va_end(args);
+			
+			timevalue = time(NULL);
+						
+			log = fopen(conf->logfile,"a");
+			active = fopen(conf->statefile,"w");
+			fprintf(log,"%.24s",ctime(&timevalue));
+			fprintf(log," %s\n",filename);
+			fprintf(active,"%s\n",filename);
+			fclose(log);
+			fclose(active);
+			
 			break;
 		case STOP:
 			write(fd, "STOP\n", 5);
+			timevalue = time(NULL);
+						
+			log = fopen(conf->logfile,"a");
+			fprintf(log," STOP\n");
+			fclose(log);
+			active = fopen(conf->statefile,"w");
+			fprintf(active,"%s","         \n");
+			fclose(active);
 			break;
 		case PAUSE:
 			write(fd, "PAUSE\n", 6);
+			active = fopen(conf->statefile,"w");
+			fprintf(active,"%s","         * Pause *    \n");
+			fclose(active);
 			break;
 		case JUMP:
 			va_start(args, type);

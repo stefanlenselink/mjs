@@ -1,6 +1,16 @@
-Matt's MP3 Selector (mms) v 0.90
+MP3 Jukebox System (mjs)
 
+formerly known as
+Matt's MP3 Selector (mms) 
+
+Modified in 2000-2001 by Marijn van Galen
+Copyright (C) 2001 by Marijn van Galen
+M.P.vanGalen@ITS.TUDelft.nl
+
+Original program was written by Wesley Morgan.
 Copyright (C) 1999 by Wesley Morgan.
+morganw@engr.sc.edu
+
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
@@ -17,36 +27,3 @@ Place, Suite 330, Boston, MA 02111-1307 USA.
 
 -------------------------------
 
-Why? Because I was entirely disappointed with most of the console mpg123
-frontends I have seen, and because I already had my own weird format for
-indexing filename to artist/title instead of the lame space-padded ID3 tags.
-But being the geek that I am, what is the only reasonable solution? Do it
-yourself! So after a bit of hacking around, here is v0.84 of Matt's MP3
-Selector (mms). Feedback, bug reports, compaints etc to morganw@engr.sc.edu...
-
-Piss poor documentation is available in the INSTRUCTIONS file. Also see 
-INSTALL.
-
-PS - xmms is ripping off my name! I have witnesses!
-
-PPS - I'm lazy. I require constant badgering to get anything done.
-
-BUGS / ANNOYANCES:
-
-1. Doesn't remove non-existant files from the playlist/file list (doesnt even
-   notice). Trivial fix, just havent quite got around to it yet =)
-2. Screen flicker during scroll... Whats up wif dat!
-
-TODO:
-
-1.  Make it work properly with stupid people's terminals (ie not 80x25)
-    (fixed?)
-2.  Figure out why colors arent always the same on terminals (pana your term
-    is screwed).
-3.  ncurses panels are being used, now just need to add code to drag/expand
-    with the mouse (hide too)
-4.  Add sysmouse support under FreeBSD.
-5.  Add a configuration panel, with save support.
-6.  File browser for playlists?
-7.  Configurable info window with printf style conversion formats.
-8.  Method to add an entire directory / globbing.

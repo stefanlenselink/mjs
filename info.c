@@ -160,15 +160,17 @@ mp3_info(char *filename, flist *file, u_int32_t size)
 		s = tmp.artist + 29;
 		while (!isalnum(*s))
 			*s-- = '\0';
-		file->title = (char *)calloc(1, 31);
-		strncpy(file->title, tmp.title, 30);
-		if (strlen(file->title) == 0)
-			strncpy(file->title, filename, 30);
+//		file->title = (char *)calloc(1, 31);
+//		strncpy(file->title, tmp.title, 30);
+//		if (strlen(file->title) == 0)
+//			strncpy(file->title, filename, 30);
+		
 		file->artist = (char *)calloc(1, 31);
 		strncpy(file->artist, tmp.artist, 30);
 		if (strlen(file->artist) == 0)
 			strcpy(file->artist, "Unknown");
-		file->genre = Genres[(int)tmp.genre];
+		file->album = (char *)calloc(1,31);
+		strncpy(file->album, tmp.album,30);
 	}
 	return file;
 }

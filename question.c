@@ -2,7 +2,7 @@
 #include "defs.h"
 #include "colors.h"
 #include "struct.h"
-#include "mms.h"
+#include "mjs.h"
 #include "window.h"
 #include "misc.h"
 #include "config.h"

@@ -201,10 +201,12 @@ free_flist(flist *file)
 		free(file->filename);
 	if (file->artist)
 		free(file->artist);
-	if (file->title)
-		free(file->title);
-	if (file->path);
+//	if (file->title)
+//		free(file->title);
+	if (file->path)
 		free(file->path);
 	if (file->fullpath)
 		free(file->fullpath);
+	if (file->album)
+		free(file->album);
 }

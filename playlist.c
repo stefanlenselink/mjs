@@ -6,12 +6,18 @@
 #include "mpgcontrol.h"
 #include "misc.h"
 #include "window.h"
-#include "mms.h"
+#include "mjs.h"
 #include "extern.h"
 
-static flist	*parse_playlist_line(flist *, char *);
-static void	 free_playlist(wlist *);
-
+void
+calculate_duration(flist *list)
+{
+        flist *ftmp;
+        play->contents.list->duration=0; 
+	for (ftmp = list; ftmp; ftmp = ftmp->next) {
+	play->contents.list->duration+=(ftmp->length);
+        }
+}
 void
 play_next_song(void)
 {
@@ -21,10 +27,6 @@ play_next_song(void)
 		return;
 
 	ftmp->flags &= ~F_PLAY;
-	if (ftmp->flags & F_SELECTED)
-		ftmp->colors = colors[SELECTED];
-	else
-		ftmp->colors = colors[UNSELECTED];
 	if ((conf->c_flags & C_LOOP) && !ftmp->next)
 		ftmp = play->contents.list->head;
 	else
@@ -45,10 +47,6 @@ jump_forward(wlist *playlist)
 	if (!ftmp)
 		return playlist;
 	ftmp->flags &= ~F_PLAY;
-	if (ftmp->flags & F_SELECTED)
-		ftmp->colors = colors[SELECTED];
-	else
-		ftmp->colors = colors[UNSELECTED];
 	if ((conf->c_flags & C_LOOP) && !ftmp->next)
 		ftmp = play->contents.list->head;
 	else
@@ -65,15 +63,13 @@ jump_forward(wlist *playlist)
 wlist *
 jump_backward(wlist *playlist)
 {
-	flist *ftmp = play->contents.list->playing;
+	flist *ftmp = playlist->playing;
+	int duration = playlist->duration; 
+	int length = playlist->playing->length;
 
 	if (!ftmp)
 		return playlist;
 	ftmp->flags &= ~F_PLAY;
-	if (ftmp->flags & F_SELECTED)
-		ftmp->colors = colors[SELECTED];
-	else
-		ftmp->colors = colors[UNSELECTED];
 	if ((conf->c_flags & C_LOOP) && !ftmp->prev)
 		ftmp = play->contents.list->tail;
 	else
@@ -84,12 +80,70 @@ jump_backward(wlist *playlist)
 		play->contents.list->playing = NULL;
 		show_list(play);
 	}
+	playlist->duration=((length+duration));
+	return playlist;
+}
+
+wlist *
+move_backward(wlist *playlist)
+{
+	flist *f1,*f2,*f3,*f4;
+
+	f3 = playlist->selected;
+	f2 = f3->prev;
+	f1 = f2->prev;
+	f4 = f3->next;
+
+	f3->prev = f1;
+	if (f1) 
+		f1->next = f3;
+	else {
+		playlist->head = f3;
+		playlist->top = f3;
+	}
+	f3->next = f2;
+	f2->prev = f3;
+	f2->next = f4;
+	if (f4)
+		f4->prev = f2;
+	else 
+		playlist->tail = f2;
+	playlist->where--;
+	return playlist;
+}
+
+wlist *
+move_forward(wlist *playlist)
+{
+	flist *f1,*f2,*f3,*f4;
+
+	f2 = playlist->selected;
+	f3 = f2->next;
+	f1 = f2->prev;
+	f4 = f3->next;
+
+	if (f1)
+		f1->next = f3;
+	else {
+		playlist->head = f3;
+		playlist->top = f3;
+	}
+	f3->prev = f1;
+	f3->next = f2;
+	f2->prev = f3;
+	f2->next = f4;
+	if (f4)
+		f4->prev = f2;
+	else	
+		playlist->tail = f2;
+	playlist->where++;
 	return playlist;
 }
 
 int
 jump_to_song(flist *selected)
 {
+	extern int p_status;
 	char buf[BIG_BUFFER_SIZE+1];
 	wlist *playlist = play->contents.list;
 
@@ -98,26 +152,18 @@ jump_to_song(flist *selected)
 	if (!playlist || !selected)
 		return 0;
 	
-	if (info->contents.play) {
+	if (info->contents.play) 
 		info->contents.play->flags &= ~F_PLAY;
-		if (info->contents.play->flags & F_SELECTED)
-			info->contents.play->colors = colors[SELECTED];
-		else
-			info->contents.play->colors = colors[UNSELECTED];
-	}
-
+		
 	memset(buf, 0, sizeof(buf));
-	snprintf(buf, BIG_BUFFER_SIZE, "%s/%s", selected->path, selected->filename);
+	snprintf(buf, BIG_BUFFER_SIZE, "%s", selected->fullpath);
 	send_cmd(LOAD, buf);
 	clear_play_info();
-	p_status = 1;
+	p_status = PLAYING;
 	selected->flags |= F_PLAY;
-	if (selected->flags & F_SELECTED)
-		selected->colors = colors[SEL_PLAYING];
-	else
-		selected->colors = colors[PLAYING];
 	playlist->playing = selected;
 	info->contents.play = selected;
+	play->contents.list->duration -= selected->length;
 	if (active == info)
 		info->update(info);
 	play->update(play);
@@ -129,20 +175,22 @@ jump_to_song(flist *selected)
 wlist *
 stop_player(wlist *playlist)
 {
+	extern int p_status;
 	flist *ftmp = play->contents.list->playing;
 	
 	if (ftmp) {
 		info->contents.play = NULL;
 		play->contents.list->playing = NULL;
 		ftmp->flags &= ~F_PLAY;
-		if (ftmp->flags & F_SELECTED)
-			ftmp->colors = colors[SELECTED];
-		else
-			ftmp->colors = colors[UNSELECTED];
+		ftmp->flags &= ~F_PAUSED;
 		play->update(play);
 	}
+	if (p_status == PAUSED)
+		send_cmd(PAUSE);
+	p_status = STOPPED;
 	send_cmd(STOP);
 	update_title(playback);
+	doupdate();
 	return playlist;
 }
 
@@ -150,14 +198,18 @@ wlist *
 pause_player(wlist *playlist)
 {
 	extern int p_status;
-	if (p_status == 1) {
-		playlist->playing->flags |= F_PAUSED;
-		p_status = 2;
-	}
-	else if (p_status == 2) {
-		playlist->playing->flags &= ~F_PAUSED;
-		p_status = 1;
-	}
+	playlist->playing->flags |= F_PAUSED;
+	p_status = PAUSED;
+	send_cmd(PAUSE);
+	return playlist;
+}
+
+wlist *
+resume_player(wlist *playlist)
+{
+	extern int p_status;
+	playlist->playing->flags &= ~F_PAUSED;
+	p_status = PLAYING;
 	send_cmd(PAUSE);
 	return playlist;
 }
@@ -178,10 +230,6 @@ randomize_list(wlist *playlist)
 		if (ftmp->flags & F_SELECTED) {
 			selected = j;
 			ftmp->flags &= ~F_SELECTED;
-			if (ftmp->flags & F_PLAY)
-				ftmp->colors = colors[PLAYING];
-			else
-				ftmp->colors = colors[UNSELECTED];
 		}
 		farray[j] = ftmp;
 	}
@@ -207,10 +255,6 @@ randomize_list(wlist *playlist)
 	playlist->top = ftmp;
 	for (; i < selected; ftmp = ftmp->next, i++);
 	ftmp->flags |= F_SELECTED;
-	if (ftmp->flags & F_PLAY)
-		ftmp->colors = colors[SEL_PLAYING];
-	else
-		ftmp->colors = colors[SELECTED];
 	playlist->selected = ftmp;
 	playlist->tail = newlist;
 	newlist->next = NULL;
@@ -218,38 +262,54 @@ randomize_list(wlist *playlist)
 	return playlist;
 }
 
-wlist *
-add_to_playlist(wlist *playlist, flist *file)
+void
+add_to_playlist(wlist *playlist, flist *position, flist *file)
 {
-	flist *ftmp = NULL, *newfile;
+	flist *newfile, *head = NULL, *tail = NULL;
 	int i = 0, maxx, maxy;
 
 	getmaxyx(play->win, maxy, maxx);
 	maxx = maxy - 2;
 	maxy -= 3;
-
+	
+	if (position) {
+		head = position;
+		tail = position->next;
+	}
+	
 	/* either create a new playlist, or grab the tail */
-	ftmp = playlist->tail;
 	newfile = calloc(1, sizeof(flist));
 	newfile->colors = colors[UNSELECTED];
-	if (!ftmp)
+	if (!head)
 		playlist->head = playlist->top = newfile;
-	newfile->filename = strdup(file->filename);
+	/* remove tracknumber if it exists */
+	if ((file->filename[0]=='0')|(file->filename[0]=='1'))
+		newfile->filename = strdup(file->filename+3);	
+	else
+		newfile->filename = strdup(file->filename);
+		
 	newfile->path = strdup(file->path);
 	newfile->fullpath = strdup(file->fullpath);
 	newfile->length = file->length;
 	newfile->bitrate = file->bitrate;
 	newfile->frequency = file->frequency;
-	newfile->genre = file->genre;
-	if (file->title)
-		newfile->title = strdup(file->title);
+	if (file->album)
+		newfile->album = strdup(file->album);
+//	if (file->title)
+//		newfile->title = strdup(file->title);
 	if (file->artist)
 		newfile->artist = strdup(file->artist);
-	if (ftmp) {
-		ftmp->next = newfile;
-		newfile->prev = ftmp;
+	if (head) {
+		head->next = newfile;
+		newfile->prev = head;
 	}
-	playlist->tail = newfile;
+	if (tail) {
+		newfile->next = tail;
+		tail->prev = newfile;
+	}
+	else 
+		playlist->tail = newfile;
+	playlist->duration += file->length;
 	if (!playlist->selected) {
 		playlist->selected = newfile;
 		newfile->flags |= F_SELECTED;
@@ -263,177 +323,19 @@ add_to_playlist(wlist *playlist, flist *file)
 		newfile->flags |= F_SELECTED;
 		newfile->colors = colors[SELECTED];
 		if (playlist->length < maxx)
-			return playlist;
+			return;
 		/* this is inefficient, we could "store" more data about the list, but
 		 * who really cares. :) */
-		for (ftmp = newfile; ftmp && i < maxy; i++, ftmp = ftmp->prev)
-			if (ftmp == playlist->top)
-				return playlist;
-		playlist->top = ftmp;
+		for (head = newfile; head && i < maxy; i++, head = head->prev)
+			if (head == playlist->top)
+				return;
+		playlist->top = head;
 	} else
 		++playlist->length;
-	return playlist;
+	return;
 }
 
-int
-do_read_playlist(Input *input)
-{
-	wmove(menubar->win, 0, 0);
-	wbkgd(menubar->win, colors[MENU_BACK]);
-	wclrtoeol(menubar->win);
-	active = old_active;
-	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
-	play->contents.list = read_playlist(play->contents.list, input->buf);
-	if (play->contents.list->head) {
-		info->contents.play = play->contents.list->selected;
-		active->deactivate(active);
-		active->update(active);
-		play->activate((active = play));
-		play->update(play);
-		info->update(info);
-	}
-	free(input);
-	menubar->inputline = NULL;
-	curs_set(0);
-	update_panels();
-	doupdate();
-	return 1;
-}
-
-int
-do_save_playlist(Input *input)
-{
-	wmove(menubar->win, 0, 0);
-	wbkgd(menubar->win, colors[MENU_BACK]);
-	wclrtoeol(menubar->win);
-	active = old_active;
-	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
-	write_playlist(play->contents.list, input->buf);
-	free(input);
-	menubar->inputline = NULL;
-	curs_set(0);
-	update_panels();
-	doupdate();
-	return 1;
-}
-
-int
-write_playlist(wlist *playlist, const char *file)
-{
-	FILE *fp;
-	flist *ftmp;
-	
-	if (!playlist || !playlist->head)
-		return 0;
-	if (!(fp = fopen(file, "w")))
-		return 0;
-	
-	for (ftmp = playlist->head; ftmp; ftmp = ftmp->next)
-		fprintf(fp, "%s/%s:%s:%s:%ld:%d:%d\n", ftmp->path, ftmp->filename,
-			ftmp->artist?:"", ftmp->title?:"", (long int)ftmp->length, ftmp->bitrate, ftmp->frequency);
-	fclose(fp);
-	return 1;
-}
-
-wlist *
-read_playlist(wlist *plist, const char *file)
-{
-	FILE *fp;
-	flist *ftmp = NULL, *first = NULL, *last = NULL;
-	wlist *playlist = plist;
-	char buf[1025];
-	struct stat sb;
-
-	if (!plist)
-		return plist;
-
-	if (!(fp = fopen(file, "r")))
-		return plist;
-	plist = (wlist *)calloc(1, sizeof(wlist));
-
-	if (playlist->head && pid)
-		stop_player(playlist);
-
-	first = ftmp = (flist *)calloc(1, sizeof(flist));
-
-	while (!feof(fp)) {
-		if (!fgets(buf, sizeof(buf), fp))
-			break;
-		if (!ftmp) {
-			ftmp = (flist *)calloc(1, sizeof(flist));
-			ftmp->colors = colors[UNSELECTED];
-		}
-		if (!(parse_playlist_line(ftmp, buf)) || (stat(ftmp->fullpath, &sb) != 0)) {
-			free_flist(ftmp);
-			memset(ftmp, 0, sizeof(flist));
-			continue;
-		}
-		ftmp->prev = last;
-		if (last)
-			last->next = ftmp;
-		last = ftmp;
-		plist->length++;
-		ftmp = NULL;
-	}
-	fclose(fp);
-	plist->tail = last;
-	if (first->filename) {
-		plist->head = plist->selected = plist->top = first;
-		first->flags |= F_SELECTED;
-		first->colors = colors[SELECTED];
-	} else
-		free(first);
-	if (plist->length > 0) {
-		free_playlist(playlist);
-		playlist = plist;
-		playlist->where = 1;
-	} else
-		free(plist);
-	return playlist;
-}
-
-/* 
- * parse the line. If we encounter an error, give up and tell the caller its
- * their problem. PS, im not a big fan of sscanf() :)
- */
-
-static flist *
-parse_playlist_line(flist *file, char *line)
-{
-	char *s, *p = line;
-
-	if (!(s = strchr(line, ':')))
-		return NULL;
-	*s++ = '\0';
-	file->fullpath = strdup(p);
-	if (!(p = strrchr(p, '/')))
-		return NULL;
-	*p++ = '\0';
-	file->path = strdup(line);
-	file->filename = strdup(p);
-	if (!(p = strchr(s, ':')))
-		return NULL;
-	*p++ = '\0';
-	if (s && *s)
-		file->artist = strdup(s);
-	if (!(s = strchr(p, ':')))
-		return NULL;
-	*s++ = '\0';
-	if (p && *p)
-		file->title = strdup(p);
-	if (!(p = strchr(s, ':')))
-		return NULL;
-	file->length = (time_t) strtoul(s, &p, 10);
-	if (*p != ':')
-		return NULL;
-	file->bitrate = (short) strtoul(++p, &s, 10);
-	if (*s != ':')
-		return NULL;
-	file->frequency = (int) strtoul(++s, &p, 10);
-	return file;
-}
-
-static void
+void
 free_playlist(wlist *playlist)
 {
 	flist *ftmp;

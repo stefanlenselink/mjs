@@ -7,9 +7,9 @@ child process. It goes berzerk if you orphan it.
 
 Customization:
 
-Thanks to Trent Gamblin, you have the option of an MMS rc file. Either
-create your own .mmsrc or set the env variable MMSRC. An example
-configuration file is provided, see "mmsrc.EXAMPLE".
+An example configuration file is provided, see "mjsrc.EXAMPLE".
+Copy this to .mjsrc in your home directory or set the environment variable
+MJSRC to the appropriate file.
 
 Navigation:
 
@@ -36,6 +36,7 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * alt-enter inserts selected file into playlist
    * Pressing an letter will take you to the first directory starting with
      that letter   
+
 * in the playlist window is where the good stuff goes on:
    * with + and - you can move mp3's forward or backward in the playlist 
    * DEL will remove a song from the playlist (unless it is playing!)

@@ -5,6 +5,6 @@
 #include "struct.h"
 #endif
 
-flist	*mp3_info(char *, flist *, u_int32_t);
+flist	*mp3_info(char *, char *, flist *, u_int32_t);
 
 #endif /* _info_h */

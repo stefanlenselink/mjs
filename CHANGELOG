@@ -1,7 +1,18 @@
-mjs 2.9.4 :
+mjs 2.9.8 (cvs + release):
+ * Artist and album info are extracted from the directory structure.
+   Hopefully this will cause less problems than id3-tags.
+ * Added intro mp3, because mpg123 has problems playing some files
+   with id3v2 tags as first song.
+mjs 2.9.7 (cvs):
+ * removed al id3-tag code once again. Bugs in mplib cause to many problems
+mjs 2.9.6 (not in cvs):
+ * Now using mplib for id3-tags
+mjs 2.9.5 (not in cvs):
+ * Some bugfixes to id3-tag code
+mjs 2.9.4 (cvs):
  * Fixed mjsrc.EXAMPLE The bottomline error message about ~/.mjsrc not
    existing while it does, should be solved.
-mjs 2.9.3 :
+mjs 2.9.3 (not in cvs):
  * read_mp3_list_file now returns wlist, so files->tail will not be NULL any
    more and playlists wont segfault when end is pressed
 mjs 2.9.2 (cvs) :

@@ -26,7 +26,7 @@ read_mp3_list(wlist *list)
 	dir = getcwd(NULL, 0);
 	errno = 0;
 	if (errno) {
-		my_mvwprintw(menubar->win, 0, 0, colors[MENU_TEXT], "Error with opendir - Pleurt op !(): %s", strerror(errno)); 
+		my_mvwprintw(menubar->win, 0, 0, colors[MENU_TEXT], "Error with opendir(): %s", strerror(errno)); 
 		return NULL;
 		}
 
@@ -105,7 +105,7 @@ read_mp3_list(wlist *list)
 			}
 			else {
 				ftmp = NULL;
-				if (!(ftmp = mp3_info(dent->d_name, ftmp, st.st_size)))
+				if (!(ftmp = mp3_info(dir, dent->d_name, ftmp, st.st_size)))
 					continue;	
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
 				ftmp->filename = malloc(dent->d_namlen-3);
@@ -176,10 +176,10 @@ read_mp3_list_file(wlist *list, char *filename)
 
 	length++;
 	fgets(buf, 255, fp);
-	if (!strncmp("Playlist for mms",buf,16))
+	if (!strncmp("Playlist for mjs",buf,16))
 		playlist = 1;
 	else
-		if (strncmp("Findresults for mms",buf,19)) {
+		if (strncmp("Findresults for mjs",buf,19)) {
 			fclose(fp);
 			free(buf);
 			return list;
@@ -226,10 +226,10 @@ read_mp3_list_file(wlist *list, char *filename)
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
 		if (buf=='\0')
 			goto endloop;
-		dir = malloc(lengte+2);
+		dir = malloc(lengte+1);
 		file = malloc(strlen(buf)-lengte);		
-		strncpy(dir, buf, lengte+1);
-		dir[lengte+1]='\0';
+		strncpy(dir, buf, lengte);
+		dir[lengte]='\0';
 		strcpy(file, buf+lengte+1);
 
 		if (stat(buf, &st))
@@ -258,11 +258,11 @@ read_mp3_list_file(wlist *list, char *filename)
 				if (strncasecmp(".mp3", strchr(file, '\0')-4, 4))
 					goto endloop;
 				ftmp = NULL;
-				if (!(ftmp = mp3_info(buf, ftmp, st.st_size)))
+				if (!(ftmp = mp3_info(dir, file, ftmp, st.st_size)))
 					goto endloop;
 
 				if (playlist) {
-					//if (ftmp->album)
+					if (ftmp->album)
 						free(ftmp->album);
 					ftmp->album = strdup(playlistname);
 					if ((file[0]=='0')|(file[0]=='1')|(file[0]=='2')) {
@@ -288,25 +288,7 @@ read_mp3_list_file(wlist *list, char *filename)
 					strncpy(ftmp->filename, file, strlen(file)-4);
 					ftmp->filename[strlen(file)-4]='\0';
 					
-/*					lengte = strrchr(dir,'/')-(strchr((dir+10),'/')+1);
-					if (lengte > 0) {
-						if (ftmp->album)
-							free(ftmp->album);
-						ftmp->album = malloc(lengte+1);
-						strncpy(ftmp->album, (strchr((dir+10),'/')+1),lengte);
-						ftmp->album[lengte]='\0';
-					}
-
-					lengte = strchr((dir+9),'/') - (dir + 9);
-					if (lengte > 0) {
-						if (ftmp->artist)
-							free(ftmp->artist);
-						ftmp->artist = malloc(lengte+1);
-						strncpy(ftmp->artist, (dir+9),lengte);
-						ftmp->artist[lengte]='\0';
-					}
-
-*/				}
+				}
 
 				ftmp->path = strdup(dir);
 				ftmp->fullpath = strdup(buf);

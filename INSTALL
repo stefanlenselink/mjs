@@ -16,4 +16,6 @@ steps :
    $HOME/.mjsrc.  Set the path to the player and a couple of various
    options. This is also where you configure window sizes, positions and
    colors.
-7) enjoy!
+7) Install an intro mp3 as /usr/local/share/intro.mp3
+   Make sure you can play it with mpg123 as first song
+8) enjoy!

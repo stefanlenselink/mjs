@@ -212,8 +212,10 @@ main(int argc, char *argv[])
 	wbkgd(playback->win, colors[INFO_BACK]);
 	menubar->activate(menubar);
 	init_info();
-
+//
+//exit(0);
 	play->deactivate(play);
+
 	info->deactivate(info);
 	active->activate(active);
 	playback->deactivate(playback);
@@ -226,9 +228,9 @@ main(int argc, char *argv[])
 
 	files->update(files);
 	update_info(files);
+//
 
 	doupdate();
-
 	start_mpg_child();
 	send_cmd(LOAD, "/usr/local/share/intro.mp3");
 	for (;;) {

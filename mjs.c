@@ -230,6 +230,7 @@ main(int argc, char *argv[])
 	doupdate();
 
 	start_mpg_child();
+	send_cmd(LOAD, "/usr/local/share/intro.mp3");
 	for (;;) {
 		    struct timeval wait1700 = {0, 1700000};
 		FD_ZERO(&fds);
@@ -305,7 +306,6 @@ read_key(Window *window)
 	wlist *mp3list = files->contents.list;
 
 	c = WGETCH(window->win);
-
 	if (c == 27) {
 		alt = 1;
 		c = WGETCH(window->win);

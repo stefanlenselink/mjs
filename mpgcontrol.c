@@ -125,7 +125,7 @@ int send_cmd(int type, ...)
 				fclose(active);
 			}
 			log = fopen(conf->logfile,"a");
-			if (active) {
+			if (log) {
 				fprintf(log,"%.24s",ctime(&timevalue));
 				fprintf(log," %s\n",filename);
 				fclose(log);

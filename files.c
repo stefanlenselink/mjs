@@ -77,6 +77,7 @@ read_mp3_list(wlist *list)
 			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
 #endif /* *BSD */
 			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
+
 			ftmp->path = strdup(dir);
 
 			ftmp->next = mp3list;
@@ -113,6 +114,8 @@ read_mp3_list(wlist *list)
 #endif /* *BSD */
 				strncpy(ftmp->filename, dent->d_name, strlen(dent->d_name)-4);
 				ftmp->filename[strlen(dent->d_name)-4]='\0';
+
+
 			}
 			ftmp->path = strdup(dir);
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
@@ -229,7 +232,8 @@ read_mp3_list_file(wlist *list, char *filename)
 		dir[lengte+1]='\0';
 		strcpy(file, buf+lengte+1);
 
-		stat(buf, &st);
+		if (stat(buf, &st))
+			goto endloop;
 		if (S_ISDIR(st.st_mode)) {
 			ftmp = calloc(1, sizeof(flist));
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
@@ -258,7 +262,8 @@ read_mp3_list_file(wlist *list, char *filename)
 					goto endloop;
 
 				if (playlist) {
-					free(ftmp->album);
+					//if (ftmp->album)
+						free(ftmp->album);
 					ftmp->album = strdup(playlistname);
 					if ((file[0]=='0')|(file[0]=='1')|(file[0]=='2')) {
 						// get rid of old tracknumber add new tracknumber
@@ -282,7 +287,26 @@ read_mp3_list_file(wlist *list, char *filename)
 					ftmp->filename = malloc(strlen(file)-3);
 					strncpy(ftmp->filename, file, strlen(file)-4);
 					ftmp->filename[strlen(file)-4]='\0';
-				}
+					
+/*					lengte = strrchr(dir,'/')-(strchr((dir+10),'/')+1);
+					if (lengte > 0) {
+						if (ftmp->album)
+							free(ftmp->album);
+						ftmp->album = malloc(lengte+1);
+						strncpy(ftmp->album, (strchr((dir+10),'/')+1),lengte);
+						ftmp->album[lengte]='\0';
+					}
+
+					lengte = strchr((dir+9),'/') - (dir + 9);
+					if (lengte > 0) {
+						if (ftmp->artist)
+							free(ftmp->artist);
+						ftmp->artist = malloc(lengte+1);
+						strncpy(ftmp->artist, (dir+9),lengte);
+						ftmp->artist[lengte]='\0';
+					}
+
+*/				}
 
 				ftmp->path = strdup(dir);
 				ftmp->fullpath = strdup(buf);
@@ -303,8 +327,10 @@ endloop:
 		free(dir);
 		}
 	fclose(fp);
-	free(buf);
-	free(playlistname);
+	if (buf)
+		free(buf);
+	if (playlistname)
+		free(playlistname);
 	list->length = length;
 	list->tail = tail;
 	list->selected = list->top = list->head;
@@ -390,6 +416,9 @@ sort_mp3_search(const void *a, const void *b)
 	const flist *first = *(const flist **) a;
 	const flist *second = *(const flist **) b;
 	int result;
+
+	if (first->filename[0]=='.')
+		return 1;
 	result = strcmp(second->path, first->path);
 	if (!result) {
 		if ((first->flags & F_DIR) && !(second->flags & F_DIR))

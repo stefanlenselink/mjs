@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 2.9.4
+VERSION = 2.9.7a
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c
@@ -11,10 +11,10 @@ OBJS =	mjs.o misc.o info.o config.o playlist.o inputline.o mpgcontrol.o \
 INCLUDES = -I/usr/local/include -Iinclude
 LIBRARY = -L/usr/local/lib
 PROFILE = #-pg
-LIBS = -lncurses -lpanel
-#ARCHFLAGS = -mpentium
+LIBS = -lncurses -lpanel 
+ARCHFLAGS = -mpentium
 WARNINGS = -Wall -Wbad-function-cast -Wcast-align
-OPTFLAGS = -O2 
+OPTFLAGS = -O2
 # Comment this out for debugging
 #OPTFLAGS += -g3
 

@@ -53,7 +53,7 @@ jump_forward(wlist *playlist)
 		ftmp = ftmp->next;
 	if (!jump_to_song(ftmp)) {
 		stop_player(playlist);
-    info->contents.play = NULL;
+    		info->contents.play = NULL;
 		play->contents.list->playing = NULL;
 		play->update(play);
 	}
@@ -279,7 +279,6 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	
 	/* either create a new playlist, or grab the tail */
 	newfile = calloc(1, sizeof(flist));
-	newfile->colors = colors[UNSELECTED];
 	if (!head)
 		playlist->head = playlist->top = newfile;
 	/* remove tracknumber if it exists */
@@ -309,7 +308,6 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	if (!playlist->selected) {
 		playlist->selected = newfile;
 		newfile->flags |= F_SELECTED;
-		newfile->colors = colors[SELECTED];
 		playlist->where = 1;
 	}
 	if (conf->c_flags & C_PADVANCE) {
@@ -317,7 +315,6 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		playlist->selected = newfile;
 		playlist->where = ++playlist->length;
 		newfile->flags |= F_SELECTED;
-		newfile->colors = colors[SELECTED];
 		if (playlist->length < maxx)
 			return;
 		/* this is inefficient, we could "store" more data about the list, but

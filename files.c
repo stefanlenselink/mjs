@@ -40,8 +40,7 @@ read_mp3_list(wlist *list)
 			ftmp->flags |= F_DIR;
 			ftmp->filename = strdup("../");
 			ftmp->fullpath = strdup("../");
-			ftmp->path = strdup("../");
-			ftmp->colors = colors[INACTIVE];
+			ftmp->path = strdup(dir);
 			ftmp->next = mp3list;
 			if (mp3list)
 				mp3list->prev = ftmp;
@@ -76,7 +75,6 @@ read_mp3_list(wlist *list)
 #endif /* *BSD */
 			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
 			ftmp->path = strdup(dir);
-			ftmp->colors = colors[UNSELECTED];
 
 			ftmp->next = mp3list;
 			if (mp3list)
@@ -120,7 +118,6 @@ read_mp3_list(wlist *list)
 			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
 #endif /* *BSD */
 			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
-			ftmp->colors = colors[UNSELECTED];
 
 			ftmp->next = mp3list;
 			if (mp3list)
@@ -176,8 +173,8 @@ read_mp3_list_file(wlist *list, char *filename)
 	ftmp->filename = strdup("../");
 //	ftmp->fullpath = strdup("../");
 	ftmp->fullpath = getcwd(NULL,0);
-	ftmp->path = strdup("../");
-	ftmp->colors = colors[INACTIVE];
+//	ftmp->path = strdup("../");
+	ftmp->path = strdup(ftmp->fullpath);
 	if (mp3list) {
 		ftmp->prev = list->tail;
 		list->tail->next=ftmp;
@@ -239,7 +236,6 @@ read_mp3_list_file(wlist *list, char *filename)
 			ftmp->fullpath = strdup(buf);
 			ftmp->path = strdup(buf);
 			ftmp->flags |= F_SEARCHDIR | F_DIR;
-			ftmp->colors = colors[INACTIVE];
 			tail->next = ftmp;
 			ftmp->prev = tail;
 			tail = ftmp;
@@ -283,7 +279,6 @@ read_mp3_list_file(wlist *list, char *filename)
 
 				ftmp->path = strdup(dir);
 				ftmp->fullpath = strdup(buf);
-				ftmp->colors = colors[UNSELECTED];			
 
 				tail->next = ftmp;
 				ftmp->prev = tail;
@@ -329,10 +324,6 @@ sort_songs(wlist *sort)
 	newlist->prev = NULL;
 	sort->head = sort->top = sort->selected = newlist;
 	newlist->flags |= F_SELECTED;
-	if (newlist->flags & F_PLAY)
-		newlist->colors = colors[SEL_PLAYING];
-	else
-		newlist->colors = colors[SELECTED];
 	return sort;
 }
 
@@ -362,10 +353,6 @@ sort_search(wlist *sort)
 	newlist->prev = NULL;
 	sort->head = sort->top = sort->selected = newlist;
 	newlist->flags |= F_SELECTED;
-	if (newlist->flags & F_PLAY)
-		newlist->colors = colors[SEL_PLAYING];
-	else
-		newlist->colors = colors[SELECTED];
 	return sort;
 }
 
@@ -398,8 +385,7 @@ sort_mp3_search(const void *a, const void *b)
 			else 
 				return strcmp(second->filename, first->filename);
 		}
-	else
-		return result;
+	return result;
 }
 
 flist *
@@ -426,13 +412,8 @@ delete_file(Window *win, flist *file)
 			fnext->prev = NULL;
 			list->head = fnext;
 		}
-		if (file->flags & F_SELECTED) {
+		if (file->flags & F_SELECTED) 
 		 	fnext->flags |= F_SELECTED;
-/*			if (fnext->flags & F_PLAY)
-				fnext->colors = colors[SEL_PLAYING];
-			else
-				fnext->colors = colors[SELECTED];
-*/		}
 		if (file == list->top)
 			list->top = fnext;
 	 	free(file);
@@ -442,13 +423,8 @@ delete_file(Window *win, flist *file)
 			fprev->next = NULL;
 			list->tail = fprev;
 			list->where--;
-			if (file->flags & F_SELECTED) {
+			if (file->flags & F_SELECTED) 
 				fprev->flags |= F_SELECTED;
-/*				if (fprev->flags & F_PLAY)
-					fprev->colors = colors[SEL_PLAYING];
-				else
-					fprev->colors = colors[SELECTED];
-*/			}
 			if (list->top == file) {
 				for (i = 0, ftmp = fprev; ftmp && ftmp->prev && (i < maxy); ftmp = ftmp->prev, i++);
 				list->top = ftmp;

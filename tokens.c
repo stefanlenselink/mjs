@@ -45,6 +45,14 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 					strncat(line, file->path, size-len);
 					len += strlen(file->path);
 					break;
+				case 'P':   /* the path without the conf->mp3path part*/
+					strncat(line, file->path+strlen(conf->mp3path), size-len);
+					len += strlen(file->path)-strlen(conf->mp3path);
+					if (len==0) {
+						line = (u_char *)window->title_dfl;
+						len= strlen(window->title_dfl);
+					}
+					break;
 				case 'm':   /* how many minutes? */
 					len += snprintf(line+len, size-len, "%ld", file->length / 60);				
 					break;

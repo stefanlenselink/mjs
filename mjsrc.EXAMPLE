@@ -13,8 +13,6 @@
 
 # playlistpath: path to the directory where we save our playlists
 
-# bottom_text: Text to show on the bottomline
-
 # playlist_advance: advance the playlist selection after adding a file?
 
 # file_advance: advance the file selection after selecting a file?
@@ -56,7 +54,7 @@ set mono_output			false
 set show_playlist_length 	true
 set alternative_scrolling	false
 set allow_playlist_saving	true
-set show_track_numbers		true
+set show_track_numbers		false
 
 #
 # Colors
@@ -149,10 +147,3 @@ menubar height	1
 menubar width	w
 menubar y	h-1
 menubar x	0
-# id3 edit box
-id3edit height	8
-id3edit width	50
-id3edit y	9
-id3edit x	15
-id3edit title.default ID3 Tag Editor
-id3edit title.format ID3 Tag Editor - %f

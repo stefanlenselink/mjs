@@ -17,6 +17,7 @@ show_list(Window *window)
 	int top, x = window->width-4, y = window->height-1, i;
 	u_char buf[BUFFER_SIZE+1];
 	const u_char *line;
+	u_int32_t color;
 	WINDOW *win = window->win;
 	flist *ftmp;
 	wlist *list = window->contents.list;
@@ -54,31 +55,31 @@ show_list(Window *window)
 			else 	
 				line = ftmp->filename;
 			if ((window->flags & W_ACTIVE) && (ftmp->flags & F_PAUSED))
-				my_mvwnaddstr(win, i, 2, ftmp->colors | A_BLINK, x, line);
+				my_mvwnaddstr(win, i, 2, colors[PLAYING] | A_BLINK, x, line);
 			else {
 				if (window==play)
 					if (ftmp->flags & F_PLAY)
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							ftmp->colors = colors[SEL_PLAYING];
+							color = colors[SEL_PLAYING];
 						else
-							ftmp->colors = colors[PLAYING];
+							color = colors[PLAYING];
 					else			
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							ftmp->colors = colors[SELECTED];
+							color = colors[SELECTED];
 						else
-							ftmp->colors = colors[PLAYLIST];
-				else	
+							color = colors[PLAYLIST];
+				else	// window==files
 					if (ftmp->flags & (F_SEARCHDIR | F_DIR))
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							ftmp->colors = colors[SELECTED];
+							color = colors[SELECTED];
 						else
-							ftmp->colors = colors[DIRECTORY];
+							color = colors[DIRECTORY];
 					else
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							ftmp->colors = colors[SELECTED];
+							color = colors[SELECTED];
 						else 	
-							ftmp->colors = colors[UNSELECTED];
-				my_mvwnaddstr(win, i, 2, ftmp->colors, x, line);
+							color = colors[UNSELECTED];
+				my_mvwnaddstr(win, i, 2, color, x, line);
 				}
 			ftmp = ftmp->next;
 			} 

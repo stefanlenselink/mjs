@@ -18,11 +18,11 @@ read_mp3_list(wlist *list)
 	DIR *dptr = NULL;
 	struct dirent *dent;
 	struct stat st;
-	flist *ftmp = NULL, *mp3list = list->head;
-	int length = 0;
+	flist *ftmp = NULL;
 
-	list->where = 1;
-	list->wheretop = 1;
+	list->where = 0;
+	list->wheretop = 0;
+	list->length = 0;
 	list->flags &= ~F_VIRTUAL;
 	dir = getcwd(NULL, 0);
 	errno = 0;
@@ -34,24 +34,22 @@ read_mp3_list(wlist *list)
 	if ((strncmp(dir,conf->mp3path,strlen(conf->mp3path))) && (strcmp(dir,conf->playlistpath))){
 		chdir(conf->mp3path);
 		dir = getcwd(NULL, 0);
-		}
-	else {
-		if (strcmp(dir,conf->mp3path)) {
-			ftmp = calloc(1, sizeof(flist));
-			ftmp->flags |= F_DIR;
-			ftmp->filename = strdup("../");
-			if (strcmp(dir,conf->playlistpath))
-				ftmp->fullpath = strdup("../");
-			else
-				ftmp->fullpath = strdup(conf->mp3path);
-			ftmp->path = strdup(dir);
-			ftmp->next = mp3list;
-			if (mp3list)
-				mp3list->prev = ftmp;
-			mp3list = ftmp;
-			length++;
-			}
-		}
+	} else 	if (strcmp(dir,conf->mp3path)) {
+		ftmp = calloc(1, sizeof(flist));
+		ftmp->flags |= F_DIR;
+		ftmp->filename = strdup("../");
+		if (strcmp(dir,conf->playlistpath))
+			ftmp->fullpath = strdup("../");
+		else
+			ftmp->fullpath = strdup(conf->mp3path);
+		ftmp->path = strdup(dir);
+
+		ftmp->next = NULL;
+		ftmp->prev = NULL;
+		list->head = list->tail = ftmp;
+		
+		list->length++;
+	}
 		
 	dptr = opendir(dir);
 		
@@ -63,28 +61,28 @@ read_mp3_list(wlist *list)
 			ftmp = calloc(1, sizeof(flist));
 			ftmp->flags |= F_DIR;
 
+			
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
 			ftmp->filename = malloc(dent->d_namlen+2);
 #else
 			ftmp->filename = malloc(strlen(dent->d_name)+2);
 #endif /* *BSD */
+
+			
 			strcpy(ftmp->filename, dent->d_name);
 			strcat(ftmp->filename, "/");
+
 
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
 			ftmp->fullpath = calloc(1, strlen(dir)+dent->d_namlen+2);
 #else
 			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
 #endif /* *BSD */
-			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
 
+			
+			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
 			ftmp->path = strdup(dir);
 
-			ftmp->next = mp3list;
-			if (mp3list)
-				mp3list->prev = ftmp;
-			mp3list = ftmp;
-			length++;
 		} else if (S_ISREG(st.st_mode)) {
 
 			if ((strncasecmp(".mp3", strchr(dent->d_name, '\0')-4, 4)) && (strncasecmp(".mjs", strchr(dent->d_name, '\0')-4, 4)))
@@ -125,17 +123,23 @@ read_mp3_list(wlist *list)
 #endif /* *BSD */
 			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
 
-			ftmp->next = mp3list;
-			if (mp3list)
-				mp3list->prev = ftmp;
-			mp3list = ftmp;
-			length++;
 		}
-	}
+	
+		ftmp->prev = list->tail;
+		ftmp->next = NULL;
+
+		if (list->tail)
+			list->tail->next = ftmp;
+		list->tail = ftmp;
+		if (!list->head)
+			list->head = ftmp;
+		
+		list->length++;
+}
 	closedir(dptr);
 	free(dir);
-	list->length = length;
-	return ftmp;
+	list->selected = list->top = list->head;
+	return list->head;
 }
 
 int
@@ -192,7 +196,8 @@ read_mp3_list_file(wlist *list, char *filename)
 	} else {
 		// no existing list, make a new one
 		list = calloc(1, sizeof(wlist));
-		list->where = 1;
+		list->where = 0;
+		list->wheretop = 0;
 		list->length = 1;
 		list->flags |= F_VIRTUAL;
 		ftmp = calloc(1, sizeof(flist));
@@ -215,7 +220,7 @@ read_mp3_list_file(wlist *list, char *filename)
 	while (!feof(fp)) {
 		n++;
 		if (n & 0x03){
-			my_mvwaddstr(menubar->win, 0, (24+(n/4)), colors[MENU_TEXT], "*");
+			my_mvwaddstr(menubar->win, 0, (26+(n/4)), colors[MENU_TEXT], "*");
 			update_panels();
 			doupdate();
 			}
@@ -400,8 +405,8 @@ sort_mp3(const void *a, const void *b)
 	const flist *first = *(const flist **) a;
 	const flist *second = *(const flist **) b;
 
-	if (second->filename[0] == '.')
-		return -1;
+	if (first->filename[0] == '.')
+		return 1;
 	if ((first->flags & F_DIR) && !(second->flags & F_DIR))
 		return 1;
 	else if (!(first->flags & F_DIR) && (second->flags & F_DIR))

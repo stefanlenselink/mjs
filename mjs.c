@@ -12,8 +12,6 @@
 #include "inputline.h"
 #include "extern.h"
 #include "unistd.h"
-#include <mcheck.h>
-
 
 /*
  * intialize the external variables 
@@ -56,9 +54,7 @@ do_search (Input * input)
 	wlist *mp3list = files->contents.list;
 	menubar->deactivate (menubar);
 	active = old_active;
-	my_mvwaddstr (menubar->win, 0, 2, colors[MENU_TEXT], "Busy searching.....  [                                                   ]");
-	update_panels ();
-	doupdate ();
+	printf_menubar (menubar, SEARCHING);
 	if (!((*input->buf == ' ') || (*input->buf == '\0'))) {
 		handler.sa_handler = SIG_DFL;
 		handler.sa_flags = SA_ONESHOT;
@@ -103,11 +99,7 @@ main (int argc, char *argv[])
 	struct timeval wait1000 = { 0, 1000000 };
 	fd_set fds;
 
-	// #ifdef DEBUG
-	mtrace ();
-	// #endif
-
-	previous_selected = strdup ("");
+	previous_selected = strdup ("\0");
 	srand (time (NULL));
 	
 	memset(&handler, 0, sizeof(struct sigaction));
@@ -526,8 +518,6 @@ read_key (Window * window)
 		// Exit mjs                     
 		menubar->deactivate (menubar);
 		printf_menubar (menubar, EXITPROGRAM);
-		update_panels ();
-		doupdate ();
 		c = wgetch (window->win);
 		if (c == 27)
 			c = wgetch (window->win);
@@ -541,8 +531,6 @@ read_key (Window * window)
 		// Clear playlist
 		menubar->deactivate (menubar);
 		printf_menubar (menubar, CLEARPLAYLIST);
-		update_panels ();
-		doupdate ();
 		c = wgetch (window->win);
 		if (c == 27)
 			c = wgetch (window->win);
@@ -586,15 +574,13 @@ read_key (Window * window)
 		// Show last search results
 		menubar->deactivate (menubar);
 		printf_menubar (menubar, SEARCHING);
-		update_panels ();
-		doupdate ();
 		free_list (mp3list->head);
 		free (mp3list);
 		mp3list = read_mp3_list_file (NULL, conf->resultsfile);
 		if (mp3list->head)
 			sort_search (mp3list);
 		menubar->activate (menubar);
-		info->update (files);
+		info->update (info);
 		files->update (files);
 		break;
 
@@ -770,7 +756,8 @@ process_return (wlist * mp3list, int c, int alt)
 
 	} else if (mp3list->selected->flags & F_PLAYLIST) {
 		char *filename = strdup (mp3list->selected->fullpath);
-		if ((alt) ^ (conf->c_flags & C_P_TO_F))	// load playlist directly with alt-enter
+		printf_menubar (menubar, READING);
+		if ((alt > 0) ^ ((conf->c_flags & C_P_TO_F) > 0))	// load playlist directly with alt-enter
 		{
 			free_list (mp3list->head);
 			free (mp3list);

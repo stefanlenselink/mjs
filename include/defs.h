@@ -9,7 +9,8 @@
 #define BIG_BUFFER_SIZE	4096
 
 #define SHUFFLE "Shuffle Playlist ? (y/n)"
-#define SEARCHING "Busy searching.....  [                                                   ]"
+#define SEARCHING "Searching...   [                                                   ]"
+#define READING   "Reading...     [                                                   ]"
 #define CLEARPLAYLIST "Are you sure you want to clear the playlist ? (y/n)"
 #define EXITPROGRAM "Are you sure you want to reset this program ? (y/n)"
 
@@ -32,6 +33,8 @@
 #endif
 
 /* enumeration for the color array */
+
+#define NUM_COLORS 24
 
 enum ATTRIBS {
 	WIN_ACTIVE,

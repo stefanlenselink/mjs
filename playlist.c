@@ -368,6 +368,9 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		newfile->prev = head;
 	} else {
 		newfile->prev = NULL;
+		playlist->length = 0;
+		playlist->wheretop = 0;
+		playlist->where = 0;
 		playlist->head = playlist->top = newfile;
 	}
 
@@ -384,14 +387,15 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		playlist->selected = newfile;
 		newfile->flags |= F_SELECTED;
 		playlist->where = 0;
+		playlist->wheretop = 0;
 	}
+	playlist->length++;
 	if (conf->c_flags & C_PADVANCE) {
 		playlist->selected->flags &= ~F_SELECTED; /* could be a wasted dupe */
 		playlist->selected = newfile;
-		playlist->where = ++playlist->length;
+		playlist->where = playlist->length;
 		newfile->flags |= F_SELECTED;
-	} else
-		++playlist->length;
+	} 
 	play->update(play);
 	return;
 }

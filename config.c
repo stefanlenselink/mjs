@@ -25,7 +25,7 @@ static void set_color_defaults (void);
 static void set_window (Window *, char *, char *);
 static int break_line (const char *, char *, char *, char *);
 
-u_int32_t colors[24];
+u_int32_t colors[NUM_COLORS];
 
 Config *
 read_config (Config * conf)
@@ -130,8 +130,6 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_P_TO_F;
 	else if (!strcasecmp (option, "mono_output"))
 		conf->c_flags |= YESNO (value) * C_MONO;
-	else if (!strcasecmp (option, "alternative_scrolling"))
-		conf->c_flags |= YESNO (value) * C_ALT_SCROLL;
 	else if (!strcasecmp (option, "allow_playlist_saving"))
 		conf->c_flags |= YESNO (value) * C_ALLOW_P_SAVE;
 	else if (!strcasecmp (option, "show_track_numbers"))

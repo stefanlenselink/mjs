@@ -13,7 +13,7 @@ static u_char	*parse_title(Window *, u_char *, int);
 int
 show_list(Window *window)
 {
-	int top, x = window->width-4, y = window->height-1, i;
+	int x = window->width-4, y = window->height-2, i;
 	u_char buf[BUFFER_SIZE+1];
 	const u_char *line;
 	u_int32_t color;
@@ -23,30 +23,33 @@ show_list(Window *window)
 
 	if (!list)
 		return 0;
-	top = list->where - (y/2);
-	list->top=list->head;
 
-	if (!(conf->c_flags & C_ALT_SCROLL)) {
-		if (list->where-3 == list->wheretop)
-			list->wheretop-=1;
-		else if ((list->where+4) == list->wheretop+y-1)
-				if ((list->wheretop+=1)>list->length)
-					list->wheretop=list->length;
-		if (list->where-3 < list->wheretop)
-			list->wheretop = list->where-((y-1)/2);
-		else if (list->where > list->wheretop + y-5)
-			list->wheretop = list->where-((y-1)/2);
-		top = list->wheretop-1;
+	// do we need to reposition the screen
+	if ((list->where - 3) == list->wheretop) {
+		list->wheretop--;
+		if (list->wheretop < 0)
+			list->wheretop = 0;
+	} else if ((list->where + 4) == (list->wheretop + y)) {
+		if (++list->wheretop > (list->length - y))
+			list->wheretop = list->length - y;
+	} else if (((list->where - 4) < list->wheretop) || ((list->where + 4) > (list->wheretop + y))) {
+		list->wheretop = list->where - (y/2);
+		if (list->wheretop <  0)
+			list->wheretop = 0;
+		if (list->wheretop > (list->length - y))
+			list->wheretop = list->length - y;
 	}
-	if ((top > 0) && (list->length > (y-1)) ) {
-		for (i = 0; (i < top) && (list->top->next); i++)
+
+	// find the list->top entry
+	list->top=list->head;
+	if ((list->wheretop > 0) & (list->length > y)) {
+		for (i = 0; (i < list->wheretop)&&(list->top->next); i++)
 			list->top = list->top->next;
 	}
 
 	ftmp = list->top;
-
-	for (i = 1; i < y; i++)
-		if ((ftmp) && (ftmp->filename)) {
+	for (i = 0; i < y; i++)
+		if (ftmp) {
 			if (window->format) {
 				memset(buf, 0, sizeof(buf));
 				line = parse_tokens(window,ftmp, buf, BUFFER_SIZE, window->format);
@@ -76,13 +79,13 @@ show_list(Window *window)
 						color = colors[FILE_UNSELECTED];
 			if (ftmp->flags & F_PAUSED)
 				color |=  A_BLINK;
-			my_mvwnaddstr(win, i, 2, color, x, line);
+			my_mvwnaddstr(win, (i+1), 2, color, x, line);
 			ftmp = ftmp->next;
 		} else  /* blank the line */ 
 			if (window == play) 
-				my_mvwnaddstr(win, i, 2, colors[PLAY_WINDOW], x, "");
+				my_mvwnaddstr(win, (i+1), 2, colors[PLAY_WINDOW], x, "");
 			else
-				my_mvwnaddstr(win, i, 2, colors[FILE_WINDOW], x, "");
+				my_mvwnaddstr(win, (i+1), 2, colors[FILE_WINDOW], x, "");
 
 	if (window->flags & W_LIST)
 		do_scrollbar(active);
@@ -92,6 +95,19 @@ show_list(Window *window)
 		redrawwin(win);
 	return 1;
 }
+/*
+	if ((list->selected->next) && (list->selected->next->next) && (list->selected->next->next->next == list->bottom))
+		if (list->bottom->next) {
+			list->top = list->top->next;
+			list->bottom = list->bottom->next;
+		}
+
+	if ((list->selected->prev) && (list->selected->prev->prev) && (list->selected->prev->prev->prev == list->top)) 
+		if (list->top->prev) {
+			list->top = list->top->prev;
+			list->bottom = list->bottom->prev;
+		}
+*/
 
 Window *
 move_selector(Window *window, int c)
@@ -106,7 +122,7 @@ move_selector(Window *window, int c)
 		return NULL;
 	
 	getmaxyx(window->win, maxy, maxx);
-	length = maxy - 2;
+	length = maxy - 1;
 
 	switch (c) {
 		case KEY_ENTER:
@@ -115,8 +131,8 @@ move_selector(Window *window, int c)
 			if (active == play) {
 				wlist->selected->flags &= ~F_SELECTED;
 				wlist->selected = next_valid(wlist->head, KEY_HOME);
-				wlist->where = 1;
-				wlist->wheretop = 1;
+				wlist->where = 0;
+				wlist->wheretop = 0;
 				
 				for (j = 0; wlist->selected->next && wlist->selected != wlist->playing; j++) {
 					wlist->selected = next_valid(wlist->selected->next, KEY_DOWN);
@@ -130,8 +146,8 @@ move_selector(Window *window, int c)
 			wlist->selected->flags &= ~F_SELECTED;
 			wlist->selected = next_valid(wlist->head, c);
 			wlist->selected->flags |= F_SELECTED;
-			wlist->where = 1;
-			wlist->wheretop = 1;
+			wlist->where = 0;
+			wlist->wheretop = 0;
 			return window;
 		case KEY_END: 
 			wlist->selected->flags &= ~F_SELECTED;
@@ -162,7 +178,6 @@ move_selector(Window *window, int c)
 			for (j = 0; wlist->selected->next && j < length-1; j++) {
 				wlist->selected = next_valid(wlist->selected->next, KEY_DOWN);
 				wlist->where++;
-				wlist->wheretop++;
 				}
 			wlist->selected = next_valid(wlist->selected, c);
 			wlist->selected->flags |= F_SELECTED;
@@ -170,9 +185,8 @@ move_selector(Window *window, int c)
 		case KEY_PPAGE:
 			wlist->selected->flags &= ~F_SELECTED;
 			for (j = 0; wlist->selected->prev && j < length-1; j++) {
-				wlist->where--;
-				wlist->wheretop--;
 				wlist->selected = next_valid(wlist->selected->prev, KEY_UP);
+				wlist->where--;
 				}
 			wlist->selected = next_valid(wlist->selected, c);
 			wlist->selected->flags |= F_SELECTED;
@@ -293,11 +307,9 @@ std_menubar(Window *window)
 	char version_str[128];
 	int x = window->width-2;
 	clear_menubar(window);
-//	snprintf(version_str, 128, "%s   v%s", window->title_dfl, VERSION);
-//	my_mvwaddstr(window->win, 0, ((x-strlen(version_str))/2)+6, colors[MENU_TEXT], version_str);
 	my_mvwaddstr(window->win, 0, ((x-strlen(window->title_dfl))/2), colors[MENU_TEXT], window->title_dfl);
 	snprintf(version_str, 128, "v%s", VERSION);
-	my_mvwaddstr(window->win, 0, x-6, colors[MENU_TEXT], version_str);
+	my_mvwaddstr(window->win, 0, x - strlen(version_str) + 2, colors[MENU_TEXT], version_str);
 	return 1;
 }
 
@@ -360,38 +372,31 @@ update_title(Window *window)
 void
 do_scrollbar(Window *window)
 {
-	int i = 1, offscreen, x, y; /* window dimensions, etc */
+	int x, y; /* window dimensions, etc */
 	int top, bar, bottom; /* scrollbar portions */
 	double value; /* how much each notch represents */
 	u_int32_t color;
-	wlist *wtmp = window->contents.list;
-	flist *ftmp = NULL, *selected = wtmp->selected;
+	wlist *list = window->contents.list;
 	WINDOW *win = window->win;
-	if (wtmp->length < 1)
-		return;
+
 	getmaxyx(win, y, x);
 	y -= 2;
 	x -= 1;
-	value = wtmp->length / (double) y;
-	for (ftmp = wtmp->top; ftmp != selected; ftmp = ftmp->next)
-		i++;
-	/* now we calculate the number preceeding the screenfull */
-	offscreen = wtmp->where - i;
+
+	value = list->length / (double) y;
 
 	/* calculate the sizes of our status bar */
 	if (value < 1) {
+		// only one screen
 		top = 0;
 		bar = y;
 		bottom = 0;
 	} else {
-		/* drago's code */
-		double toptmp;
-		toptmp=offscreen / value;
-		top = (int)(double)(int)toptmp/1 == toptmp ? toptmp : (double)(int)toptmp+(double)1;
+		top = (int)(((double)list->wheretop / value)+(double).5);
 		bar = (int)((y / value)+(double).5);
-		bottom = y - top - bar;
-		/* end drago's code =) */
+		bottom = y - top - bar ;
 	}
+
 	/* because of rounding we may end up with too much, correct for that */
 	if (bottom < 0)
 		top += bottom;
@@ -399,13 +404,18 @@ do_scrollbar(Window *window)
 		color = colors[WIN_ACTIVE_SCROLL];
 	else
 		color = colors[WIN_INACTIVE_SCROLL];
+
 	mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | color, top);
-	if (bottom > 0)
-		mvwvline(win, 1+top+bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom);
+
+
 	if (window->flags & W_ACTIVE)
-		mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_ACTIVE_SCROLLBAR], bar);
+		mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_ACTIVE_SCROLLBAR], bar);
 	else
-		mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_INACTIVE_SCROLLBAR], bar);
+		mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_INACTIVE_SCROLLBAR], bar);
+	
+	if (bottom > 0)
+		mvwvline(win, 1 + top + bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom);
+
 	update_panels();
 }
 

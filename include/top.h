@@ -2,13 +2,13 @@
 #define __USE_UNIX98
 #define _GNU_SOURCE
 #define __USE_GNU
+#include <time.h>
 #endif
 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <sys/time.h>
-#include <time.h>
 
 #include <ctype.h>
 #include <dirent.h>
@@ -19,7 +19,7 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
-#include <malloc.h>
+//#include <malloc.h>
 #ifndef FREEBSD_NCURSES_PORT
 #include <ncurses.h>
 #include <panel.h>

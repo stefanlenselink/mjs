@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 3.0-rc4
+VERSION = 3.0-rc5
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c

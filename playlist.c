@@ -281,6 +281,10 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	}
 	if (!newfile->filename)
 		newfile->filename = strdup(file->filename);
+	if (strlen(newfile->filename) == 0) {
+		free(newfile->filename);
+		newfile->filename = strdup("...");
+	}
 		
 	newfile->path = strdup(file->path);
 	newfile->fullpath = strdup(file->fullpath);

@@ -1,7 +1,7 @@
 CC = gcc
 prefix = /usr/local/bin
 
-VERSION = 3.3-rc4
+VERSION = 3.3
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c list.c
@@ -17,7 +17,7 @@ WARNINGS = -Wbad-function-cast -Wcast-align
 #WARNINGS = -Wall -Wbad-function-cast -Wcast-align -unreachable-code -W -Wshadow
 OPTFLAGS = -O2
 # Comment this out for debugging
-OPTFLAGS += -g3
+#OPTFLAGS += -g3
 
 CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS) -DVERSION=\"$(VERSION)\"
 
@@ -62,7 +62,7 @@ install: all
 release: dist
 
 dist: clean
-	cd ..; tar cvzf mjs-$(VERSION).tar.gz --exclude mjs/CVS --exclude tools/CVS --exclude mjs/include/CVS mjs
+	cd ..; tar cvzf mjs-$(VERSION).tar.gz --exclude CVS mjs
 
 mostlyclean:
 	rm -f *~ core *.core *.o

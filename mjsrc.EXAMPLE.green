@@ -61,7 +61,7 @@ set fix_window_borders		auto
 set screensaver			true
 
 # Reload the last playlist at startup 
-set keep_playlist_at_exit	true
+set keep_playlist_at_exit	false
 
 # Use directory based genre system 
 set use_genre			false

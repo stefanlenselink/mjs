@@ -22,8 +22,6 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 	
 	while (*fmt && (len < size)) {
 		if (*fmt == '%') {
-//			int min;
-//			double sec;
 			switch(*++fmt) {
 				case 't':   /* the song title */
 					strncat(line, file->filename, size-len);
@@ -53,21 +51,6 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 						len= strlen(window->title_dfl);
 					}
 					break;
-// No support for track length anymore
-//				case 'm':   /* how many minutes? */
-//					len += snprintf(line+len, size-len, "%ld", file->length / 60);				
-//					break;
-//				case 's':   /* "remainder" seconds (fraction of minutes) */
-//					len += snprintf(line+len, size-len, "%ld", file->length % 60);				
-//					break;
-//				case 'S':   /* total length in seconds */
-//					len += snprintf(line+len, size-len, "%ld", file->length);				
-//					break;
-//				case 'T':   /* time in format [%m:%s] */
-//					min = file->length / 60;
-//					sec = (double)file->length - min * 60;
-//					len += snprintf(line+len, size-len, "[%02d:%02.0f]", min, sec);
-//					break;
 				case '%':
 					line[len++] = '%';
 					break;

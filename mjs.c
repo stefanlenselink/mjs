@@ -36,7 +36,6 @@ do_save(Input* input)
 	free(input);
 	menubar->activate(menubar);
 	menubar->inputline = NULL;
-	curs_set(0);
 	update_panels();
 	doupdate();
 	return 1;
@@ -83,7 +82,6 @@ do_search(Input* input)
 	free(input);
 	menubar->activate(menubar);
 	menubar->inputline = NULL;
-	curs_set(0);
 	update_panels();
 	doupdate();
 	return 1;
@@ -160,8 +158,8 @@ main(int argc, char *argv[])
 	files->input = read_key;
 	files->flags |= W_LIST | W_RDONLY;
 
-	menubar->activate = std_bottom_line;
-	menubar->deactivate = clear_bottom_line;
+	menubar->activate = std_menubar;
+	menubar->deactivate = clear_menubar;
 
 	/* now we have initialized most of the window stuff, read our config */
 	conf = calloc(1, sizeof(Config));
@@ -212,8 +210,6 @@ main(int argc, char *argv[])
 	wbkgd(playback->win, colors[INFO_BACK]);
 	menubar->activate(menubar);
 	init_info();
-//
-//exit(0);
 	play->deactivate(play);
 
 	info->deactivate(info);
@@ -228,7 +224,6 @@ main(int argc, char *argv[])
 
 	files->update(files);
 	update_info(files);
-//
 
 	doupdate();
 	start_mpg_child();
@@ -333,8 +328,6 @@ read_key(Window *window)
 		case '-':
 			if ((active == play) && (!(play->contents.list->selected==play->contents.list->head))) {
 				move_backward(play->contents.list);
-//				if (p_status)
-//					calculate_duration(play->contents.list->playing);
 				play->update(play);
 				doupdate();
 			}
@@ -345,8 +338,6 @@ read_key(Window *window)
 		case '=':
 			if ((active == play) && !(play->contents.list->selected==play->contents.list->tail)) {
 				move_forward(play->contents.list);
-//				if (p_status)
-//					calculate_duration(play->contents.list->playing);
 				play->update(play);
 				doupdate();
 			}
@@ -378,8 +369,6 @@ read_key(Window *window)
 			if (active == play){
 				wlist *playlist = play->contents.list;				
 				playlist->selected = delete_file(play, playlist->selected);
-//				if (p_status)
-//					calculate_duration(play->contents.list->playing);
 				info->update(play);
 				play->update(play);
 				doupdate();
@@ -391,7 +380,7 @@ read_key(Window *window)
 			wrefresh(curscr);
 			break;
 
-// Exit mms			
+// Exit mjs			
 		case KEY_F(1):
 			menubar->deactivate(menubar);
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Are you sure you want to reset this program ? (y/n)");
@@ -403,7 +392,6 @@ read_key(Window *window)
 			if ((c == 'y')|(c == 'Y')) 
 				bailout(0);
 			menubar->activate(menubar);
-			curs_set(0);
 			update_panels();
 			doupdate();
 			break;
@@ -427,7 +415,6 @@ read_key(Window *window)
 				play->update(play);
 				}
 			menubar->activate(menubar);
-			curs_set(0);
 			info->update(play);
 			update_panels();
 			doupdate();	
@@ -437,7 +424,7 @@ read_key(Window *window)
 		case KEY_F(3):
 			old_active = active;
 			active = menubar;
-			wbkgd(menubar->win, 0);
+//			wbkgd(menubar->win, 0);
 			menubar->inputline = inputline = (Input *)calloc(1, sizeof(Input));
 			inputline->win = menubar->win;
 			inputline->panel = menubar->panel;
@@ -452,13 +439,16 @@ read_key(Window *window)
 			inputline->complete = filename_complete;
 			inputline->pos = 1; 
 			inputline->fpos = 1;
-			curs_set(1);
 			update_menu(inputline);
 			doupdate();
 			break;
 
 // Show last search results
 		case KEY_F(4):
+			clear_menubar(menubar);
+			my_mvwaddstr(menubar->win, 0, 2, colors[MENU_TEXT], "Busy searching.....  [                                                   ]");
+			update_panels();
+			doupdate();
 			free_list(mp3list->head);
 			memset(mp3list, 0, sizeof(wlist));
 			mp3list = read_mp3_list_file(mp3list,conf->resultsfile);
@@ -473,9 +463,8 @@ read_key(Window *window)
 // Randomize the playlist				
 		case KEY_F(5): 
 			menubar->deactivate(menubar);
-			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Shuffle Playlist ? (y/n)");
-			update_panels();
-			doupdate();
+			printf_menubar(menubar, SHUFFLE);
+			//my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Shuffle Playlist ? (y/n)");
 			c = wgetch(window->win);
 			if (c == 27) 
 				c = wgetch(window->win);
@@ -488,7 +477,6 @@ read_key(Window *window)
 				info->update(play);
 				}
 			menubar->activate(menubar);
-			curs_set(0);
 			update_panels();
 			doupdate();	
 			break;
@@ -499,7 +487,7 @@ read_key(Window *window)
 				break;
 			old_active = active;
 			active = menubar;
-			wbkgd(menubar->win, 0);
+			clear_menubar(menubar);
 			menubar->inputline = inputline = (Input *)calloc(1, sizeof(Input));
 			inputline->win = menubar->win;
 			inputline->panel = menubar->panel;
@@ -514,7 +502,6 @@ read_key(Window *window)
 			inputline->complete = filename_complete;
 			inputline->pos = 1; 
 			inputline->fpos = 1;
-			curs_set(1);
 			update_menu(inputline);
 			doupdate();
 			break;
@@ -527,7 +514,6 @@ read_key(Window *window)
 				doupdate();
 				}
 			p_status=STOPPED;
-//			calculate_duration(play->contents.list->head);
 			break;
 
 // Play / Pause key
@@ -537,7 +523,6 @@ read_key(Window *window)
 /* fix me */		
 					if (!play->contents.list->selected)
 						play->contents.list->selected=next_valid(play,play->contents.list->top,KEY_DOWN);
-//					calculate_duration(play->contents.list->selected);
 					jump_to_song(play->contents.list->selected); /* Play */
 					doupdate(); 
 					break;
@@ -690,12 +675,10 @@ unsuspend(int sig)
 int
 update_menu(Input *inputline)
 {
-	wmove(inputline->win, inputline->y, inputline->x);
-	my_wnclear(inputline->win, inputline->flen);
+	clear_menubar(menubar);
 	update_anchor(inputline);
-	my_wnprintw(inputline->win, colors[MENU_TEXT], inputline->flen + inputline->plen, "%s", inputline->prompt);
-	my_wnprintw(inputline->win, inputline->y, inputline->flen + inputline->plen, " %s", inputline->anchor);
-	wmove(inputline->win, inputline->y, inputline->fpos+inputline->plen);
+	my_wnprintw(inputline->win, colors[MENU_TEXT] | A_BLINK, inputline->flen + inputline->plen, "%s", inputline->prompt);
+	my_wnprintw(inputline->win, colors[MENU_TEXT], inputline->flen + inputline->plen, " %s", inputline->anchor);
 	update_panels();
 	doupdate();
 	return 1;
@@ -720,27 +703,16 @@ void
 show_playinfo(mpgreturn *message)
 {
 	int minleft, minused;
-	long minplaylist;
-	double secleft, secused,secplaylist;
+	double secleft, secused;
 	
 	minleft = (int)message->remaining / 60;
 	secleft = message->remaining - minleft*60;
 	minused = (int)message->elapsed / 60;
 	secused = message->elapsed - minused*60;
-	if (conf->c_flags & C_SHOW_P_LENGTH) {
-		minplaylist = (play->contents.list->duration+(int)message->remaining) / 60;
-		secplaylist = (double)play->contents.list->duration + message->remaining- minplaylist*60;
-		my_mvwnprintw2(playback->win, 1, 2, colors[UNSELECTED], playback->width-3,
-			"Time: %02d:%02.0f / %02d:%02.0f  List: %02d:%02.0f",
-			minused, secused, minleft, secleft, minplaylist, secplaylist);
-		}
-	else {
-		my_mvwnprintw2(playback->win, 1, 2, colors[UNSELECTED], playback->width-3,
-			"Time: %02d:%02.0f / %02d:%02.0f",
-			minused, secused, minleft, secleft);
-		}
+	my_mvwnprintw2(playback->win, 1, 2, colors[UNSELECTED], 20,
+			"Time: %02d:%02.0f / %02d:%02.0f", minused, secused, minleft, secleft);
 			
-		if (active->inputline) {
+	if (active->inputline) {
 		Input *inputline = active->inputline;
 		wmove(inputline->win, inputline->y, inputline->fpos+inputline->plen);
 	}

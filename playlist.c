@@ -9,16 +9,6 @@
 #include "mjs.h"
 #include "extern.h"
 
-/*void
-calculate_duration(flist *list)
-{
-        flist *ftmp;
-        play->contents.list->duration=0; 
-	for (ftmp = list; ftmp; ftmp = ftmp->next) {
-	play->contents.list->duration+=(ftmp->length);
-        }
-}
-*/
 void
 play_next_song(void)
 {
@@ -65,8 +55,6 @@ wlist *
 jump_backward(wlist *playlist)
 {
 	flist *ftmp = playlist->playing;
-//	int duration = playlist->duration; 
-//	int length = playlist->playing->length;
 
 	if (!ftmp)
 		return playlist;
@@ -81,7 +69,6 @@ jump_backward(wlist *playlist)
 		play->contents.list->playing = NULL;
 		show_list(play);
 	}
-//	playlist->duration=((length+duration));
 	return playlist;
 }
 
@@ -164,7 +151,6 @@ jump_to_song(flist *selected)
 	selected->flags |= F_PLAY;
 	playlist->playing = selected;
 	info->contents.play = selected;
-//	play->contents.list->duration -= selected->length;
 	if (active == info)
 		info->update(info);
 	play->update(play);
@@ -282,18 +268,22 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	newfile = calloc(1, sizeof(flist));
 	if (!head)
 		playlist->head = playlist->top = newfile;
-	/* remove tracknumber if it exists */
-	if (((file->filename[0]>='0') & (file->filename[0]<='9')) & (!(conf->c_flags & C_TRACK_NUMBERS))){
-		if ((file->filename[1]>='0') & (file->filename[1]<='9'))
-			newfile->filename = strdup(file->filename+3);	
-		else
-			newfile->filename = strdup(file->filename+2);
-	} else
+	
+	/* remove tracknumber if it exists and user wants it*/
+	if (!(conf->c_flags & C_TRACK_NUMBERS)) {
+		if ((file->filename[0]>='0') & (file->filename[0]<='9')) {
+			if ((file->filename[1]>='0') & (file->filename[1]<='9'))
+				newfile->filename = strdup(file->filename+3);	
+			else
+				newfile->filename = strdup(file->filename+2);
+		} else if (!strncasecmp(file->filename,"cd",2))
+			newfile->filename = strdup(file->filename+7);	
+	}
+	if (!newfile->filename)
 		newfile->filename = strdup(file->filename);
 		
 	newfile->path = strdup(file->path);
 	newfile->fullpath = strdup(file->fullpath);
-//	newfile->length = file->length;
 	if (file->album)
 		newfile->album = strdup(file->album);
 	if (file->artist)
@@ -308,7 +298,6 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	}
 	else 
 		playlist->tail = newfile;
-//	playlist->duration += file->length;
 	if (!playlist->selected) {
 		playlist->selected = newfile;
 		newfile->flags |= F_SELECTED;

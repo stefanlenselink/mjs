@@ -208,13 +208,10 @@ void change_active(Window *new)
 static void
 clear_info(void)
 {
-	WINDOW *win = info->win;
-	int i = info->width;
-	
-	my_mvwnclear(win, 1, 9, i-10);
-	my_mvwnclear(win, 2, 9, i-10);
-	my_mvwnclear(win, 3, 9, i-10);
-	my_mvwnclear(win, 4, 9, i-10);
+	int i = info->height - 2;
+	for (; i; i--)
+		my_mvwnclear(info->win, i, 9, info->width - 10);
+
 }
 
 int
@@ -259,23 +256,33 @@ inactive_win(Window *window)
 }
 
 int 
-clear_bottom_line(Window *window)
+clear_menubar(Window *window)
 {
-	wmove(menubar->win, 0, 0);
-	wclrtoeol(menubar->win);
-	wbkgd(menubar->win, colors[MENU_BACK]);
+	wmove(window->win, 0, 0);
+	wclrtoeol(window->win);
+	wbkgd(window->win, colors[MENU_BACK]);
 	return 1;
 }
 
 int
-std_bottom_line(Window *window)
+std_menubar(Window *window)
 {
 	char version_str[128];
 	int x = window->width-2;
-	clear_bottom_line(window);
+	clear_menubar(window);
 	snprintf(version_str, 128, "%s   v%s", window->title_dfl, VERSION);
-	my_mvwaddstr(menubar->win, 0, (x-strlen(version_str))/2, colors[MENU_TEXT], version_str);
+	my_mvwaddstr(window->win, 0, (x-strlen(version_str))/2, colors[MENU_TEXT], version_str);
 	return 1;
+}
+
+__inline__ void
+printf_menubar(Window *window, char *text) 
+{
+	clear_menubar(window);
+	my_mvwaddstr(window->win, 0, 10, colors[MENU_TEXT], text);
+	update_panels();
+	doupdate();
+
 }
 
 int

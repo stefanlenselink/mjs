@@ -44,6 +44,12 @@ F2 will save the current playlist to a file.
      an error in one of the mp3s (or mpg123 dies :)
    * DEL will remove a song from the playlist (unless it is playing!)
    * 'r' will randomize the playlist
+ * in the ID3 edit window, up/down will move to the prev/next field. Input
+   WILL BE TRUNCATED to the proper size immediately when you leave the
+   field. No mouse support for anything in here... (Sorry, no Linux... 
+   Trent? =)) Just press <cr> through all the fields and whammo, it will be
+   saved. You have to rescan the dir with 'r' for it to update though (fixed
+   next release, I promise!)
 
 Mouse:
  * left clicking on an mp3 in the files or playlist window will select it.
@@ -52,3 +58,5 @@ Mouse:
  * left clicking the '<' and '>' arrows will move the selection bar up and
    down.
  * right clicking an mp3 in the playlist deletes it from the playlist.
+ * left clicking above or below a scroll bar will scroll the list by one
+   page. right clicking will go to the beginning or end of the list.

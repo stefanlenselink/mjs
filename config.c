@@ -1,8 +1,11 @@
-/* configuration file support by Trent Gamblin 9/5/1999 */
-/*
+/* configuration file support by Trent Gamblin 9/5/1999
+ *
  * slightly modified to fix potential overflows, use color array
  * and add check for impossible background colors. Thanks Trent!
  * - WM 9/6/1999
+ * 
+ * More options added, some rewrites. Do away with COLOR(x, y) macro.
+ * More sanity checks on the colors, too.
  */
 
 #include "mms.h"
@@ -14,63 +17,92 @@
 #define COMMENT '#'
 #define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1')
 
-static void set_option (char *, char *);
-__inline__ static u_int32_t merge_colors(u_int32_t, u_int32_t);
+static Config *set_option (Config *, char *, char *);
+static u_int32_t merge_colors(u_int32_t, u_int32_t);
 static u_int32_t str2color(char *);
 static void set_color(char *, char *);
+static void set_window_defaults(void);
+static void set_color_defaults(void);
+static void set_window(char *, char *);
+
+u_int32_t colors[20];
+
+Config *
+read_config(Config *conf)
+{
+	char line[1024], fname[256], *p;
+	char keyword[32], param[32], value[256];
+	struct stat sb;
+	FILE *cfg;
+
+	/* make sure this is all null before we go open some unknown file */
+	memset(fname, 0, sizeof(fname));
+	memset(colors, 0, sizeof(colors));
+
+	set_window_defaults();
+	set_color_defaults();
+
+	if ((p = getenv("MMSRC")))
+		strncpy(fname, p, sizeof(fname)-1);
+	else
+		snprintf(fname, sizeof(fname)-1, "%s/.mmsrc", getenv("HOME"));
+	
+	memset(&sb, 0, sizeof(sb));
+
+	/* dont follow symlinks */
+	if (((lstat(fname, &sb)) != 0) || S_ISLNK(sb.st_mode))
+		return conf;		
+	if ((cfg = fopen(fname, "r")) == NULL)
+		return conf;
+
+	while (fgets(line, sizeof(line), cfg)) {
+		if (*line == COMMENT)
+			continue;
+		if (sscanf(line, "%s %s %s", keyword, param, value) != 3)
+			continue;
+		if (!strcasecmp(keyword, "set"))
+			set_option(conf, param, value);
+		else if (!strcasecmp(keyword, "color"))
+			set_color(param, value);
+		else if (!strcasecmp(keyword, "window"))
+			set_window(param, value);
+	}
+	fclose(cfg);
+	return conf;
+}
 
 /* All configurable parameters go here */
 
-char mpgpath[256];      /* path to mpg123 binary */
-char dfl_plist[256];    /* default playlist to load */
-int sel_advance = 0;    /* advance selection bar after selecting? */
-int skip_info_box = 0;  /* skip info box while tabbing through windows? */
-int loop = 0;           /* loop the playlist? */
-
-u_int32_t colors[15] = {
-	COLOR(B_GREEN, BLUE),
-	COLOR(YELLOW, BLUE),
-	COLOR(YELLOW, RED),
-	COLOR(WHITE, BLUE), 
-	COLOR(WHITE, GREEN),
-	COLOR(YELLOW, BLUE),
-	COLOR(YELLOW, BLUE),
-	COLOR(B_CYAN, BLUE),
-	COLOR(B_CYAN, RED),
-	COLOR(BLACK, BLUE),
-	COLOR(BLACK, BLUE),
-	COLOR(BLACK, BLUE),
-	COLOR(BLACK, BLUE),
-	COLOR(B_RED, BLUE),
-	COLOR(YELLOW, BLUE)
-};
-
-static void
-set_option(char *option, char *value)
+static Config *
+set_option(Config *conf, char *option, char *value)
 {
 	if (!strcasecmp(option, "mpgpath"))
-		strncpy(mpgpath, value, sizeof(mpgpath)-1);
+		strncpy(conf->mpgpath, value, sizeof(conf->mpgpath)-1);
 	if (!strcasecmp(option, "playlist"))
-		strncpy(dfl_plist, value, sizeof(mpgpath)-1);
-	else if (!strcasecmp(option, "sel_advance"))
-		sel_advance = YESNO(value);
+		strncpy(conf->dfl_plist, value, sizeof(conf->mpgpath)-1);
+	else if (!strcasecmp(option, "file_advance"))
+		conf->f_advance = YESNO(value);
+	else if (!strcasecmp(option, "playlist_advance"))
+		conf->p_advance = YESNO(value);
 	else if (!strcasecmp(option, "skip_info_box"))
-		skip_info_box = YESNO(value);
+		conf->skip_info = YESNO(value);
 	else if (!strcasecmp(option, "loop"))
-		loop = YESNO(value);
+		conf->loop = YESNO(value);
+	else if (!strcasecmp(option, "buffer")) {
+		errno = 0;
+		conf->buffer = strtoul(value, NULL, 10);
+		if (errno)
+			conf->buffer = 0;
+	}
+	else if (!strcasecmp(option, "jump")) {
+		errno = 0;
+		conf->jump = strtoul(value, NULL, 10);
+		if (errno)
+			conf->jump = 1000;
+	}
+	return conf;
 }
 
-__inline__ static u_int32_t
-merge_colors(u_int32_t fore, u_int32_t back)
-{
-	/*
-	 * make sure they aren't dumb enough to use a bold background, and
-	 * attempt to correct for it.
-	 */
-	if (back > GREY)
-		back &= ~A_BOLD;
-	return (fore<<11 | back<<8);
-}
 
 static u_int32_t
 str2color(char *color)
@@ -92,6 +124,23 @@ str2color(char *color)
 	else if (!strcasecmp(color, "b_cyan")) return B_CYAN;
 	else if (!strcasecmp(color, "white")) return WHITE;
 	return GREY;
+}
+
+static u_int32_t
+merge_colors(u_int32_t fore, u_int32_t back)
+{
+	/*
+	 * make sure they aren't dumb enough to use a bold background, and
+	 * attempt to correct for it.
+	 */
+	if (back > GREY)
+		back &= ~A_BOLD;
+	if (fore == GREY && back == BLACK)
+		return COLOR_PAIR(0);
+	else if (fore == BLACK && back == BLACK)
+		return COLOR_PAIR(56);
+	else
+		return (fore<<11 | back<<8);
 }
 
 static void
@@ -134,14 +183,14 @@ set_color(char *color, char *value)
 		colors[MENU_TEXT] = merge_colors(str2color(fore), str2color(back));
 	else if (!strcasecmp(color, "arrows"))
 		colors[ARROWS] = merge_colors(str2color(fore), str2color(back));
-}
-
-static void set_window_defaults(void)
-{
-	files->height = LINES-1, files->width = COLS/4, files->y = files->x = 0;
-	info->height = 8, info->width = 0, info->y = 0, info->x = COLS/4;
-	play->height = LINES-9, play->width = 0, play->y = 8, play->x = COLS/4;
-	menubar->height = 1, menubar->width = 0, menubar->y = LINES-1, menubar->x = 0;
+	else if (!strcasecmp(color, "edit_back"))
+		colors[EDIT_BACK] = merge_colors(str2color(fore), str2color(back));
+	else if (!strcasecmp(color, "edit_active"))
+		colors[EDIT_ACTIVE] = merge_colors(str2color(fore), str2color(back));
+	else if (!strcasecmp(color, "edit_inactive"))
+		colors[EDIT_INACTIVE] = merge_colors(str2color(fore), str2color(back));
+	else if (!strcasecmp(color, "edit_prompt"))
+		colors[EDIT_PROMPT] = merge_colors(str2color(fore), str2color(back));
 }
 
 /* Return the value of expression e.
@@ -206,6 +255,10 @@ static void set_window(char *param, char *value)
 	else if (!strcasecmp(param, "menubar_width")) p = &menubar->width;
 	else if (!strcasecmp(param, "menubar_y")) p = &menubar->y;
 	else if (!strcasecmp(param, "menubar_x")) p = &menubar->x;
+	else if (!strcasecmp(param, "id3box_height")) p = &id3box->height;
+	else if (!strcasecmp(param, "id3box_width")) p = &id3box->width;
+	else if (!strcasecmp(param, "id3box_y")) p = &id3box->y;
+	else if (!strcasecmp(param, "id3box_x")) p = &id3box->x;
 	else return;
 
 	if ((result = window_calc(value)) >= 0)
@@ -213,38 +266,34 @@ static void set_window(char *param, char *value)
 }
 
 
-
-void
-read_config(void)
+static void set_window_defaults(void)
 {
-	char line[1024], fname[256], *p;
-	char keyword[32], param[32], value[256];
-	FILE *cfg;
+	files->height = LINES-1, files->width = COLS/4, files->y = files->x = 0;
+	info->height = 8, info->width = 0, info->y = 0, info->x = COLS/4;
+	play->height = LINES-9, play->width = 0, play->y = 8, play->x = COLS/4;
+	menubar->height = 1, menubar->width = 0, menubar->y = LINES-1, menubar->x = 0;
+	id3box->height = 8, id3box->width = 60, id3box->y = 9, id3box->x = 15;
+}
 
-	/* make sure this is all null before we go open some unknown file */
-	memset(fname, 0, sizeof(fname));
-
-	set_window_defaults();
-
-	if ((p = getenv("MMSRC")))
-		strncpy(fname, p, sizeof(fname)-1);
-	else
-		snprintf(fname, sizeof(fname)-1, "%s/.mmsrc", getenv("HOME"));
-
-	if ((cfg = fopen(fname, "r")) == NULL)
-		return;
-
-	while (fgets(line, sizeof(line), cfg)) {
-		if (*line == COMMENT)
-			continue;
-		if (sscanf(line, "%s %s %s", keyword, param, value) != 3)
-			continue;
-		if (!strcasecmp(keyword, "set"))
-			set_option(param, value);
-		else if (!strcasecmp(keyword, "color"))
-			set_color(param, value);
-		else if (!strcasecmp(keyword, "window"))
-			set_window(param, value);
-	}
-	fclose(cfg);
+static void set_color_defaults(void)
+{
+	colors[ACTIVE] = merge_colors(B_GREEN, BLUE);
+	colors[INACTIVE] = merge_colors(YELLOW, BLUE);
+	colors[SELECTED] = merge_colors(YELLOW, RED);
+	colors[UNSELECTED] = merge_colors(WHITE, BLUE); 
+	colors[TITLE] = merge_colors(WHITE, GREEN);
+	colors[SCROLL] = merge_colors(YELLOW, BLUE);
+	colors[SCROLLBAR] = merge_colors(YELLOW, BLUE);
+	colors[PLAYING] = merge_colors(B_CYAN, BLUE);
+	colors[SEL_PLAYING] = merge_colors(B_CYAN, RED);
+	colors[FILE_BACK] = merge_colors(BLACK, BLUE);
+	colors[INFO_BACK] = merge_colors(BLACK, BLUE);
+	colors[PLAY_BACK] = merge_colors(BLACK, BLUE);
+	colors[MENU_BACK] = merge_colors(BLACK, BLUE);
+	colors[MENU_TEXT] = merge_colors(B_RED, BLUE);
+	colors[ARROWS] = merge_colors(YELLOW, BLUE);
+	colors[EDIT_BACK] = merge_colors(B_GREEN, BLUE);
+	colors[EDIT_ACTIVE] = merge_colors(WHITE, BLACK);
+	colors[EDIT_INACTIVE] = merge_colors(YELLOW, BLUE);
+	colors[EDIT_PROMPT] = merge_colors(WHITE, BLUE);
 }

@@ -16,7 +16,7 @@ OPTFLAGS = -g3
 CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS)
 
 PROGRAM = mms
-VERSION = 0.84
+VERSION = 0.86
 
 # Uncomment these for GPM support
 #SRCS += gpm.c

@@ -97,14 +97,10 @@ del_word (Input *input)
 }
 
 int
-do_inputline (Input *inputline)
+do_inputline (Input *inputline, int c, int alt)
 {
-	int i, c, alt = 0;
-	c = wgetch(inputline->win);
-	if (c == 27) {              /* damn alt key */
-		alt = 1;
-		c = wgetch(inputline->win);
-	}
+	int i;
+
 	switch (c) {
 		case KEY_ENTER:
 		case '\n':
@@ -146,6 +142,9 @@ do_inputline (Input *inputline)
 			inputline->pos = inputline->len + 1;
 			inputline->update(inputline);
 			break;
+		case '\t':
+			if (inputline->complete && inputline->complete(inputline))
+				inputline->update(inputline);
 		default:
 			if (add_char(inputline, c))
 				inputline->update(inputline);
@@ -169,4 +168,91 @@ update_anchor (Input *inputline)
 		inputline->fpos = inputline->pos;
 	}
 	return inputline;
+}
+
+int dummy_complete(Input *input)
+{
+	return 0;
+}
+
+/* return 1 if name is a directory, else 0 */
+static int is_dir(char *name)
+{
+	struct stat s;
+
+	if (stat(name, &s) == -1)
+		return 0;
+	return S_ISDIR(s.st_mode);
+}
+
+/* tab completion for filenames */
+int filename_complete(Input *input)
+{
+	struct dirent **files;
+	char dir[256], file[256], *p;
+	int retval, i, num_files, num_matches, *matches;
+
+	strncpy(dir, input->buf, sizeof(dir)-1);
+	if ((p = strrchr(dir, '/')) == NULL) {
+		dir[0] = '.', dir[1] = '\0'; /* current directory if none specified */
+		strncpy(file, input->buf, sizeof(file)-1);
+	}
+	else {
+		*p = '\0';
+		strncpy(file, p+1, sizeof(file)-1);
+	}
+	if (dir[0] == '\0')  /* /foo */
+		dir[0] = '/', dir[1] = '\0';
+
+	if ((num_files = scandir(dir, &files, 0, alphasort)) < 0)
+		return 0;
+
+	retval = 0;
+	if ((matches = calloc(num_files, sizeof(int))) == NULL)
+		goto free_dir;
+
+again:
+	for (i = num_matches = 0; i < num_files; i++)
+		if (!strncmp(file, files[i]->d_name, strlen(file)))
+			matches[num_matches++] = i;
+	if (num_matches == 0)
+		goto free_dir;
+	else if (num_matches == 1) {
+		if (!strcmp(dir, "/"))
+			sprintf(input->buf, "/%s", files[matches[0]]->d_name);
+		else
+			sprintf(input->buf, "%s/%s", dir, files[matches[0]]->d_name);
+		input->len = strlen(input->buf);
+		input->pos = input->fpos = input->len+1;
+	}
+	else {
+		for (i = 0; i < num_matches-1; i++) {
+			int a = matches[i], b = matches[i+1];
+			if (strlen(files[a]->d_name) <= input->len
+					|| strlen(files[b]->d_name) <= input->len
+					|| files[a]->d_name[input->len] != files[b]->d_name[input->len])
+			{
+				retval = 1;
+				goto free_dir;
+			}
+		}
+		input->buf[input->len] = files[matches[0]]->d_name[input->len];
+		input->len++;
+		input->pos++;
+		input->fpos++;
+		goto again;
+	}
+	if (is_dir(input->buf) && input->len < BUFFER_SIZE) {
+		input->buf[input->len++] = '/';
+		input->buf[input->len] = '\0';
+		input->pos++;
+		input->fpos++;
+	}
+	retval = 1;
+
+free_dir:
+	for (i = 0; i < num_files; i++)
+		free(files[i]);
+	free(files);
+	return retval;
 }

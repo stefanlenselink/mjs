@@ -3,6 +3,7 @@
 #include "struct.h"
 #include "proto.h"
 #include "info.h"
+#include "extern.h"
 
 static u_char _buffer[32];
 static int _bptr = 0;
@@ -151,6 +152,7 @@ mp3_info(char *filename, u_int32_t size)
 		strncpy(file->title, tmp.title, 30);
 		file->artist = (char *)calloc(1, 31);
 		strncpy(file->artist, tmp.artist, 30);
+		file->genre = Genres[(int)tmp.genre];
 	}
 	return file;
 }

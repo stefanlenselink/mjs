@@ -24,7 +24,6 @@ init_ansi_pair (void)
 	for (fore = 0; fore < COLORS; fore++)
 		for (back = 0; back < COLORS; back++)
 			init_pair(fore<<3 | back, fore, back);
-	init_pair(56, 0, 0); /* kludge because ncurses is a bitch. */
 }	
 
 int
@@ -117,7 +116,7 @@ my_wnprintw (WINDOW *win, u_int32_t attribs, int n, const u_char *format, ...)
 }
 
 int
-my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_char *str)
+my_mvwnaddstr (WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_char *str)
 {
 	u_char *s = NULL;
 
@@ -131,7 +130,7 @@ my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_ch
 }
 
 int
-my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
+my_wnaddstr (WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
 {
 	u_char *s = NULL;
 
@@ -144,7 +143,7 @@ my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
 }
 
 int
-my_waddstr(WINDOW *win, u_int32_t attribs, const u_char *str)
+my_waddstr (WINDOW *win, u_int32_t attribs, const u_char *str)
 {
 	u_char *s = NULL;
 	
@@ -155,13 +154,23 @@ my_waddstr(WINDOW *win, u_int32_t attribs, const u_char *str)
 }
 
 int
-my_mvwaddstr(WINDOW *win, int y, int x, u_int32_t attribs, const u_char *str)
+my_mvwaddstr (WINDOW *win, int y, int x, u_int32_t attribs, const u_char *str)
 {
 	wmove(win, y, x);
 	return my_waddstr(win, attribs, str);
 }
 
-void
+__inline__ void
+my_wnclear (WINDOW *win, int n)
+{
+	int x, y;
+	getyx(win, y, x);
+	for (; n > 0; n--)
+		waddch(win, ' ');
+	wmove(win, y, x);
+}
+
+int
 active_win (Window *window)
 {
 	WINDOW *win = window->win;
@@ -180,9 +189,10 @@ active_win (Window *window)
 		my_mvwprintw(win, 0, x-i-(x-i)/2, colors[TITLE], "[ %s ]", title);
 	top_panel(panel);
 	update_panels();
+	return 1;
 }
 
-void
+int
 inactive_win (Window *window)
 {
 	WINDOW *win = window->win;
@@ -199,9 +209,17 @@ inactive_win (Window *window)
 	if (title && ((i = strlen(title)+4) < x))
 		my_mvwprintw(win, 0, x-i-(x-i)/2, colors[TITLE], "[ %s ]", title);
 	update_panels();
+	return 1;
 }
 
-void do_scrollbar (Window *window)
+int inactive_edit (Window *window)
+{
+	/* this is kind of stupid but its how its gotta be! */
+	return hide_panel(window->panel);
+}
+
+void
+do_scrollbar (Window *window)
 {
 	int i = 1, offscreen, x, y; /* window dimensions, etc */
 	int top, bar, bottom; /* scrollbar portions */

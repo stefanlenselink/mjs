@@ -6,9 +6,9 @@
 #include "extern.h"
 
 /* intialize the external variables */
-Window *files, *info, *play, *active, *menubar;
+Window *files, *info, *play, *active, *menubar, *old_active, *id3box;
+Config *conf;
 pid_t pid;
-Input *inputline = NULL;
 struct sigaction handler;
 int p_status = 0;
 char version_str[] = "Matt's MP3 Selector v0.84";
@@ -25,8 +25,6 @@ main (int argc, char *argv[])
 	wlist *mp3list = NULL;
 	fd_set fds;
 	
-
-
 	srand(time(NULL));
 	memset(&handler, 0, sizeof(struct sigaction));
 	
@@ -39,7 +37,8 @@ main (int argc, char *argv[])
 	handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
 	sigaction(SIGCHLD, &handler, NULL);
 
-	initscr();
+	if (!initscr())
+		exit(1);
 	curs_set(0);
 	cbreak();
 	noecho();
@@ -57,15 +56,15 @@ main (int argc, char *argv[])
 	info = calloc(1, sizeof(Window));
 	play = calloc(1, sizeof(Window));
 	menubar = calloc(1, sizeof(Window));
+	id3box = calloc(1, sizeof(Window));
 	active = files = calloc(1, sizeof(Window));
 	active->flags |= W_ACTIVE;
 
 /* reading the config must take place AFTER initscr() and friends */
 
-	memset(mpgpath, 0, sizeof(mpgpath));
-	strncpy(mpgpath, MPGPATH, sizeof(mpgpath)-1);
-	memset(dfl_plist, 0, sizeof(dfl_plist));
-	read_config();
+	conf = calloc(1, sizeof(Config));
+	strncpy(conf->mpgpath, MPGPATH, sizeof(conf->mpgpath)-1);
+	read_config(conf);
 
 	info->update = update_info;
 	info->activate = active_win;
@@ -75,11 +74,19 @@ main (int argc, char *argv[])
 	info->input = read_key;
 	info->title = "MP3 Info";
 	info->flags |= W_RDONLY;
+
+	id3box->update = update_edit;
+	id3box->activate = active_win;
+	id3box->deactivate = inactive_edit;
+	id3box->prev = NULL; /* can't tab out of this! */
+	id3box->next = NULL;
+	id3box->input = read_key;
+	id3box->title = "ID3 Tag Editor";
 	
 	play->update = show_list;
 	play->activate = active_win;
 	play->deactivate = inactive_win;
-	play->prev = skip_info_box ? files : info;
+	play->prev = conf->skip_info ? files : info;
 	play->next = files;
 	play->title = "Playlist";
 	play->input = read_key;
@@ -89,7 +96,7 @@ main (int argc, char *argv[])
 	files->activate = active_win;
 	files->deactivate = inactive_win;
 	files->prev = play;
-	files->next = skip_info_box ? play : info;
+	files->next = conf->skip_info ? play : info;
 	files->title = "MP3  Files";
 	files->input = read_key;
 	files->flags |= W_LIST | W_RDONLY;
@@ -106,12 +113,17 @@ main (int argc, char *argv[])
 	if (menubar->height == 0) menubar->height = LINES - menubar->y;
 	if (menubar->width == 0) menubar->width = COLS - menubar->x;
 
+	if (id3box->height < 7) id3box->height = 7;
+	if (id3box->width < 40) id3box->width = 40;
+
 	active->win = files->win = newwin(files->height, files->width, files->y, files->x);
 	info->win = newwin(info->height, info->width, info->y, info->x);
 	play->win = newwin(play->height, play->width, play->y, play->x);
+	id3box->win = newwin(id3box->height, id3box->width, id3box->y, id3box->x);
 	menubar->win = newwin(menubar->height, menubar->width, menubar->y, menubar->x);
+	menubar->input = read_key;
 
-	if (!files->win || !info->win || !play->win || !menubar->win)
+	if (!files->win || !info->win || !play->win || !menubar->win || !id3box->win)
 		bailout(0);
 
 	/* create the panels in this order to create the initial stack */
@@ -119,16 +131,21 @@ main (int argc, char *argv[])
 	info->panel = new_panel(info->win);
 	play->panel = new_panel(play->win);
 	files->panel = new_panel(files->win);
+	id3box->panel = new_panel(id3box->win);
+
+	hide_panel(id3box->panel);
 
 	keypad(files->win, TRUE);
 	keypad(info->win, TRUE);
 	keypad(play->win, TRUE);
 	keypad(menubar->win, TRUE);
+	keypad(id3box->win, TRUE);
 
 	wbkgd(files->win, colors[FILE_BACK]);
 	wbkgd(info->win, colors[INFO_BACK]);
 	wbkgd(play->win, colors[PLAY_BACK]);
 	wbkgd(menubar->win, colors[MENU_BACK]);
+	wbkgd(id3box->win, colors[EDIT_BACK]);
 	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
 	update_panels();
 
@@ -145,8 +162,8 @@ main (int argc, char *argv[])
 
 	files->update(files);
 	update_info(files);
-	if (*dfl_plist) {
-		play->contents.list = read_playlist(play->contents.list, dfl_plist);
+	if (*conf->dfl_plist) {
+		play->contents.list = read_playlist(play->contents.list, conf->dfl_plist);
 		active->deactivate(active);
 		active->flags &= ~W_ACTIVE;
 		active->update(active);
@@ -186,6 +203,8 @@ void
 bailout (int sig)
 {
 	/* Lets get the hell out of here! */
+	if (pid > 0)
+		kill(pid, SIGTERM); /* lets be gentle */
 	wclear(stdscr);
 	refresh();
 	endwin();
@@ -200,10 +219,8 @@ static int
 read_key (Window *window)
 {
 	int c, alt = 0;
+	Input *inputline = window->inputline;
 
-	if (inputline)
-		return inputline->parse(inputline);
-	
 	c = WGETCH(window->win);
 #ifdef GPM_SUPPORT
 	if (gpm_hflag)
@@ -213,12 +230,18 @@ read_key (Window *window)
 		alt = 1;
 		c = WGETCH(window->win);
 	}
+
+	if (inputline)
+		return inputline->parse(inputline, c, alt);
+	
 	switch (c) {
 		case '\t':
-			change_active(active->next);
+			if (active->next)
+				change_active(active->next);
 			break;
 		case KEY_BTAB:
-			change_active(active->prev);
+			if (active->prev)
+				change_active(active->prev);
 			break;
 		case KEY_HOME:
 		case KEY_END:
@@ -233,7 +256,9 @@ read_key (Window *window)
 			break;
 		case 'e':
 		case 'E':
-			if (!p_status && window != info && !(window->contents.list->selected->flags & F_DIR))
+			if (window == info)
+				edit_tag(window->contents.play);
+			else if (!(window->contents.list->selected->flags & F_DIR))
 				edit_tag(window->contents.list->selected);
 			break;
 		case KEY_RIGHT:
@@ -273,7 +298,7 @@ read_key (Window *window)
 		case 'S':
 			if (p_status)
 				stop_player(play->contents.list);
-				clear_play_info(info->win);
+				clear_play_info();
 				doupdate();
 			break;
 		case 'p':
@@ -319,11 +344,13 @@ read_key (Window *window)
 		case 'l':
 		case 'L':
 		case KEY_F(1):
-			curs_set(1);
+			old_active = active;
+			active = menubar;
 			wbkgd(menubar->win, 0);
-			inputline = (Input *)calloc(1, sizeof(Input));
+			menubar->inputline = inputline = (Input *)calloc(1, sizeof(Input));
 			inputline->win = menubar->win;
 			inputline->panel = menubar->panel;
+			inputline->x = inputline->y = 0;
 			strncpy(inputline->prompt, "Path to playlist:", 39);
 			inputline->plen = strlen(inputline->prompt);
 			inputline->flen = 60;
@@ -331,17 +358,21 @@ read_key (Window *window)
 			inputline->parse = do_inputline;
 			inputline->update = update_menu;
 			inputline->finish = do_read_playlist;
+			inputline->complete = filename_complete;
 			inputline->pos = 1; /* start out one "space" into it */
 			inputline->fpos = 1;
+			curs_set(1);
 			update_menu(inputline);
 			doupdate();
 			break;
 		case KEY_F(2):
-			curs_set(1);
+			old_active = active;
+			active = menubar;
 			wbkgd(menubar->win, 0);
-			inputline = (Input *)calloc(1, sizeof(Input));
+			menubar->inputline = inputline = (Input *)calloc(1, sizeof(Input));
 			inputline->win = menubar->win;
 			inputline->panel = menubar->panel;
+			inputline->x = inputline->y = 0;
 			strncpy(inputline->prompt, "Save Path:", 39);
 			inputline->plen = strlen(inputline->prompt);
 			inputline->flen = 60;
@@ -349,8 +380,10 @@ read_key (Window *window)
 			inputline->parse = do_inputline;
 			inputline->update = update_menu;
 			inputline->finish = do_save_playlist;
+			inputline->complete = filename_complete;
 			inputline->pos = 1; /* start out one "space" into it */
 			inputline->fpos = 1;
+			curs_set(1);
 			update_menu(inputline);
 			doupdate();
 			break;
@@ -561,14 +594,15 @@ update_info (Window *window)
 		file = window->contents.play;
 	if (!file)
 		return 0;
-	my_mvwnprintw(win, 1, 1, colors[UNSELECTED], info->width-4, " Filename: %n%-*s", &i, info->width-4-i,
+	my_mvwnprintw(win, 1, 2, colors[UNSELECTED], info->width-4, "Filename: %n%-*s", &i, info->width-4-i,
 		(file->flags & F_DIR) ? "(Directory)" : file->filename);
-	my_mvwprintw(win, 2, 1, colors[UNSELECTED], "   Artist: %n%-*s", &i, info->width-4-i, file->artist ? :"");
-	my_mvwprintw(win, 3, 1, colors[UNSELECTED], "    Title: %n%-*s", &i, info->width-4-i, file->title ? :"");
-	mvwaddstr(win, 4, 12, "                ");
-	my_mvwprintw(win, 4, 4, colors[UNSELECTED], "Length: ");
+	my_mvwprintw(win, 2, 4, colors[UNSELECTED], "Artist: %n%-*s", &i, info->width-5-i, file->artist ? :"");
+	my_mvwprintw(win, 3, 5, colors[UNSELECTED], "Title: %n%-*s", &i, info->width-6-i, file->title ? :"");
+	wmove(win, 4, 2);
+	my_wnclear(win, info->width-4);
+	my_mvwaddstr(win, 4, 4, colors[UNSELECTED], "Length:\t\tGenre:");
 	if (!(file->flags & F_DIR)) {
-		my_mvwprintw(win, 4, 12, colors[UNSELECTED], "%lu:%02d", file->length/60, file->length % 60);
+		my_mvwprintw(win, 4, 12, colors[UNSELECTED], "%lu:%02d\tGenre: %s", file->length/60, file->length % 60, file->genre? : "Unknown");
 		my_mvwprintw(win, 5, 3, colors[UNSELECTED], "Bitrate: %-3d\t\tFrequency: %d", file->bitrate, file->frequency);
 	}
 	else
@@ -598,7 +632,13 @@ start_mpg_child(void)
 			for (i = 2; i < 256; i++)
 				close(i);
 			errno = 0;
-			execlp(mpgpath, "mpg123", "-R", "-", (char *)NULL);
+			if (conf->buffer > 0) {
+				char buf[128];
+				memset(buf, 0, sizeof(buf));
+				snprintf(buf, 127, "%d", conf->buffer? conf->buffer : 0);
+				execlp(conf->mpgpath, "mpg123", "-b", buf, "-R", "-", (char *)NULL);
+			} else
+				execlp(conf->mpgpath, "mpg123", "-R", "-", (char *)NULL);
 			if (errno)
 				exit(0);
 		default:
@@ -714,6 +754,9 @@ process_return (wlist *mp3list)
 			files->update(files);
 		} else {
 			play->contents.list = add_to_playlist(play->contents.list, mp3list->selected);
+			if (conf->f_advance)
+				if (info->update(move_selector(files, KEY_DOWN)))
+					files->update(files);
 			play->update(play);
 		}
 		doupdate();
@@ -732,12 +775,12 @@ unsuspend (int sig)
 int
 update_menu (Input *inputline)
 {
-	wmove(menubar->win, 0, 0);
-	wclrtoeol(menubar->win);
+	wmove(inputline->win, inputline->y, inputline->x);
+	my_wnclear(inputline->win, inputline->flen);
 	update_anchor(inputline);
-	my_wnprintw(menubar->win, colors[MENU_TEXT], menubar->width, "%s", inputline->prompt);
-	my_wnprintw(menubar->win, 0, menubar->width, " %s", inputline->anchor);
-	wmove(menubar->win, 0, inputline->fpos+inputline->plen);
+	my_wnprintw(inputline->win, colors[MENU_TEXT], inputline->flen + inputline->plen, "%s", inputline->prompt);
+	my_wnprintw(inputline->win, inputline->y, inputline->flen + inputline->plen, " %s", inputline->anchor);
+	wmove(inputline->win, inputline->y, inputline->fpos+inputline->plen);
 	update_panels();
 	doupdate();
 	return 1;
@@ -770,6 +813,10 @@ show_playinfo (mpgreturn *message)
 	my_mvwnprintw2(info->win, info->height-2, 6, colors[UNSELECTED], info->width-8,
 		"Time: %02d:%05.2f/%02d:%05.2f   Frames: (%d/%d)    ",
 		minused, secused, minleft, secleft, message->played, message->left);
+	if (active->inputline) {
+		Input *inputline = active->inputline;
+		wmove(inputline->win, inputline->y, inputline->fpos+inputline->plen);
+	}
 	update_panels();
 	doupdate();
 }
@@ -783,17 +830,17 @@ update_status (void)
 		return;
 	
 	if (p_status == 0) {
-		clear_play_info(info->win);
+		clear_play_info();
 		play_next_song();
 		doupdate();
 	}
 }
 
 __inline__ void
-clear_play_info (WINDOW *win)
+clear_play_info (void)
 {
-	my_mvwnprintw2(win, info->height-2, 2, colors[UNSELECTED], info->width-4,
-		"  ");
+	wmove(info->win, info->height-2, 2);
+	my_wnclear(info->win, info->width-4);
 	update_panels();
 }
 

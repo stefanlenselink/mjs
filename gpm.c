@@ -13,8 +13,10 @@ static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 	wlist *wlist;
 	int i, was_active;
 
+	/* already checked in my_gpm_handler
 	if (!(win->flags & W_LIST))
 		return;
+	*/
 	wlist = win->contents.list;
 	if (!wlist || wlist->length == 0)
 		return;
@@ -28,7 +30,7 @@ static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 	if (was_active && ftmp->flags & F_SELECTED) {
 		if (win == play && click & GPM_B_RIGHT) {
 			if (!(active->flags & W_RDONLY)) {
-				wlist->selected = delete_selected(wlist);
+				wlist->selected = delete_selected(wlist, wlist->selected);
 				win->update(win);
 				doupdate();
 			}
@@ -49,10 +51,66 @@ static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 	}
 }
 
-static void gpm_process_scroll(Window *win, int fakekey)
+/* process clicks on the arrows above and below scrollbars */
+static void gpm_process_arrows(Window *win, int fakekey)
 {
 	change_active(win);
 	if (info->update(move_selector(win, fakekey))) {
+		win->update(win);
+		doupdate();
+	}
+}
+
+/* process clicks on the scrollbars */
+static void gpm_process_scroll(Window *win, int click, int mouse_y, int start_y)
+{
+	/* from do_scrollbar in misc.c */
+	int i = 1, offscreen, x = win->width-2, y = win->height-1, key = -1;
+	int top, bar, bottom;
+	double value;
+	wlist *wtmp = win->contents.list;
+	flist *ftmp = NULL, *selected = wtmp->selected;
+
+	change_active(win);
+
+	if (wtmp->length < 1)
+		return;
+
+	value = wtmp->length / (double) y;
+	for (ftmp = wtmp->top; ftmp != selected; ftmp = ftmp->next)
+		i++;
+	offscreen = wtmp->where - i;
+
+	if (value < 1) {
+		top = 0;
+		bar = y;
+		bottom = 0;
+	} else {
+		double toptmp;
+		toptmp=offscreen / value;
+		top= (int) (double)(int)toptmp/1 == toptmp ? toptmp : (double)(int)toptmp+(double)1;
+		bar=(int)((y / value)+(double).5);
+		bottom = y - top - bar;
+	}
+	if (bottom < 0)
+		top += bottom;
+
+	if (click & GPM_B_LEFT) {
+		if (BETWEEN(mouse_y, start_y, top+2))
+			key = KEY_PPAGE;
+		else if (BETWEEN(mouse_y, start_y+top+bar, y+2))
+			key = KEY_NPAGE;
+	}
+	else {
+		if (BETWEEN(mouse_y, start_y, top+2))
+			key = KEY_HOME;
+		else if (BETWEEN(mouse_y, start_y+top+bar, y+2))
+			key = KEY_END;
+	}
+	if (key == -1)
+		return;
+	
+	if (info->update(move_selector(win, key))) {
 		win->update(win);
 		doupdate();
 	}
@@ -63,20 +121,22 @@ static int my_gpm_handler(Gpm_Event *e, void *data)
 	if (!(e->type & GPM_DOWN))
 		return 1;
 	
-	if (BETWEEN(e->x,files_x,files_width) && BETWEEN(e->y,files_y,files_height))
-		gpm_process_click(files, e->buttons, e->y, files_y);
-	else if (BETWEEN(e->x,play_x,play_width) && BETWEEN(e->y,play_y,play_height))
-		gpm_process_click(play, e->buttons, e->y, play_y);
-	else if (e->x == files_x+files_width && e->y == files_y+1)
-		gpm_process_scroll(files, KEY_UP);
-	else if (e->x == files_x+files_width && e->y == files_y+files_height)
-		gpm_process_scroll(files, KEY_DOWN);
-	else if (e->x == play_x+play_width && e->y == play_y+1)
-		gpm_process_scroll(play, KEY_UP);
-	else if (e->x == play_x+play_width && e->y == play_y+play_height)
-		gpm_process_scroll(play, KEY_DOWN);
-
-	/* else if scrollbars, etc */
+	if (BETWEEN(e->x,files->x,files->width) && BETWEEN(e->y,files->y,files->height))
+		gpm_process_click(files, e->buttons, e->y, files->y);
+	else if (BETWEEN(e->x,play->x,play->width) && BETWEEN(e->y,play->y,play->height))
+		gpm_process_click(play, e->buttons, e->y, play->y);
+	else if (e->x == files->x+files->width && e->y == files->y+1)
+		gpm_process_arrows(files, KEY_UP);
+	else if (e->x == files->x+files->width && e->y == files->y+files->height)
+		gpm_process_arrows(files, KEY_DOWN);
+	else if (e->x == play->x+play->width && e->y == play->y+1)
+		gpm_process_arrows(play, KEY_UP);
+	else if (e->x == play->x+play->width && e->y == play->y+play->height)
+		gpm_process_arrows(play, KEY_DOWN);
+	else if (e->x == files->x+files->width && BETWEEN(e->y, files->y, files->y+files->height))
+		gpm_process_scroll(files, e->buttons, e->y, files->y);
+	else if (e->x == play->x+play->width && BETWEEN(e->y, play->y, play->y+play->height))
+		gpm_process_scroll(play, e->buttons, e->y, play->y);
 	else
 		return 1;
 

@@ -37,5 +37,3 @@
 #define B_MAGENTA (A_BOLD>>11|5UL)
 #define B_CYAN    (A_BOLD>>11|6UL)
 #define WHITE     (A_BOLD>>11|7UL)
-
-#define COLOR(fore, back) (fore<<11 | back<<8)

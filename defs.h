@@ -18,6 +18,7 @@
 #define MAXLEN 500
 
 #define PROMPT_SIZE 40
+#define SMALL_BUFFER_SIZE 256
 #define BUFFER_SIZE 1024
 #define BIG_BUFFER_SIZE 4096
 
@@ -39,24 +40,32 @@
 
 #if defined __GLIBC__ && __GLIBC__ >= 2
 #define SIGHANDLER sighandler_t
+#elseif defined __FreeBSD
+#define SIGHANDLER sig_t
 #else
 #define SIGHANDLER void *
 #endif
 
 /* defines for the color array */
 
-#define ACTIVE      0
-#define INACTIVE    1
-#define SELECTED    2
-#define UNSELECTED  3
-#define TITLE       4
-#define SCROLL      5
-#define SCROLLBAR   6
-#define PLAYING     7
-#define SEL_PLAYING 8
-#define FILE_BACK   9
-#define INFO_BACK   10
-#define PLAY_BACK   11
-#define MENU_BACK   12
-#define MENU_TEXT   13
-#define ARROWS      14
+enum ATTRIBS {
+	ACTIVE,
+	INACTIVE,
+	SELECTED,
+	UNSELECTED,
+	TITLE,
+	SCROLL,
+	SCROLLBAR,
+	PLAYING,
+	SEL_PLAYING,
+	FILE_BACK,
+	INFO_BACK,
+	PLAY_BACK,
+	MENU_BACK,
+	MENU_TEXT,
+	ARROWS,
+	EDIT_BACK,
+	EDIT_ACTIVE,
+	EDIT_INACTIVE,
+	EDIT_PROMPT
+};

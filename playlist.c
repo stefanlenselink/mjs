@@ -13,7 +13,7 @@ play_next_song (void)
 		return;
 
 	ftmp->flags &= ~F_PLAY;
-	if (loop && !ftmp->next)
+	if (conf->loop && !ftmp->next)
 		ftmp = play->contents.list->head;
 	else
 		ftmp = ftmp->next;
@@ -33,7 +33,7 @@ jump_forward (wlist *playlist)
 	if (!ftmp)
 		return playlist;
 	ftmp->flags &= ~F_PLAY;
-	if (loop && !ftmp->next)
+	if (conf->loop && !ftmp->next)
 		ftmp = play->contents.list->head;
 	else
 		ftmp = ftmp->next;
@@ -54,7 +54,7 @@ jump_backward (wlist *playlist)
 	if (!ftmp)
 		return playlist;
 	ftmp->flags &= ~F_PLAY;
-	if (loop && !ftmp->prev)
+	if (conf->loop && !ftmp->prev)
 		ftmp = play->contents.list->tail;
 	else
 		ftmp = ftmp->prev;
@@ -82,7 +82,7 @@ jump_to_song(flist *selected)
 	memset(buf, 0, sizeof(buf));
 	snprintf(buf, BIG_BUFFER_SIZE, "%s/%s", selected->path, selected->filename);
 	send_cmd(inpipe[1], LOAD, buf);
-	clear_play_info(info->win);
+	clear_play_info();
 	p_status = 1;
 	selected->flags |= F_PLAY;
 	playlist->playing = selected;
@@ -254,7 +254,7 @@ add_to_playlist (wlist *playlist, flist *file)
 		newfile->flags |= F_SELECTED;
 		playlist->where = 1;
 	}
-	if (sel_advance) {
+	if (conf->p_advance) {
 		playlist->selected->flags &= ~F_SELECTED; /* could be a wasted dupe */
 		playlist->selected = newfile;
 		playlist->where = ++playlist->length;
@@ -275,12 +275,12 @@ add_to_playlist (wlist *playlist, flist *file)
 int
 do_read_playlist(Input *input)
 {
-	extern Input *inputline;
 	wmove(menubar->win, 0, 0);
 	wbkgd(menubar->win, colors[MENU_BACK]);
 	wclrtoeol(menubar->win);
+	active = old_active;
 	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
-	play->contents.list = read_playlist(play->contents.list, inputline->buf);
+	play->contents.list = read_playlist(play->contents.list, input->buf);
 	if (play->contents.list->head) {
 		info->contents.play = play->contents.list->selected;
 		active->deactivate(active);
@@ -291,8 +291,8 @@ do_read_playlist(Input *input)
 		play->update(play);
 		info->update(info);
 	}
-	free(inputline);
-	inputline = NULL;
+	free(input);
+	menubar->inputline = NULL;
 	curs_set(0);
 	update_panels();
 	doupdate();
@@ -302,14 +302,14 @@ do_read_playlist(Input *input)
 int
 do_save_playlist(Input *input)
 {
-	extern Input *inputline;
 	wmove(menubar->win, 0, 0);
 	wbkgd(menubar->win, colors[MENU_BACK]);
 	wclrtoeol(menubar->win);
+	active = old_active;
 	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
-	write_playlist(play->contents.list, inputline->buf);
-	free(inputline);
-	inputline = NULL;
+	write_playlist(play->contents.list, input->buf);
+	free(input);
+	menubar->inputline = NULL;
 	curs_set(0);
 	update_panels();
 	doupdate();

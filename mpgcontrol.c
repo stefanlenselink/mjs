@@ -92,7 +92,7 @@ restart_mpg_child(void)
 	
 	win = play->contents.list;
 	if (win && win->playing)
-		play_next_song();
+		play_next_song(win);
 }
 
 int send_cmd(int type, ...)

@@ -44,7 +44,6 @@ do_save (Input * input)
 	free (input);
 	menubar->activate (menubar);
 	menubar->inputline = NULL;
-	update_panels ();
 	doupdate ();
 	return 1;
 }
@@ -82,11 +81,11 @@ do_search (Input * input)
 		if (mp3list->head)
 			sort_search (mp3list);
 		files->update (files);
+		info->update(info);
 	}
 	free (input);
 	menubar->activate (menubar);
 	menubar->inputline = NULL;
-	update_panels ();
 	doupdate ();
 	return 1;
 }
@@ -97,6 +96,7 @@ main (int argc, char *argv[])
 {
 	wlist *mp3list = NULL;
 	struct timeval wait1000 = { 0, 1000000 };
+	int timeout = 0;
 	fd_set fds;
 
 	previous_selected = strdup ("\0");
@@ -270,6 +270,7 @@ main (int argc, char *argv[])
 		if (select (FD_SETSIZE, &fds, NULL, NULL, &wait1000) > 0) {
 			if (FD_ISSET (0, &fds)) {
 				active->input (active);
+				timeout = 0;
 			} else
 				check_player_output (&fds);
 		}
@@ -280,6 +281,15 @@ main (int argc, char *argv[])
 					typed_letters[0] = '\0';
 				typed_letters_timeout--;
 			}
+			if (timeout == 80) {
+				move_selector(play, KEY_ENTER);
+//				change_active(play);
+				info->contents.play = play->contents.list->playing;
+				play->update(play);
+				info->update(info);
+				doupdate();
+			}else
+			timeout++;
 		}
 
 
@@ -507,7 +517,7 @@ read_key (Window * window)
 		if ((active == play) && (play->contents.list->selected)) {
 			wlist *playlist = play->contents.list;
 			if ((p_status == PLAYING) & (play->contents.list->playing == play->contents.list->selected)) {
-				jump_forward (play->contents.list);
+				play_next_song (play->contents.list);
 				play->update (play);
 			}
 			wlist_del(playlist, playlist->selected);
@@ -599,14 +609,10 @@ read_key (Window * window)
 			c = wgetch (window->win);
 		if ((c == 'y') | (c == 'Y')) {
 			randomize_list (play->contents.list);
-			active->deactivate (active);
-			active->update (active);
-			play->activate ((active = play));
 			play->update (play);
 			info->update (play);
 		}
 		menubar->activate (menubar);
-		update_panels ();
 		break;
 
 	case KEY_F (6):
@@ -646,7 +652,7 @@ read_key (Window * window)
 			// fix me 
 			if (!play->contents.list->selected)
 				play->contents.list->selected = next_valid (play->contents.list, play->contents.list->top, KEY_DOWN);
-			jump_to_song (play->contents.list->selected);	// Play 
+			jump_to_song (play->contents.list, play->contents.list->selected);	// Play 
 			break;
 		case PLAYING:
 			pause_player (play->contents.list);	// Pause / Verdergaan 
@@ -660,7 +666,7 @@ read_key (Window * window)
 	case KEY_F (9):
 		// Skip to previous mp3 in playlist     
 		if (p_status == PLAYING) {
-			jump_backward (play->contents.list);
+			play_prev_song (play->contents.list);
 		}
 		break;
 
@@ -679,7 +685,7 @@ read_key (Window * window)
 	case KEY_F (12):
 		// Skip to next mp3 in playlist                 
 		if (p_status == PLAYING) {
-			jump_forward (play->contents.list);
+			play_next_song (play->contents.list);
 		}
 		break;
 
@@ -689,31 +695,31 @@ read_key (Window * window)
 	case '.':
 	case ' ':
 		// Jump to directory with matching first letters
-		{
-			flist *prevselected = mp3list->selected;
-			if (strlen (typed_letters) < 10) {
+		if (active == files){
+			flist *ftmp = mp3list->head;
+			int n = 0;
+			if (strlen (typed_letters) < 10) { // add the letter to the string and reset the timeout
 				strcat (typed_letters, (char *) &c);
 				typed_letters_timeout = 3;
 			}
-
-			move_selector (files, KEY_HOME);
-
-			do {
-				move_selector (files, KEY_DOWN);
-				if (mp3list->selected == mp3list->tail) {
-					while (mp3list->selected != prevselected)
-						move_selector (files, KEY_UP);
-					files->update (files);
-					doupdate ();
-					typed_letters_timeout = 0;
+			
+			while (strncasecmp (ftmp->filename, (char *) &typed_letters, strlen (typed_letters))) {
+				if (ftmp == mp3list->tail) { // end of the list reached withour result
+					ftmp = NULL;
 					break;
 				}
+				ftmp = ftmp->next;
+				n++;
 			}
-			while (strncasecmp (mp3list->selected->filename, (char *) &typed_letters, strlen (typed_letters)));
 
-			files->update (files);
+			if (ftmp) { // match found
+				mp3list->selected = ftmp;
+				mp3list->where = n;
+				files->update(files);
+			}
 			break;
 		}
+
 	default:
 		break;
 	}
@@ -755,6 +761,7 @@ process_return (wlist * mp3list, int c, int alt)
 				free (previous_selected);
 			previous_selected = strdup (mp3list->selected->fullpath);
 			add_to_playlist_recursive (play->contents.list, play->contents.list->tail, mp3list->selected);
+			play->update(play);
 		}
 
 
@@ -784,7 +791,7 @@ process_return (wlist * mp3list, int c, int alt)
 			add_to_playlist (play->contents.list, play->contents.list->tail, mp3list->selected);
 		else
 			add_to_playlist (play->contents.list, play->contents.list->selected, mp3list->selected);
-
+		play->update(play);
 		if (conf->c_flags & C_FADVANCE)
 			if (info->update (move_selector (files, KEY_DOWN)))
 				files->update (files);
@@ -818,14 +825,12 @@ update_menu (Input * inputline)
 void
 update_status (void)
 {
-	extern int p_status;
-
 	if (!play->contents.list)
 		return;
 
 	if (p_status == STOPPED) {
 		clear_play_info ();
-		play_next_song ();
+		play_next_song (play->contents.list);
 		doupdate ();
 	}
 }

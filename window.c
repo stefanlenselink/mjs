@@ -115,7 +115,7 @@ move_selector(Window *window, int c)
 		case KEY_ENTER:
 		case '\n':
 		case '\r':
-			if (active == play) {
+			if ((window == play) && (list->playing)) {
 				list->selected = next_valid(list, list->head, KEY_HOME);
 				list->where = 0;
 				list->wheretop = 0;

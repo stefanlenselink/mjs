@@ -5,20 +5,17 @@
 #include "struct.h"
 #endif
 
-void	 calculate_duration(flist *);
-void	 play_next_song(void);
-//void	 free_playlist(wlist *);
+void	 play_next_song(wlist *);
+void	 play_prev_song(wlist *);
 
-int	 jump_to_song(flist *);
+int	 jump_to_song(wlist *, flist *);
 int	 playback_title(Window *);
 
 void	add_to_playlist_recursive(wlist *, flist *, flist *);
 void	add_to_playlist(wlist *, flist *, flist *);
-wlist	*stop_player(wlist *);
-wlist	*pause_player(wlist *);
-wlist	*resume_player(wlist *);
-wlist	*jump_forward(wlist *);
-wlist	*jump_backward(wlist *);
+void	stop_player(wlist *);
+void	pause_player(wlist *);
+void	resume_player(wlist *);
 wlist	*randomize_list(wlist *);
 wlist	*read_playlist(wlist *, const char *);
 

@@ -16,7 +16,7 @@ LIBS = -lncurses -lpanel
 WARNINGS = -Wall -Wbad-function-cast -Wcast-align
 OPTFLAGS = -O2
 # Comment this out for debugging
-#OPTFLAGS += -g3
+OPTFLAGS += -g3
 
 CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS) -DVERSION=\"$(VERSION)\"
 

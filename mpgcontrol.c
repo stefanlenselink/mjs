@@ -22,9 +22,8 @@ start_mpg_child(void)
 	int i;
 
 	if (pipe(inpipe) || pipe(outpipe))
-		bailout(0);
+		bailout(1);
 	fcntl(outpipe[1], F_SETFD, O_NONBLOCK);
-
 	handler.sa_handler = SIG_DFL;
 	handler.sa_flags = 0;
 	sigaction(SIGCHLD, &handler, NULL);
@@ -32,8 +31,7 @@ start_mpg_child(void)
 	errno = 0;
 	switch (pid = fork()) {
 		case -1:
-			my_mvwprintw(menubar->win, 0, 0, colors[MENU_TEXT], "Error: %s", strerror(errno));
-			break;
+			bailout(3);		
 		case 0:
 			dup2(inpipe[0], 0);
 			dup2(outpipe[1], 1);
@@ -44,23 +42,22 @@ start_mpg_child(void)
 			if (conf->buffer > 0) {
 				char buf[128];
 				memset(buf, 0, sizeof(buf));
-				snprintf(buf, 127, "%d", conf->buffer? conf->buffer : 0);
+				snprintf(buf, 127, "%d", conf->buffer);
 				if (conf->c_flags & C_MONO)
-					execlp(conf->mpgpath, "mpg123", "-m", "-b", buf, "-R", "-", (char *)NULL);
-				else
-					execlp(conf->mpgpath, "mpg123", "-b", buf, "-R", "-", (char *)NULL);
-
+					execlp(conf->mpgpath, "mpg123", "-m", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
+				else 
+					execlp(conf->mpgpath, "mpg123", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
+						
 			} else
 				if (conf->c_flags & C_MONO)
-					execlp(conf->mpgpath, "mpg123", "-m", "-R", "-", (char *)NULL);
+					execlp(conf->mpgpath, "mpg123", "-m", "-a", conf->output, "-R", "-", (char *)NULL);
 				else
-					execlp(conf->mpgpath, "mpg123", "-R", "-", (char *)NULL);
-			if (errno)
-				exit(2);
+					execlp(conf->mpgpath, "mpg123", "-a", conf->output, "-R", "-", (char *)NULL);
 		default:
 			handler.sa_handler = (SIGHANDLER) restart_mpg_child;
 			handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
 			sigaction(SIGCHLD, &handler, NULL);
+			
 			break;
 	}
 	return pid;

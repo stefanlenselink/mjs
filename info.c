@@ -28,8 +28,6 @@ mp3_info(char *dir, char *filename, flist *file, u_int32_t size)
 		file->album = strdup(endp+1);
 	else
 		file->album = strdup("Unknown");
-
-//	file->length = 0;
 	
 	return file;
 

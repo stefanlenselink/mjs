@@ -123,8 +123,10 @@ main (int argc, char *argv[])
 	start_color ();
 	nonl ();
 	init_ansi_pair ();
+
 	if (argc > 1)
 		bailout (5);
+
 	/*
 	 * malloc() for the windows and set up our initial callbacks ... 
 	 */
@@ -134,7 +136,7 @@ main (int argc, char *argv[])
 	playback = calloc (1, sizeof (Window));
 	menubar = calloc (1, sizeof (Window));
 	active = files = calloc (1, sizeof (Window));
-
+	
 	/*
 	 * reading the config must take place AFTER initscr() and friends 
 	 */
@@ -305,14 +307,22 @@ bailout (int sig)
 	/*
 	 * Lets get the hell out of here! 
 	 */
+	handler.sa_handler = SIG_IGN;
+	handler.sa_flags = 0;
+	sigaction (SIGINT, &handler, NULL);
+
 	wclear (stdscr);
 	refresh ();
 	endwin ();
 
-	wlist_clear (play->contents.list);
-	free (play->contents.list);
-	wlist_clear (files->contents.list);
-	free (files->contents.list);
+/*	if (play->contents.list) {
+		wlist_clear (play->contents.list);
+		free (play->contents.list);
+	}
+	if (files->contents.list){
+		wlist_clear (files->contents.list);
+		free (files->contents.list);
+	}
 
 	free (info);
 	free (play);
@@ -321,7 +331,7 @@ bailout (int sig)
 	free (files);
 
 	free (conf);
-
+*/
 	switch (sig) {
 	case 0:
 		break;
@@ -361,9 +371,6 @@ bailout (int sig)
 		handler.sa_handler = SIG_DFL;
 		handler.sa_flags = 0;
 		sigaction (SIGCHLD, &handler, NULL);
-		handler.sa_handler = SIG_IGN;
-		handler.sa_flags = 0;
-		sigaction (SIGINT, &handler, NULL);
 		send_cmd(QUIT);	
 
 		// kill the entire process group, for the buffering child 
@@ -850,14 +857,8 @@ update_status (void)
 void
 show_playinfo (mpgreturn * message)
 {
-	int minleft, minused;
-	double secleft, secused;
-
-	minleft = (int) message->remaining / 60;
-	secleft = message->remaining - minleft * 60;
-	minused = (int) message->elapsed / 60;
-	secused = message->elapsed - minused * 60;
-	my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 23, " Time  : %02d:%02.0f / %02d:%02.0f", minused, secused, minleft, secleft);
+	my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 23, " Time  : %02d:%02d / %02d:%02d", 
+		(int)message->elapsed / 60, ((int)message->elapsed) % 60, (int)message->remaining / 60, ((int)message->remaining) % 60);
 
 	update_panels ();
 	doupdate ();

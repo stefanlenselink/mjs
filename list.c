@@ -11,9 +11,9 @@ static void	free_flist(flist *);
 void
 wlist_add(wlist *list, flist *position, flist *new) 
 {
+	flist *after;
 	if (!list)
 		abort();
-	flist *after;
 
 	// if position == NULL add to front
 	if (position == NULL) {

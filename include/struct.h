@@ -16,7 +16,7 @@ typedef struct _flist {
 #define F_DIR      	0x01
 #define F_PLAYLIST	0x02
 #define F_PAUSED   	0x40
-	int where;
+	int length;
 	char *album;
 	char *filename;
 	char *path;

@@ -48,6 +48,7 @@ install: all
 	install -c -o 0 -g 0 findmp3 /usr/local/bin
 	touch /var/log/mp3log
 	chmod a+rw /var/log/mp3log
+	mkdir -p /var/state
 	touch /var/state/mp3active
 	chmod a+rw /var/state/mp3active
 

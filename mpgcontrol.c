@@ -85,6 +85,9 @@ restart_mpg_child(void)
 	if (pid)
 		waitpid(pid, NULL, 0);
 	pid = 0;
+
+	// mpg123 crashed, so obviously it is not playing anything
+	p_status = 0;
 	
 	start_mpg_child();
 	

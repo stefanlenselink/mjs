@@ -179,12 +179,6 @@ read_mp3_list_file(wlist *list, char *filename)
 	fgets(buf, 255, fp);
 	if (!strncmp("Playlist for mjs",buf,16))
 		playlist = 1;
-	else
-		if (strncmp("Findresults for mjs",buf,19)) {
-			fclose(fp);
-			free(buf);
-			return list;
-		}
 
 	if (playlist){
 		lengte = strrchr(filename,'/')-filename;
@@ -236,7 +230,7 @@ read_mp3_list_file(wlist *list, char *filename)
 		strncpy(dir, buf, lengte);
 		dir[lengte]='\0';
 		strcpy(file, buf+lengte+1);
-
+		ftmp = NULL;
 		if (!stat(buf, &st)) {
 			if (S_ISDIR(st.st_mode)) {
 				ftmp = calloc(1, sizeof(flist));
@@ -250,14 +244,10 @@ read_mp3_list_file(wlist *list, char *filename)
 				ftmp->fullpath = strdup(buf);
 				ftmp->path = strdup(buf);
 				ftmp->flags |= F_DIR;
-				tail->next = ftmp;
-				ftmp->prev = tail;
-			
-				tail = ftmp;
+
 				length++;
 				} 
 			else {
-				ftmp = NULL;
 				if ((S_ISREG(st.st_mode)) & ((!strncasecmp(".mp3", strchr(file, '\0')-4, 4)) && ((ftmp = mp3_info(dir, file, ftmp, st.st_size))))) {
 					if (playlist) {
 						if (ftmp->album)
@@ -290,16 +280,32 @@ read_mp3_list_file(wlist *list, char *filename)
 					ftmp->path = strdup(dir);
 					ftmp->fullpath = strdup(buf);
 
-					if (tail) { // add to the tail of the existing list
-						tail->next = ftmp;
-						ftmp->prev = tail;
-						tail = ftmp;
-					} else { // the list doesn't exist yet
-						list->head = ftmp;
-						tail = ftmp;
-					}
 					length++;
 				}
+			}
+		} else {
+			if (!strncasecmp(buf, "http", 4)) {
+				// web-cast http adres
+				ftmp = calloc(1, sizeof(flist));
+				ftmp->filename = calloc(strlen(playlistname)+11, sizeof(char));
+				strcpy(ftmp->filename, "WebRadio: \0");
+				strcat(ftmp->filename, playlistname);
+				ftmp->album = strdup(buf);
+				ftmp->artist = strdup("http-stream");
+				ftmp->fullpath = strdup(buf);
+				ftmp->path = strdup("         http-stream");
+				length++;
+			}
+		}
+
+		if (ftmp) {
+			if (tail) { // add to the tail of the existing list
+				tail->next = ftmp;
+				ftmp->prev = tail;
+				tail = ftmp;
+			} else { // the list doesn't exist yet
+				list->head = ftmp;
+				tail = ftmp;
 			}
 		}
 		free(file);
@@ -483,6 +489,8 @@ next_valid(Window *win, flist *file, int c)
 	flist *ftmp = file;
 	int fix_selected = 0;
 	if (!file)
+		return file;
+	if (!strncasecmp(file->fullpath, "http", 4))
 		return file;
 	if (file->flags & F_SELECTED)
 		fix_selected = 1;

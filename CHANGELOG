@@ -1,3 +1,7 @@
+mjs 3.0-rc3
+ * It is now possible to listen to webradio. Just put the url in a
+   playlistfile.
+ * code-cleanups
 mjs 3.0-rc2
  * It is now possible to type the first letters of a directory to jump
    to it.

@@ -8,7 +8,6 @@
 #include "playlist.h"
 #include "extern.h"
 #include "stdio.h"
-#include "time.h"
 
 static int inpipe[2], outpipe[2];
 static struct sigaction handler;
@@ -99,9 +98,6 @@ restart_mpg_child(void)
 int send_cmd(int type, ...)
 {
 	char buf[512], *filename;
-	FILE *log;
-	FILE *active;
-	time_t timevalue;
 	int fd = inpipe[1];
 	long int skip;
 	va_list args;
@@ -119,38 +115,12 @@ int send_cmd(int type, ...)
 			snprintf(buf, 511, "LOAD %s\n", filename);
 			write(fd, buf, strlen(buf));
 			va_end(args);
-			
-			timevalue = time(NULL);
-						
-			active = fopen(conf->statefile,"w");
-			if (active) {
-				fprintf(active,"%s\n",filename);
-				fclose(active);
-			}
-			log = fopen(conf->logfile,"a");
-			if (log) {
-				fprintf(log,"%.24s\t%s\n",ctime(&timevalue),filename);
-				fclose(log);
-			}
-			
 			break;
 		case STOP:
 			write(fd, "STOP\n", 5);
-			timevalue = time(NULL);
-			
-			active = fopen(conf->statefile,"w");
-			if (active) {
-				fprintf(active,"%s","                      \n");
-				fclose(active);
-				}
 			break;
 		case PAUSE:
 			write(fd, "PAUSE\n", 6);
-			active = fopen(conf->statefile,"w");
-			if (active) {
-				fprintf(active,"%s","         * Pause *    \n");
-				fclose(active);
-				}
 			break;
 		case JUMP:
 			va_start(args, type);

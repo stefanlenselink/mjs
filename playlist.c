@@ -8,6 +8,7 @@
 #include "window.h"
 #include "mjs.h"
 #include "extern.h"
+#include "time.h"
 
 void
 play_next_song(void)
@@ -134,6 +135,9 @@ jump_to_song(flist *selected)
 	extern int p_status;
 	char buf[BIG_BUFFER_SIZE+1];
 	wlist *playlist = play->contents.list;
+	FILE *logfile;
+	FILE *activefile;
+	time_t timevalue;
 
 	selected = next_valid(play, selected, KEY_DOWN);
 	
@@ -146,6 +150,20 @@ jump_to_song(flist *selected)
 	memset(buf, 0, sizeof(buf));
 	snprintf(buf, BIG_BUFFER_SIZE, "%s", selected->fullpath);
 	send_cmd(LOAD, buf);
+			
+	timevalue = time(NULL);
+	activefile = fopen(conf->statefile,"w");
+	if (activefile) {
+		fprintf(activefile,"         Now playing:  %s  (by)  %s  (from)  %s    \n",selected->filename, selected->artist, selected->album);
+		fclose(activefile);
+	}
+	logfile = fopen(conf->logfile,"a");
+	if (logfile) {
+		fprintf(logfile,"%.24s\t%s\n",ctime(&timevalue),selected->fullpath);
+		fclose(logfile);
+	}
+	
+	
 	clear_play_info();
 	p_status = PLAYING;
 	selected->flags |= F_PLAY;
@@ -163,6 +181,7 @@ wlist *
 stop_player(wlist *playlist)
 {
 	extern int p_status;
+	FILE *activefile;
 	flist *ftmp = play->contents.list->playing;
 	
 	if (ftmp) {
@@ -176,6 +195,13 @@ stop_player(wlist *playlist)
 		send_cmd(PAUSE);
 	p_status = STOPPED;
 	send_cmd(STOP);
+
+	activefile = fopen(conf->statefile,"w");
+	if (activefile) {
+		fprintf(activefile,"%s","                      \n");
+		fclose(activefile);
+	}
+
 	update_title(playback);
 	doupdate();
 	return playlist;
@@ -185,9 +211,17 @@ wlist *
 pause_player(wlist *playlist)
 {
 	extern int p_status;
+	FILE *activefile;
+	flist *playing=playlist->playing;
 	playlist->playing->flags |= F_PAUSED;
 	p_status = PAUSED;
 	send_cmd(PAUSE);
+	activefile = fopen(conf->statefile,"w");
+	if (activefile) {
+		fprintf(activefile,"         Now playing:  %s  (by)  %s  (from)  %s    \n",playing->filename, playing->artist, playing->album);
+		fclose(activefile);
+	}
+
 	return playlist;
 }
 
@@ -195,9 +229,15 @@ wlist *
 resume_player(wlist *playlist)
 {
 	extern int p_status;
+	FILE *active;
 	playlist->playing->flags &= ~F_PAUSED;
 	p_status = PLAYING;
 	send_cmd(PAUSE);
+	active = fopen(conf->statefile,"w");
+	if (active) {
+		fprintf(active,"%s","         * Pause *    \n");
+		fclose(active);
+	}
 	return playlist;
 }
 

@@ -270,8 +270,8 @@ bailout(int sig)
 			break;
 		}	
 	fprintf(stdout, "\n\n MP3 Jukebox System (mjs) v%s\n",VERSION);
-	fprintf(stdout, " Based on mms written by Wesley Morgan. (morganw@engr.sc.edu)\n");
-	fprintf(stdout, " Changed by Marijn van Galen. (M.P.vanGalen@ITS.TUDelft.nl)\n\n");
+	fprintf(stdout, " By Marijn van Galen. (M.P.vanGalen@ITS.TUDelft.nl)\n\n");
+	fprintf(stdout, " Based on mms written by Wesley Morgan. (morganw@engr.sc.edu)\n\n\n");
 	fprintf(stdout, " Copyright (C) 2002 by Marijn van Galen\n");
 	fprintf(stdout, " This program is free software; you can redistribute it and/or modify it\n");
 	fprintf(stdout, " under the terms of the GNU General Public License as published by the Free\n");

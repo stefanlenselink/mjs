@@ -1,3 +1,7 @@
+Needed libraries:
+ncurses
+panel
+
 Quick installation:
 
 1) You probably don't need to edit the Makefile.

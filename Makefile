@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 3.1-rc2
+VERSION = 3.1-rc3
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c list.c
@@ -51,6 +51,7 @@ install: all
 	touch /var/state/mp3active
 	chmod a+rw /var/state/mp3active
 
+	@echo -e "\nWarning: The config file format has been changed !!!"
 	@echo -e "\nDon't forget to cp mjsrc.EXAMPLE to ~/.mjsrc and change it as needed !!!\nYou may also read INSTALL for further instructions.\n"
 	@echo -e "(c) mvgalen 2001 mvgalen@users.sourceforge.net\n\n"
 release: dist

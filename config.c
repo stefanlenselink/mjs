@@ -174,7 +174,7 @@ set_option (Config * conf, char *option, char *value)
 static u_int32_t
 str2color (char *color)
 {
-	if (color[0] == ' ')	// remove whitespace at start
+	while (color[0] == ' ')	// remove whitespace at start
 		color++;
 	if (!strncasecmp (color, "black",5))
 		return BLACK;

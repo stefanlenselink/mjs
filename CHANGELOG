@@ -1,0 +1,6 @@
+mjs 2.9 :
+* Fixed segfault when zero searchresults
+* cleanup of color code
+* made bottomtext configurable
+* some more config-file options
+* added more comments to config-file

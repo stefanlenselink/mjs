@@ -1,9 +1,3 @@
-Loosely pieced together... read_key() is where this stuff is from...
-
-********** NOTE ***********
-If you core due to some lame bug, you may need to kill the mpg123
-child process. It goes berzerk if you orphan it.
-********** NOTE ***********
 
 Customization:
 
@@ -13,7 +7,7 @@ MJSRC to the appropriate file.
 
 Navigation:
 
-TAB cycles between active windows.
+TAB cycles between playlist and files window.
 ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
 
 * in ALL windows:
@@ -35,7 +29,7 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * return adds files to the playlist and changes directory.
    * left-arrow goes back one directory
    * right-arrow enters directory
-   * alt-enter or insert inserts selected file into playlist
+   * ALT-ENTER or INSERT inserts selected file into playlist
    * Pressing a letter will take you to the first directory starting with
      that letter, pressing another one within 750ms will take you to the
      first directory starting with those two letters, etc.
@@ -43,4 +37,10 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
 * in the playlist window: 
    * with + and - you can move mp3's forward or backward in the playlist 
    * DEL will remove a song from the playlist (unless it is playing!)
+   * ENTER lets the selection bar jump to the playing song
 
+
+********** NOTE ***********
+If you core due to some lame bug, you may need to kill the mpg123
+child process. It goes berzerk if you orphan it.
+********** NOTE ***********

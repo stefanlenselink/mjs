@@ -99,19 +99,37 @@ move_selector(Window *window, int c)
 	
 	if (!wlist)
 		return NULL;
+	if (!wlist->selected)
+		return NULL;
 	
 	getmaxyx(window->win, maxy, maxx);
 	length = maxy - 2;
 
-	if (!wlist->selected)
-		return NULL;
 	switch (c) {
+		case KEY_ENTER:
+		case '\n':
+		case '\r':
+			if (active == play) {
+				wlist->selected->flags &= ~F_SELECTED;
+				wlist->selected = next_valid(window, wlist->head, KEY_HOME);
+				wlist->where = 1;
+				wlist->wheretop = 1;
+				
+				for (j = 0; wlist->selected->next && wlist->selected != wlist->playing; j++) {
+					wlist->selected = next_valid(window, wlist->selected->next, KEY_DOWN);
+					wlist->where++;
+					wlist->wheretop++;
+				}
+				wlist->selected->flags |= F_SELECTED;
+				return window;
+			}
+			break;				
 		case KEY_HOME: 
 			wlist->selected->flags &= ~F_SELECTED;
 			wlist->selected = next_valid(window, wlist->head, c);
 			wlist->selected->flags |= F_SELECTED;
 			wlist->where = 1;
-		wlist->wheretop = 1;
+			wlist->wheretop = 1;
 			return window;
 		case KEY_END: 
 			wlist->selected->flags &= ~F_SELECTED;
@@ -140,7 +158,7 @@ move_selector(Window *window, int c)
 		case KEY_NPAGE:
 			wlist->selected->flags &= ~F_SELECTED;
 			for (j = 0; wlist->selected->next && j < length-1; j++) {
-				wlist->selected = wlist->selected->next;
+				wlist->selected = next_valid(window, wlist->selected->next, KEY_DOWN);
 				wlist->where++;
 				wlist->wheretop++;
 				}
@@ -152,7 +170,7 @@ move_selector(Window *window, int c)
 			for (j = 0; wlist->selected->prev && j < length-1; j++) {
 				wlist->where--;
 				wlist->wheretop--;
-				wlist->selected = wlist->selected->prev;
+				wlist->selected = next_valid(window, wlist->selected->prev, KEY_UP);
 				}
 			wlist->selected = next_valid(window, wlist->selected, c);
 			wlist->selected->flags |= F_SELECTED;

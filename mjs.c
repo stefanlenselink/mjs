@@ -349,7 +349,7 @@ read_key(Window *window)
 // Move selected backwards in playlist			
 		case '+':
 		case '=':
-			if ((active == play) && !(play->contents.list->selected==play->contents.list->tail)) {
+			if ((active == play) && !(play->contents.list->selected == play->contents.list->tail) && (p_status == PLAYING)) {
 				move_forward(play->contents.list);
 				play->update(play);
 				doupdate();
@@ -377,48 +377,56 @@ read_key(Window *window)
 		case KEY_IC:
 			if (active == files) 
 				process_return(window->contents.list, c, alt);
+			else 
+				if ((window->flags & W_LIST) && info->update(move_selector(window, c))) {
+					window->update(window);
+					doupdate();
+				}
 			break;
 
-		case KEY_LEFT: {
-			char *prevpwd = NULL;
-			if (!(mp3list->flags & F_VIRTUAL)) {
-				prevpwd = getcwd(NULL, 0);
-				if (!strncmp (prevpwd, conf->mp3path, strlen(prevpwd))) {
-					free(prevpwd);
-					break;
+		case KEY_LEFT: 
+			if (active == files) {
+				char *prevpwd = NULL;
+				if (!(mp3list->flags & F_VIRTUAL)) {
+					prevpwd = getcwd(NULL, 0);
+					if (!strncmp (prevpwd, conf->mp3path, strlen(prevpwd))) {
+						free(prevpwd);
+						break;
+					}
+					chdir("../");
 				}
-				chdir("../");
-			}
-			free_list(mp3list->head);
-			memset(mp3list, 0, sizeof(wlist));
-			mp3list->head = read_mp3_list(mp3list);
-			if (mp3list->head)
-				sort_songs(mp3list);
-			if (prevpwd) {
-				while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) 
-					move_selector( files, KEY_DOWN );
-				free(prevpwd);
-			}
-			files->update(files);
-			play->update(play);
-			doupdate();
+				free_list(mp3list->head);
+				memset(mp3list, 0, sizeof(wlist));
+				mp3list->head = read_mp3_list(mp3list);
+				if (mp3list->head)
+					sort_songs(mp3list);
+				if (prevpwd) {
+					while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) 
+						move_selector( files, KEY_DOWN );
+					free(prevpwd);
+				}
+				files->update(files);
+				play->update(play);
+				doupdate();
 			}
 			break;
 
 		case KEY_RIGHT:
-			if (!(mp3list->selected->flags & F_DIR )) 
-				break;
-			chdir(mp3list->selected->fullpath);
-			free_list(mp3list->head);
-			memset(mp3list, 0, sizeof(wlist));
-			mp3list->head = read_mp3_list(mp3list);
-			if (mp3list->head) {
-				sort_songs(mp3list);
-				move_selector( files, KEY_DOWN );
+			if (active == files) {
+				if (!(mp3list->selected->flags & F_DIR )) 
+					break;
+				chdir(mp3list->selected->fullpath);
+				free_list(mp3list->head);
+				memset(mp3list, 0, sizeof(wlist));
+				mp3list->head = read_mp3_list(mp3list);
+				if (mp3list->head) {
+					sort_songs(mp3list);
+					move_selector( files, KEY_DOWN );
+				}
+				files->update(files);
+				play->update(play);
+				doupdate();
 			}
-			files->update(files);
-			play->update(play);
-			doupdate();
 			break;
 
 			

@@ -5,6 +5,7 @@ mjs 3.0-rc2
    playlist.
  * Fixed playlist saving (now uses the correct .mjs extension)
  * More code cleanups
+ * Added jumping to the playing number in the playlist with <enter>
 mjs 3.0-rc1
  * Code cleanups
  * Minor change to config-file format (background colors)

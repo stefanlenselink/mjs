@@ -9,3 +9,4 @@ mjs 2.9.1 (cvs) :
  * Code cleanups
  * moved bottomlinetext to menubar title.default in config file
  * Showing of relative path in the files window possible
+ * Added some consistency checks to id3 part to avoid division by zero 

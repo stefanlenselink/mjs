@@ -129,8 +129,6 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_MONO;
 	else if (!strcasecmp (option, "alternative_scrolling"))
 		conf->c_flags |= YESNO (value) * C_ALT_SCROLL;
-	else if (!strcasecmp (option, "show_playlist_length"))
-		conf->c_flags |= YESNO (value) * C_SHOW_P_LENGTH;
 	else if (!strcasecmp (option, "allow_playlist_saving"))
 		conf->c_flags |= YESNO (value) * C_ALLOW_P_SAVE;
 	else if (!strcasecmp (option, "show_track_numbers"))
@@ -156,37 +154,39 @@ set_option (Config * conf, char *option, char *value)
 static u_int32_t
 str2color (char *color)
 {
-	if (!strcasecmp (color, "black"))
+	if (color[0] == ' ')	// remove whitespace at start
+		color++;
+	if (!strncasecmp (color, "black",5))
 		return BLACK;
-	else if (!strcasecmp (color, "red"))
+	else if (!strncasecmp (color, "red",3))
 		return RED;
-	else if (!strcasecmp (color, "green"))
+	else if (!strncasecmp (color, "green",5))
 		return GREEN;
-	else if (!strcasecmp (color, "brown"))
+	else if (!strncasecmp (color, "brown",5))
 		return BROWN;
-	else if (!strcasecmp (color, "blue"))
+	else if (!strncasecmp (color, "blue",4))
 		return BLUE;
-	else if (!strcasecmp (color, "magenta"))
+	else if (!strncasecmp (color, "magenta",7))
 		return MAGENTA;
-	else if (!strcasecmp (color, "cyan"))
+	else if (!strncasecmp (color, "cyan",4))
 		return CYAN;
-	else if (!strcasecmp (color, "grey"))
+	else if (!strncasecmp (color, "grey",4))
 		return GREY;
-	else if (!strcasecmp (color, "b_black"))
+	else if (!strncasecmp (color, "b_black",7))
 		return B_BLACK;
-	else if (!strcasecmp (color, "b_red"))
+	else if (!strncasecmp (color, "b_red",5))
 		return B_RED;
-	else if (!strcasecmp (color, "b_green"))
+	else if (!strncasecmp (color, "b_green",7))
 		return B_GREEN;
-	else if (!strcasecmp (color, "yellow"))
+	else if (!strncasecmp (color, "yellow",6))
 		return YELLOW;
-	else if (!strcasecmp (color, "b_blue"))
+	else if (!strncasecmp (color, "b_blue",6))
 		return B_BLUE;
-	else if (!strcasecmp (color, "b_magenta"))
+	else if (!strncasecmp (color, "b_magenta",9))
 		return B_MAGENTA;
-	else if (!strcasecmp (color, "b_cyan"))
+	else if (!strncasecmp (color, "b_cyan",6))
 		return B_CYAN;
-	else if (!strcasecmp (color, "white"))
+	else if (!strncasecmp (color, "white",5))
 		return WHITE;
 	return GREY;
 }
@@ -214,8 +214,8 @@ set_color (char *color, char *value)
 	char *fore = value;
 	char *back = strchr (value, ':');
 
-	if (back == NULL)
-		return;
+	if (back != NULL)
+//		return;
 	*back++ = '\0';
 
 	if (!strcasecmp (color, "active"))
@@ -253,16 +253,16 @@ set_color (char *color, char *value)
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "file_back"))
 		colors[FILE_BACK] =
-			merge_colors (str2color (fore), str2color (back));
+			merge_colors (BLACK, str2color (fore));
 	else if (!strcasecmp (color, "info_back"))
 		colors[INFO_BACK] =
-			merge_colors (str2color (fore), str2color (back));
+			merge_colors (BLACK, str2color (fore));
 	else if (!strcasecmp (color, "play_back"))
 		colors[PLAY_BACK] =
-			merge_colors (str2color (fore), str2color (back));
+			merge_colors (BLACK, str2color (fore));
 	else if (!strcasecmp (color, "menu_back"))
 		colors[MENU_BACK] =
-			merge_colors (str2color (fore), str2color (back));
+			merge_colors (BLACK, str2color (fore));
 	else if (!strcasecmp (color, "menu_text"))
 		colors[MENU_TEXT] =
 			merge_colors (str2color (fore), str2color (back));

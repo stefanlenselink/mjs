@@ -271,7 +271,7 @@ bailout(int sig)
 			break;
 		case 3: fprintf(stderr, "\n\nmjs:error: Forking of mpg123 child proces failed !n\n\n");
 			break;
-		case 5: fprintf(stderr, "\n\nmjs:error: There are no command line switches !\n\n");
+		case 5: fprintf(stderr, "\n\nmjs:warning: There are no command line switches !\n\n");
 			fprintf(stderr, " See the file ~/.mjsrc for configuration details.\n");
 			break;
 		default: fprintf(stderr, "\n\nmjs:error: unknown\n\n\n");

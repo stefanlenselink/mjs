@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/usr/bin/slocate -U "/pub/mp3" -l 0 -o "/pub/mp3/mp3.db"

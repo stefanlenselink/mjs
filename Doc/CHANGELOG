@@ -1,3 +1,18 @@
+mjs 3.3-rc4
+ * Code cleanups, added more comments
+ * When you enter a sub-directory, the filelist parent directory is cached
+ * Screen output speed improvements
+mjs 3.3-rc3
+ * You can now specify mp3's to be played on the command line
+mjs 3.3-rc2 
+ * Fixed gcc<3.0 compilation errors
+ * Fixed start with last playlist
+ * Minor bug-fixes
+mjs 3.3-rc1 
+ * Added screensaver mode
+mjs 3.2 (not released)
+ * Added experimental genre directory structure recognition
+ * Fixed a lot of bugs
 mjs 3.1-rc3
  * Fixed scrollbar bar disappearing
  * speed improvements

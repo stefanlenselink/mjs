@@ -1,0 +1,9 @@
+There exist three small problems which I would love to resolve but seem not
+so simple:
+* When using mjs under RedHat 8.0 console (Virtual Terminal) first execute
+  the command reset. Otherwise the console will not be working properly. 
+* In an xterm (under RedHat 8.0) changing the TERM environment variable to
+  xterm-color resolves some screen corruption.
+* When compiling under RedHat 7.3 for RedHat 6.0 everything goes well, but
+  to run mjs you have to set the keep_playlist_at_exit option to false or else
+  a segfault will occur.

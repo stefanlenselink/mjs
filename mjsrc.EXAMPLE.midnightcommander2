@@ -50,9 +50,6 @@ set playlists_to_files		true
 # track but also to the end of the playlist (not really accurate yet)
 set mono_output			false
 
-# alternative_scrolling: move the list instead of the selector
-set alternative_scrolling	false
-
 # allow_playlist_saving: Allow saving of the playlist to a file
 set allow_playlist_saving	true
 
@@ -62,7 +59,15 @@ set show_track_numbers		false
 # Fix the ugly borders in xterm's (true/false/auto)
 set fix_window_borders		auto
 
-set keep_playlist_at_exit	false
+# Enable kind of screensaver function
+set screensaver			true
+
+# Reload the last playlist at startup 
+set keep_playlist_at_exit	true
+
+# Use directory based genre system 
+set use_genre			false
+
 
 #
 # Colors
@@ -72,35 +77,35 @@ set keep_playlist_at_exit	false
 # Foreground colors can, in addition to above, be:
 #     b_black, b_red, b_green, yellow, b_blue, b_magenta, b_cyan, white
 #
-color window_active			b_red:black
-color window_inactive			b_blue:black
-color window_inactive_title		b_blue:black
-color window_inactive_scroll		blue:black
-color window_inactive_scroll_bar	b_blue:black
-color window_active_title		b_red:black
-color window_active_scroll		red:black
-color window_active_scroll_bar		b_red:black
+color window_active			white:cyan
+color window_inactive			grey:cyan
+color window_inactive_title		grey:blue
+color window_inactive_scroll		grey:cyan
+color window_inactive_scroll_bar	grey:blue
+color window_active_title		white:blue
+color window_active_scroll		white:cyan
+color window_active_scroll_bar		white:blue
 
-color files_selected_file		b_blue:red
-color files_unselected_file		b_blue:black
-color files_unselected_directory	b_blue:black
-color files_selected_directory		b_blue:red
-color files_background			black
+color files_selected_file		black:cyan
+color files_unselected_file		grey:blue
+color files_unselected_directory	grey:blue
+color files_selected_directory		black:cyan
+color files_background			blue
 
-color playlist_unselected		b_blue:black
-color playlist_selected			b_blue:red
-color playlist_unselected_playing	b_red:black
-color playlist_selected_playing		b_red:red
-color playlist_background	 	black
+color playlist_unselected		grey:blue
+color playlist_selected			black:cyan
+color playlist_unselected_playing	white:blue
+color playlist_selected_playing		white:cyan
+color playlist_background	 	blue
 
-color info_text				b_blue:black
-color info_background			black
+color info_text				cyan:blue
+color info_background			blue
 
-color menu_text				b_blue:black
-color menu_background	 		black
+color menu_text				cyan:blue
+color menu_background	 		blue
 
-color playback_text	 		b_red:black
-color playback_background		black
+color playback_text	 		white:blue
+color playback_background		blue
 
 #
 # Window positions and sizes and formats (only used for 'list' type windows)
@@ -163,4 +168,4 @@ menubar height	1
 menubar width	w
 menubar y	h-1
 menubar x	0
-menubar title.default MP3 Jukebox System (mjs)
+menubar title.default vBo's Meesterlijke Muziek Maker

@@ -560,6 +560,7 @@ read_key (Window * window)
 		break;
 
 	case KEY_F (1):
+	case '|':
 		// Exit mjs                     
 		menubar->deactivate (menubar);
 		printf_menubar (menubar, EXITPROGRAM);

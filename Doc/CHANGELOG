@@ -1,3 +1,6 @@
+mjs 3.3-rc5
+ * Added config option to remove a song from the playlist once it has been
+   played
 mjs 3.3-rc4
  * Code cleanups, added more comments
  * When you enter a sub-directory, the filelist parent directory is cached

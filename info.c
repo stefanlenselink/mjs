@@ -89,9 +89,11 @@ resolve_path (const char *path)
 		int n;
 		n = readlink(oldpath, tempdir, sizeof(tempdir));
 		tempdir[n]='\0';
-		newpath = calloc(strlen(path)-strlen(oldpath)+n+1, sizeof(char));
-		strcpy(newpath, tempdir);
-		strcat(newpath, path + strlen(oldpath));
+		if (tempdir[0]!='.'){ // relative symlinks are not yet supported....
+			newpath = calloc(strlen(path)-strlen(oldpath)+n+1, sizeof(char));
+			strcpy(newpath, tempdir);
+			strcat(newpath, path + strlen(oldpath));
+		}
 	}
 	free(oldpath);
 	if (newpath)

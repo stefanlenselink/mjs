@@ -12,7 +12,7 @@
 #define SEARCHING "Searching...   [                                                   ]"
 #define READING   "Reading...     [                                                   ]"
 #define CLEARPLAYLIST "Are you sure you want to clear the playlist ? (y/n)"
-#define EXITPROGRAM "Are you sure you want to reset this program ? (y/n)"
+#define EXITPROGRAM "Are you sure you want to exit this program ? (y/n)"
 
 /* defines for the mpg123 controller */
 

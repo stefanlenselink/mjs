@@ -708,7 +708,7 @@ process_return(wlist *mp3list, int c, int alt)
 			play->contents.list = read_mp3_list_file(play->contents.list, filename);
 			play->contents.list->selected->flags |= F_SELECTED;
 		}
-	
+		free(filename);	
 		menubar->activate(menubar);
 		info->update(files);
 		files->update(files);		

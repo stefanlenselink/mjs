@@ -224,87 +224,77 @@ read_mp3_list_file(wlist *list, char *filename)
 		}
 		lengte=strrchr(buf,'/')-buf;
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
-		if (buf=='\0')
-			goto endloop;
 		dir = malloc(lengte+1);
 		file = malloc(strlen(buf)-lengte);		
 		strncpy(dir, buf, lengte);
 		dir[lengte]='\0';
 		strcpy(file, buf+lengte+1);
 
-		if (stat(buf, &st))
-			goto endloop;
-		if (S_ISDIR(st.st_mode)) {
-			ftmp = calloc(1, sizeof(flist));
+		if (!stat(buf, &st)) {
+			if (S_ISDIR(st.st_mode)) {
+				ftmp = calloc(1, sizeof(flist));
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-			ftmp->filename = malloc(file+3);
+				ftmp->filename = malloc(file+3);
 #else
-			ftmp->filename = malloc(strlen(file)+3);
+				ftmp->filename = malloc(strlen(file)+3);
 #endif /* *BSD */
-			strcpy(ftmp->filename, file);
-			strcat(ftmp->filename, ":");
-			ftmp->fullpath = strdup(buf);
-			ftmp->path = strdup(buf);
-			ftmp->flags |= F_SEARCHDIR | F_DIR;
-			tail->next = ftmp;
-			ftmp->prev = tail;
+				strcpy(ftmp->filename, file);
+				strcat(ftmp->filename, ":");
+				ftmp->fullpath = strdup(buf);
+				ftmp->path = strdup(buf);
+				ftmp->flags |= F_SEARCHDIR | F_DIR;
+				tail->next = ftmp;
+				ftmp->prev = tail;
 			
-			tail = ftmp;
-			length++;
-			} 
-		else 
-			if (S_ISREG(st.st_mode)) {
-/* FIXME (goto's) */
-				if (strncasecmp(".mp3", strchr(file, '\0')-4, 4))
-					goto endloop;
+				tail = ftmp;
+				length++;
+				} 
+			else {
 				ftmp = NULL;
-				if (!(ftmp = mp3_info(dir, file, ftmp, st.st_size)))
-					goto endloop;
-
-				if (playlist) {
-					if (ftmp->album)
-						free(ftmp->album);
-					ftmp->album = strdup(playlistname);
-					if ((file[0]>='0')&&(file[0]<='9')) {
-						// get rid of old tracknumber add new tracknumber
+				if ((S_ISREG(st.st_mode)) & ((!strncasecmp(".mp3", strchr(file, '\0')-4, 4)) && ((ftmp = mp3_info(dir, file, ftmp, st.st_size))))) {
+					if (playlist) {
+						if (ftmp->album)
+							free(ftmp->album);
+						ftmp->album = strdup(playlistname);
+						if ((file[0]>='0') & (file[0]<='9')) {
+							// get rid of old tracknumber add new tracknumber
+							ftmp->filename = malloc(strlen(file)-3);
+							snprintf(ftmp->filename, 3, "%02.0f", (float)length);
+							ftmp->filename[2]=' ';
+							strncpy(ftmp->filename+3, file+3, strlen(file)-7);
+							ftmp->filename[strlen(file)-4]='\0';
+	
+						} else {
+							// get rid of .mp3 add tracknumber
+							ftmp->filename = malloc(strlen(file));
+							snprintf(ftmp->filename, 3, "%02.0f", (float)length);
+							ftmp->filename[2]=' ';
+							strncpy(ftmp->filename+3, file, strlen(file)-4);
+							ftmp->filename[strlen(file)-1]='\0';
+						}
+	
+					} else { // get rid of .mp3
 						ftmp->filename = malloc(strlen(file)-3);
-						snprintf(ftmp->filename, 3, "%02.0f", (float)length);
-						ftmp->filename[2]=' ';
-						strncpy(ftmp->filename+3, file+3, strlen(file)-7);
+						strncpy(ftmp->filename, file, strlen(file)-4);
 						ftmp->filename[strlen(file)-4]='\0';
-
-					} else {
-						// get rid of .mp3 add tracknumber
-						ftmp->filename = malloc(strlen(file));
-						snprintf(ftmp->filename, 3, "%02.0f", (float)length);
-						ftmp->filename[2]=' ';
-						strncpy(ftmp->filename+3, file, strlen(file)-4);
-						ftmp->filename[strlen(file)-1]='\0';
+					
 					}
 
-				} else {
-					// get rid of .mp3
-					ftmp->filename = malloc(strlen(file)-3);
-					strncpy(ftmp->filename, file, strlen(file)-4);
-					ftmp->filename[strlen(file)-4]='\0';
-					
-				}
+					ftmp->path = strdup(dir);
+					ftmp->fullpath = strdup(buf);
 
-				ftmp->path = strdup(dir);
-				ftmp->fullpath = strdup(buf);
-
-				if (tail) { // add to the tail of the existing list
-					tail->next = ftmp;
-					ftmp->prev = tail;
-					tail = ftmp;
+					if (tail) { // add to the tail of the existing list
+						tail->next = ftmp;
+						ftmp->prev = tail;
+						tail = ftmp;
+					} else { // the list doesn't exist yet
+						list->head = ftmp;
+						tail = ftmp;
+					}
+					length++;
 				}
-				else { // the list doesn't exist yet
-					list->head = ftmp;
-					tail = ftmp;
-				}
-				length++;
-				}
-endloop:
+			}
+		}
 		free(file);
 		free(dir);
 		}

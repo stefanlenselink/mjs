@@ -1,4 +1,4 @@
-mjs 2.9.3 (cvs) :
+mjs 2.9.3 :
  * read_mp3_list_file now returns wlist, so files->tail will not be NULL any
    more
 mjs 2.9.2 (cvs) :

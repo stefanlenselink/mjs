@@ -19,13 +19,11 @@
 #include <string.h>
 #include <signal.h>
 #include <unistd.h>
+#include <malloc.h>
 #ifndef FREEBSD_NCURSES_PORT
 #include <ncurses.h>
 #include <panel.h>
 #else
 #include <ncurses/ncurses.h>
 #include <ncurses/panel.h>
-#endif
-#ifdef GPM_SUPPORT
-#include <gpm.h>
 #endif

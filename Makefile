@@ -8,15 +8,18 @@ SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c
 OBJS =	mjs.o misc.o info.o config.o playlist.o inputline.o mpgcontrol.o \
 	tokens.o window.o files.o
-INCLUDES = -I/usr/local/include -Iinclude
+INCLUDES = -Iinclude
 LIBRARY = -L/usr/local/lib
 PROFILE = #-pg
 LIBS = -lncurses -lpanel 
-ARCHFLAGS = -mpentium
+#ARCHFLAGS = -mcpu=pentium
 WARNINGS = -Wall -Wbad-function-cast -Wcast-align
 OPTFLAGS = -O2
 # Comment this out for debugging
-#OPTFLAGS += -g3
+DEBUG = 1 
+#ifdef DEBUG
+OPTFLAGS += -g3
+#endif
 
 CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS) -DVERSION=\"$(VERSION)\"
 
@@ -26,6 +29,9 @@ CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS) -DVERSION=\"$(VERSION)\
 all: $(PROGRAM)
 
 default: all
+
+run: all
+	./$(PROGRAM)
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<

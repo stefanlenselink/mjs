@@ -329,11 +329,6 @@ void
 add_to_playlist(wlist *playlist, flist *position, flist *file)
 {
 	flist *newfile, *head = NULL, *tail = NULL;
-	int i = 0, maxx, maxy;
-
-	getmaxyx(play->win, maxy, maxx);
-	maxx = maxy - 2;
-	maxy -= 3;
 	
 	if (position) {
 		head = position;
@@ -342,8 +337,6 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	
 	/* either create a new playlist, or grab the tail */
 	newfile = calloc(1, sizeof(flist));
-	if (!head)
-		playlist->head = playlist->top = newfile;
 	
 	/* remove tracknumber if it exists and user wants it*/
 	if (!(conf->c_flags & C_TRACK_NUMBERS)) {
@@ -355,6 +348,7 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		} else if (!strncasecmp(file->filename,"cd",2))
 			newfile->filename = strdup(file->filename+7);	
 	}
+
 	if (!newfile->filename)
 		newfile->filename = strdup(file->filename);
 	if (strlen(newfile->filename) == 0) {
@@ -368,34 +362,34 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		newfile->album = strdup(file->album);
 	if (file->artist)
 		newfile->artist = strdup(file->artist);
+
 	if (head) {
 		head->next = newfile;
 		newfile->prev = head;
+	} else {
+		newfile->prev = NULL;
+		playlist->head = playlist->top = newfile;
 	}
+
 	if (tail) {
 		newfile->next = tail;
 		tail->prev = newfile;
 	}
-	else 
+	else {
+		newfile->next = NULL;
 		playlist->tail = newfile;
+	}
+
 	if (!playlist->selected) {
 		playlist->selected = newfile;
 		newfile->flags |= F_SELECTED;
-		playlist->where = 1;
+		playlist->where = 0;
 	}
 	if (conf->c_flags & C_PADVANCE) {
 		playlist->selected->flags &= ~F_SELECTED; /* could be a wasted dupe */
 		playlist->selected = newfile;
 		playlist->where = ++playlist->length;
 		newfile->flags |= F_SELECTED;
-//		if (playlist->length < maxx)
-//			return;
-		/* this is inefficient, we could "store" more data about the list, but
-		 * who really cares. :) */
-//		for (head = newfile; head && i < maxy; i++, head = head->prev)
-//			if (head == playlist->top)
-//				return;
-//		playlist->top = head;
 	} else
 		++playlist->length;
 	play->update(play);

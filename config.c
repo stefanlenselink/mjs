@@ -25,7 +25,7 @@ static void set_color_defaults (void);
 static void set_window (Window *, char *, char *);
 static int break_line (const char *, char *, char *, char *);
 
-u_int32_t colors[17];
+u_int32_t colors[24];
 
 Config *
 read_config (Config * conf)
@@ -234,67 +234,96 @@ set_color (char *color, char *value)
 	char *fore = value;
 	char *back = strchr (value, ':');
 
-	if (back != NULL)
-//		return;
+	if (back == NULL)
+		return;
 	*back++ = '\0';
 
-	if (!strcasecmp (color, "active"))
-		colors[ACTIVE] =
+	/* IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
+	* check
+	* u_int32_t colors[24];
+	* around line 24 !!!!!
+	* resize this array when adding more color entries !!!!!
+	*/
+
+
+
+	if (!strcasecmp (color, "window_active"))
+		colors[WIN_ACTIVE] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "inactive"))
-		colors[INACTIVE] =
+	else if (!strcasecmp (color, "window_active_title"))
+		colors[WIN_ACTIVE_TITLE] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "selected"))
-		colors[SELECTED] =
+	else if (!strcasecmp (color, "window_active_scroll"))
+		colors[WIN_ACTIVE_SCROLL] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "unselected"))
-		colors[UNSELECTED] =
+	else if (!strcasecmp (color, "window_active_scroll_bar"))
+		colors[WIN_ACTIVE_SCROLLBAR] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "directory"))
-		colors[DIRECTORY] =
+	else if (!strcasecmp (color, "window_inactive"))
+		colors[WIN_INACTIVE] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "sel_directory"))
-		colors[SEL_DIRECTORY] =
+	else if (!strcasecmp (color, "window_inactive_title"))
+		colors[WIN_INACTIVE_TITLE] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "title"))
-		colors[TITLE] =
+	else if (!strcasecmp (color, "window_inactive_scroll"))
+		colors[WIN_INACTIVE_SCROLL] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "scroll"))
-		colors[SCROLL] =
+	else if (!strcasecmp (color, "window_inactive_scroll_bar"))
+		colors[WIN_INACTIVE_SCROLLBAR] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "scroll_bar"))
-		colors[SCROLLBAR] =
+
+	else if (!strcasecmp (color, "files_selected_file"))
+		colors[FILE_SELECTED] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "playlist"))
-		colors[PLAYLIST] =
+	else if (!strcasecmp (color, "files_unselected_file"))
+		colors[FILE_UNSELECTED] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "playing"))
-		colors[UNSEL_PLAYING] =
+	else if (!strcasecmp (color, "files_unselected_directory"))
+		colors[FILE_UNSELECTED_DIRECTORY] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "sel_playing"))
-		colors[SEL_PLAYING] =
+	else if (!strcasecmp (color, "files_selected_directory"))
+		colors[FILE_SELECTED_DIRECTORY] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "file_back"))
-		colors[FILE_BACK] =
+	else if (!strcasecmp (color, "files_background"))
+		colors[FILE_WINDOW] =
 			merge_colors (BLACK, str2color (fore));
-	else if (!strcasecmp (color, "info_back"))
-		colors[INFO_BACK] =
+
+	else if (!strcasecmp (color, "playlist_unselected"))
+		colors[PLAY_UNSELECTED] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "playlist_unselected_playing"))
+		colors[PLAY_UNSELECTED_PLAYING] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "playlist_selected_playing"))
+		colors[PLAY_SELECTED_PLAYING] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "playlist_selected"))
+		colors[PLAY_SELECTED] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "playlist_background"))
+		colors[PLAY_WINDOW] =
 			merge_colors (BLACK, str2color (fore));
-	else if (!strcasecmp (color, "play_back"))
-		colors[PLAY_BACK] =
+
+	else if (!strcasecmp (color, "info_text"))
+		colors[INFO_TEXT] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "info_background"))
+		colors[INFO_WINDOW] =
 			merge_colors (BLACK, str2color (fore));
-	else if (!strcasecmp (color, "menu_back"))
-		colors[MENU_BACK] =
+
+	else if (!strcasecmp (color, "menu_background"))
+		colors[MENU_WINDOW] =
 			merge_colors (BLACK, str2color (fore));
 	else if (!strcasecmp (color, "menu_text"))
 		colors[MENU_TEXT] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "info"))
-		colors[INFO] =
+
+	else if (!strcasecmp (color, "playback_text"))
+		colors[PLAYBACK_TEXT] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "time"))
-		colors[TIME] =
-			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "playback_background"))
+		colors[PLAYBACK_WINDOW] =
+			merge_colors (BLACK, str2color (fore));
 }
 
 /*
@@ -433,25 +462,35 @@ set_window_defaults (void)
 static void
 set_color_defaults (void)
 {
-	colors[ACTIVE] = merge_colors (B_GREEN, BLUE);
-	colors[SELECTED] = merge_colors (YELLOW, RED);
-	colors[UNSELECTED] = merge_colors (WHITE, BLUE);
-	colors[SEL_DIRECTORY] = merge_colors (YELLOW, RED);
-	colors[DIRECTORY] = merge_colors (WHITE, BLUE);
-	colors[TITLE] = merge_colors (WHITE, GREEN);
-	colors[SCROLL] = merge_colors (YELLOW, BLUE);
-	colors[SCROLLBAR] = merge_colors (YELLOW, BLUE);
-	colors[PLAYLIST] = merge_colors (WHITE, BLUE);
-	colors[UNSEL_PLAYING] = merge_colors (B_CYAN, BLUE);
-	colors[SEL_PLAYING] = merge_colors (B_CYAN, RED);
-	colors[FILE_BACK] = merge_colors (BLACK, BLUE);
-	colors[INFO_BACK] = merge_colors (BLACK, BLUE);
-	colors[PLAY_BACK] = merge_colors (BLACK, BLUE);
-	colors[MENU_BACK] = merge_colors (BLACK, BLUE);
-	colors[MENU_TEXT] = merge_colors (B_RED, BLUE);
-	colors[INACTIVE] = merge_colors (YELLOW, BLUE);
-	colors[INFO] = merge_colors (WHITE, BLUE);
-	colors[TIME] = merge_colors (WHITE, BLUE);
+	colors[WIN_ACTIVE] = merge_colors (B_RED, BLACK);
+	colors[WIN_INACTIVE] = merge_colors (B_BLUE, BLACK);
+	colors[WIN_INACTIVE_TITLE] = merge_colors (B_BLUE, BLACK);
+	colors[WIN_INACTIVE_SCROLL] = merge_colors (BLUE, BLACK);
+	colors[WIN_INACTIVE_SCROLLBAR] = merge_colors (B_BLUE, BLACK);
+	colors[WIN_ACTIVE_TITLE] = merge_colors (B_RED, BLACK);
+	colors[WIN_ACTIVE_SCROLL] = merge_colors (RED, BLACK);
+	colors[WIN_ACTIVE_SCROLLBAR] = merge_colors (B_RED, BLACK);
+
+	colors[FILE_UNSELECTED] = merge_colors (B_BLUE, BLACK);
+	colors[FILE_SELECTED] = merge_colors (B_BLUE, RED);
+	colors[FILE_UNSELECTED_DIRECTORY] = merge_colors (B_BLUE, BLACK);
+	colors[FILE_SELECTED_DIRECTORY] = merge_colors (B_BLUE, RED);
+	colors[FILE_WINDOW] = merge_colors (BLACK, BLACK);
+
+	colors[PLAY_UNSELECTED] = merge_colors (B_BLUE, BLACK);
+	colors[PLAY_SELECTED] = merge_colors (B_BLUE, RED);
+	colors[PLAY_UNSELECTED_PLAYING] = merge_colors (B_RED, BLUE);
+	colors[PLAY_SELECTED_PLAYING] = merge_colors (B_RED, RED);
+	colors[PLAY_WINDOW] = merge_colors (BLACK, BLACK);
+
+	colors[INFO_TEXT] = merge_colors (B_BLUE, BLACK);
+	colors[INFO_WINDOW] = merge_colors (BLACK, BLACK);
+
+	colors[MENU_TEXT] = merge_colors (B_BLUE, BLACK);
+	colors[MENU_WINDOW] = merge_colors (BLACK, BLACK);
+
+	colors[PLAYBACK_TEXT] = merge_colors (B_BLUE, BLACK);
+	colors[PLAYBACK_WINDOW] = merge_colors (BLACK, BLACK);
 }
 
 static int

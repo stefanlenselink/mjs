@@ -8,7 +8,6 @@
 #include "files.h"
 #include "extern.h"
 
-//static void	 clear_info(void);
 static u_char	*parse_title(Window *, u_char *, int);
 
 int
@@ -39,50 +38,52 @@ show_list(Window *window)
 			list->wheretop = list->where-((y-1)/2);
 		top = list->wheretop-1;
 	}
-	if ((top>0)&(list->length > (y-1))) {
-		for (i = 0; i < top; i++)
+	if ((top > 0) && (list->length > (y-1)) ) {
+		for (i = 0; (i < top) && (list->top->next); i++)
 			list->top = list->top->next;
 	}
 
 	ftmp = list->top;
 
 	for (i = 1; i < y; i++)
-		if (ftmp && *ftmp->filename) {
+		if ((ftmp) && (ftmp->filename)) {
 			if (window->format) {
 				memset(buf, 0, sizeof(buf));
 				line = parse_tokens(window,ftmp, buf, BUFFER_SIZE, window->format);
 			} else 	
 				line = ftmp->filename;
-			if ((window->flags & W_ACTIVE) && (ftmp->flags & F_PAUSED))
-				my_mvwnaddstr(win, i, 2, colors[UNSEL_PLAYING] | A_BLINK, x, line);
-			else {
-				if (window==play)
-					if (ftmp->flags & F_PLAY)
-						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							color = colors[SEL_PLAYING];
-						else
-							color = colors[UNSEL_PLAYING];
-					else			
-						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							color = colors[SELECTED];
-						else
-							color = colors[PLAYLIST];
-				else	// window==files
-					if (ftmp->flags & F_DIR)
-						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							color = colors[SEL_DIRECTORY];
-						else
-							color = colors[DIRECTORY];
+			if (window==play) {
+				if (ftmp->flags & F_PLAY)
+					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+						color = colors[PLAY_SELECTED_PLAYING];
 					else
-						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							color = colors[SELECTED];
-						else 	
-							color = colors[UNSELECTED];
-				my_mvwnaddstr(win, i, 2, color, x, line);
-			}
+						color = colors[PLAY_UNSELECTED_PLAYING];
+				else			
+					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+						color = colors[PLAY_SELECTED];
+					else
+						color = colors[PLAY_UNSELECTED];
+			} else	// window==files
+				if (ftmp->flags & F_DIR)
+					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+						color = colors[FILE_SELECTED_DIRECTORY];
+					else
+						color = colors[FILE_UNSELECTED_DIRECTORY];
+				else
+					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+						color = colors[FILE_SELECTED];
+					else 	
+						color = colors[FILE_UNSELECTED];
+			if (ftmp->flags & F_PAUSED)
+				color |=  A_BLINK;
+			my_mvwnaddstr(win, i, 2, color, x, line);
 			ftmp = ftmp->next;
 		} else  /* blank the line */ 
-			my_mvwnaddstr(win, i, 2, colors[FILE_BACK], x, "");
+			if (window == play) 
+				my_mvwnaddstr(win, i, 2, colors[PLAY_WINDOW], x, "");
+			else
+				my_mvwnaddstr(win, i, 2, colors[FILE_WINDOW], x, "");
+
 	if (window->flags & W_LIST)
 		do_scrollbar(active);
 	update_title(window);
@@ -200,11 +201,11 @@ update_info(Window *window)
 	clear_info();
 
 	if (file) {
-		my_mvwnprintw(win, 1, 9, colors[INFO], i-10, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
+		my_mvwnprintw(win, 1, 10, colors[INFO_TEXT], i-11, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
 		if (file->artist)
-			my_mvwnprintw(win, 2, 9, colors[INFO], i-10, "%s", file->artist);
+			my_mvwnprintw(win, 2, 10, colors[INFO_TEXT], i-11, "%s", file->artist);
 		if (file->album)
-			my_mvwnprintw(win, 3, 9, colors[INFO], i-10, "%s", file->album);
+			my_mvwnprintw(win, 3, 10, colors[INFO_TEXT], i-11, "%s", file->album);
 	}
 	update_title(info);
 	update_panels();
@@ -245,11 +246,11 @@ active_win(Window *window)
 	else
 		wborder(win, 'º', 'º', 'Í', 'Í', 'É', '»', 'È', '¼');
 	getmaxyx(win, y, x);
-	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
-	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
+	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[WIN_ACTIVE], 0, NULL);
+	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[WIN_ACTIVE], 0, NULL);
 	for (i = 0; i < y; i++) {
-		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
-		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
+		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[WIN_ACTIVE], 0, NULL);
+		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[WIN_ACTIVE], 0, NULL);
 	}	
 	window->flags |= W_ACTIVE;
 	update_title(window);
@@ -265,11 +266,11 @@ inactive_win(Window *window)
 	int i, x, y;
 	wborder(win, 0, 0, 0, 0, 0, 0, 0, 0);
 	getmaxyx(win, y, x);
-	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
-	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
+	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[WIN_INACTIVE], 0, NULL);
+	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[WIN_INACTIVE], 0, NULL);
 	for (i = 0; i < y; i++) {
-		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
-		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
+		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[WIN_INACTIVE], 0, NULL);
+		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[WIN_INACTIVE], 0, NULL);
 	}	
 	window->flags &= ~W_ACTIVE;
 	update_title(window);
@@ -282,7 +283,7 @@ clear_menubar(Window *window)
 {
 	wmove(window->win, 0, 0);
 	wclrtoeol(window->win);
-	wbkgd(window->win, colors[MENU_BACK]);
+	wbkgd(window->win, colors[MENU_WINDOW]);
 	return 1;
 }
 
@@ -292,8 +293,11 @@ std_menubar(Window *window)
 	char version_str[128];
 	int x = window->width-2;
 	clear_menubar(window);
-	snprintf(version_str, 128, "%s   v%s", window->title_dfl, VERSION);
-	my_mvwaddstr(window->win, 0, (x-strlen(version_str))/2, colors[MENU_TEXT], version_str);
+//	snprintf(version_str, 128, "%s   v%s", window->title_dfl, VERSION);
+//	my_mvwaddstr(window->win, 0, ((x-strlen(version_str))/2)+6, colors[MENU_TEXT], version_str);
+	my_mvwaddstr(window->win, 0, ((x-strlen(window->title_dfl))/2), colors[MENU_TEXT], window->title_dfl);
+	snprintf(version_str, 128, "v%s", VERSION);
+	my_mvwaddstr(window->win, 0, x-6, colors[MENU_TEXT], version_str);
 	return 1;
 }
 
@@ -312,15 +316,16 @@ update_title(Window *window)
 {
 	WINDOW *win = window->win;
 	u_char title[BUFFER_SIZE+1], *p = NULL, horiz = ACS_HLINE;
-	u_int32_t color = colors[INACTIVE];
+	u_int32_t color;
 	int i = 0, left, right, center, x = window->width-2;
 
 	if (window->flags & W_ACTIVE) {
 		if (conf->c_flags & C_FIX_BORDERS)
-			horiz = '=', color = colors[ACTIVE];
+			horiz = '=', color = colors[WIN_ACTIVE];
 		else
-			horiz = 'Í', color = colors[ACTIVE];
-	}
+			horiz = 'Í', color = colors[WIN_ACTIVE];
+	} else
+		color = colors[WIN_INACTIVE];
 
 	memset(title, 0, sizeof(title));
 	p = parse_title(window, title, BUFFER_SIZE);
@@ -342,7 +347,10 @@ update_title(Window *window)
 
 	if (p && (i <= x)) {
 		mvwhline(win, 0, 1, horiz | A_ALTCHARSET | color, left);
-		my_mvwprintw(win, 0, 1+center, colors[TITLE], "[ %s ]", p);
+		if (window->flags & W_ACTIVE)
+			my_mvwprintw(win, 0, 1+center, colors[WIN_ACTIVE_TITLE], "[ %s ]", p);
+		else
+			my_mvwprintw(win, 0, 1+center, colors[WIN_INACTIVE_TITLE], "[ %s ]", p);
 		mvwhline(win, 0, 1+center+i, horiz | A_ALTCHARSET | color, right);
 		return 1;
 	}
@@ -355,6 +363,7 @@ do_scrollbar(Window *window)
 	int i = 1, offscreen, x, y; /* window dimensions, etc */
 	int top, bar, bottom; /* scrollbar portions */
 	double value; /* how much each notch represents */
+	u_int32_t color;
 	wlist *wtmp = window->contents.list;
 	flist *ftmp = NULL, *selected = wtmp->selected;
 	WINDOW *win = window->win;
@@ -386,10 +395,17 @@ do_scrollbar(Window *window)
 	/* because of rounding we may end up with too much, correct for that */
 	if (bottom < 0)
 		top += bottom;
-	mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | colors[SCROLL], top);
-	mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[SCROLLBAR], bar);
+	if (window->flags & W_ACTIVE)
+		color = colors[WIN_ACTIVE_SCROLL];
+	else
+		color = colors[WIN_INACTIVE_SCROLL];
+	mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | color, top);
 	if (bottom > 0)
-		mvwvline(win, 1+top+bar, x, ACS_BOARD | A_ALTCHARSET | colors[SCROLL], bottom);
+		mvwvline(win, 1+top+bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom);
+	if (window->flags & W_ACTIVE)
+		mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_ACTIVE_SCROLLBAR], bar);
+	else
+		mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_INACTIVE_SCROLLBAR], bar);
 	update_panels();
 }
 

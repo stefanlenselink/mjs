@@ -164,7 +164,7 @@ read_mp3_list_file(wlist *list, char *filename)
 	char * playlistname = NULL;
 	struct stat st;
 	flist *ftmp = NULL, *tail = NULL;
-	int length = 0, lengte = 0, n = 0;
+	int length = 0, n = 0;
 	int playlist = 0;
 	
 	errno=0;
@@ -173,36 +173,42 @@ read_mp3_list_file(wlist *list, char *filename)
 
 	buf = calloc(256, sizeof(char));
 
-	length++;
+	//length++;
 	fgets(buf, 255, fp);
 	if (!strncmp("Playlist for mjs",buf,16))
 		playlist = 1;
 
 	if (playlist){
-		lengte = strrchr(filename,'/')-filename;
-		playlistname = malloc(strlen(filename)-lengte-4);
-		strncpy(playlistname, filename+lengte+1,strlen(filename)-lengte-5);
-		playlistname[strlen(filename)-lengte-5]='\0';
+		length = strrchr(filename,'/')-filename;
+		playlistname = malloc(strlen(filename)-length-4);
+		strncpy(playlistname, filename+length+1,strlen(filename)-length-5);
+		playlistname[strlen(filename)-length-5]='\0';
 	}
 
 	if (list) {
-		if (list->tail)
+		if (list->tail) 
+		// we've got an existing list, append the new entries
 			tail = list->tail;
 	} else {
+		// no existing list, make a new one
 		list = calloc(1, sizeof(wlist));
 		list->where = 1;
+		list->length = 1;
 		list->flags |= F_VIRTUAL;
 		ftmp = calloc(1, sizeof(flist));
 		ftmp->flags |= F_DIR;
 		ftmp->filename = strdup("../");
 		ftmp->fullpath = getcwd(NULL,0);
-		if (playlist) {
-			ftmp->path = malloc(strlen(playlistname)+9);
-			strcpy (ftmp->path, "         \0");
-			strcat (ftmp->path, playlistname);
-		} else
-			ftmp->path = strdup("         Search Results");
+		if (playlist) 
+			ftmp->path = strdup(playlistname);
+		else
+			ftmp->path = strdup("Search Results");
+		ftmp->next = NULL;
+		ftmp->prev = NULL;
+		list->selected = NULL;
+		list->tail = NULL;
 		list->head = ftmp;
+		list->top = ftmp;
 		tail = ftmp;
 	}
 			
@@ -218,21 +224,24 @@ read_mp3_list_file(wlist *list, char *filename)
 			fclose(fp);
 			free(buf);	
 			free(playlistname);
-			list->length = length;
 			list->tail = tail;
-			list->selected = list->top = list->head;
+			if (!list->top)
+				list->top = list->head;
+			if (!list->selected)
+				list->selected = list->top;
 			return list;
 		}
-		lengte=strrchr(buf,'/')-buf;
+		length=strrchr(buf,'/')-buf;
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
-		dir = malloc(lengte+1);
-		file = malloc(strlen(buf)-lengte);		
-		strncpy(dir, buf, lengte);
-		dir[lengte]='\0';
-		strcpy(file, buf+lengte+1);
+		dir = malloc(length+1);
+		file = malloc(strlen(buf)-length);		
+		strncpy(dir, buf, length);
+		dir[length]='\0';
+		strcpy(file, buf+length+1);
 		ftmp = NULL;
 		if (!stat(buf, &st)) {
 			if (S_ISDIR(st.st_mode)) {
+// directory	
 				ftmp = calloc(1, sizeof(flist));
 #if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
 				ftmp->filename = malloc(file+3);
@@ -244,19 +253,19 @@ read_mp3_list_file(wlist *list, char *filename)
 				ftmp->fullpath = strdup(buf);
 				ftmp->path = strdup(buf);
 				ftmp->flags |= F_DIR;
-
-				length++;
-				} 
-			else {
+				ftmp->album = NULL;
+				ftmp->artist = NULL;
+			} else {
 				if ((S_ISREG(st.st_mode)) & ((!strncasecmp(".mp3", strchr(file, '\0')-4, 4)) && ((ftmp = mp3_info(dir, file, ftmp, st.st_size))))) {
 					if (playlist) {
+// playlist
 						if (ftmp->album)
 							free(ftmp->album);
 						ftmp->album = strdup(playlistname);
 						if ((file[0]>='0') & (file[0]<='9')) {
 							// get rid of old tracknumber add new tracknumber
 							ftmp->filename = malloc(strlen(file)-3);
-							snprintf(ftmp->filename, 3, "%02.0f", (float)length);
+							snprintf(ftmp->filename, 3, "%02.0f", (float)n);
 							ftmp->filename[2]=' ';
 							strncpy(ftmp->filename+3, file+3, strlen(file)-7);
 							ftmp->filename[strlen(file)-4]='\0';
@@ -264,13 +273,14 @@ read_mp3_list_file(wlist *list, char *filename)
 						} else {
 							// get rid of .mp3 add tracknumber
 							ftmp->filename = malloc(strlen(file));
-							snprintf(ftmp->filename, 3, "%02.0f", (float)length);
+							snprintf(ftmp->filename, 3, "%02.0f", (float)n);
 							ftmp->filename[2]=' ';
 							strncpy(ftmp->filename+3, file, strlen(file)-4);
 							ftmp->filename[strlen(file)-1]='\0';
 						}
 	
 					} else { // get rid of .mp3
+// mp3-file
 						ftmp->filename = malloc(strlen(file)-3);
 						strncpy(ftmp->filename, file, strlen(file)-4);
 						ftmp->filename[strlen(file)-4]='\0';
@@ -279,8 +289,6 @@ read_mp3_list_file(wlist *list, char *filename)
 
 					ftmp->path = strdup(dir);
 					ftmp->fullpath = strdup(buf);
-
-					length++;
 				}
 			}
 		} else {
@@ -293,20 +301,22 @@ read_mp3_list_file(wlist *list, char *filename)
 				ftmp->album = strdup(buf);
 				ftmp->artist = strdup("http-stream");
 				ftmp->fullpath = strdup(buf);
-				ftmp->path = strdup("         http-stream");
-				length++;
+				ftmp->path = strdup("http-stream");
 			}
 		}
 
 		if (ftmp) {
+			ftmp->next = NULL;
 			if (tail) { // add to the tail of the existing list
 				tail->next = ftmp;
 				ftmp->prev = tail;
 				tail = ftmp;
-			} else { // the list doesn't exist yet
+			} else { // the list is empty
+				ftmp->prev = NULL;
 				list->head = ftmp;
 				tail = ftmp;
 			}
+			list->length++;
 		}
 		free(file);
 		free(dir);
@@ -316,9 +326,11 @@ read_mp3_list_file(wlist *list, char *filename)
 		free(buf);
 	if (playlistname)
 		free(playlistname);
-	list->length = length;
 	list->tail = tail;
-	list->selected = list->top = list->head;
+	if (!list->top)
+		list->top = list->head;
+	if (!list->selected)
+		list->selected = list->top;
 	return list;
 
 }
@@ -405,6 +417,8 @@ sort_mp3_search(const void *a, const void *b)
 	const flist *second = *(const flist **) b;
 	int result;
 
+	if (first->filename[0] == '.')
+		return 1;
 	if (!(result = strcmp(second->path, first->path))) {
 		if ((first->flags & F_DIR) && !(second->flags & F_DIR))
 			return 1;

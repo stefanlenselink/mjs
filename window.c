@@ -125,6 +125,7 @@ move_selector(Window *window, int c)
 					list->selected = next_valid(list, list->selected->next, KEY_DOWN);
 					list->where++;
 				}
+				info->update(info);
 				return window;
 			}
 			break;				

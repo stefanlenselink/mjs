@@ -149,6 +149,7 @@ typedef struct _config {
 	char resultsfile[256];
 	char playlistpath[256];
 	char bottomtext[256];
+	char output[256];
 	u_int16_t c_flags;
 #define C_PADVANCE 	0x0001
 #define C_FADVANCE 	0x0002

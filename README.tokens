@@ -5,6 +5,7 @@ Window format tokens:
 %f - filename
 %F - complete filename, incl path
 %p - the path
+%P - path relative to <mp3dir>
 %m - how many minutes?
 %s - "remainder" seconds (fraction of minutes)
 %S - total length in seconds

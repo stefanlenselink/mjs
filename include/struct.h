@@ -70,7 +70,6 @@ typedef struct _flist {
 #define F_SEARCHDIR	0x10	
 #define F_PLAYLIST	0x20
 	int where;
-//	u_int32_t colors;
 	time_t length;
 	char *album;
 	char *filename;

@@ -2,9 +2,17 @@ Quick installation:
 
 1) You may need to edit the Makefile.
 2) Type "make".
-3) Run "make install" as root.
-4) Create a configuration file (example provided as mmsrc.EXAMPLE) in
+
+To use the search function of mjs, you need to do the following simple
+steps :
+
+3) edit the file mp3db.cron so that it suits your directory structure
+4) edit the file findmp3 so that it suits your directory structure
+
+
+5) Run "make install" as root.
+6) Create a configuration file (example provided as mmsrc.EXAMPLE) in
    $HOME/.mjsrc.  Set the path to the player and a couple of various
    options. This is also where you configure window sizes, positions and
    colors.
-5) enjoy!
+7) enjoy!

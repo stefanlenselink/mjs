@@ -239,6 +239,8 @@ main (int argc, char *argv[])
 				fflush(stdout);
 			}
 		}
+		if (tmp[0]!='/')
+			continue;
 		if (!(name = strrchr(tmp,'/')))
 			abort();
 		if (name[0]!='/')

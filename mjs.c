@@ -20,7 +20,7 @@ Config *conf;
 pid_t pid;
 static struct sigaction handler;
 int p_status = STOPPED;
-flist *prevsel = NULL;		// previous selected number
+char *previous_selected = NULL;		// previous selected number
 char typed_letters[10] = "\0";	// letters previously typed when jumping
 int typed_letters_timeout = 0;		// timeout for previously typed letters
 
@@ -98,6 +98,7 @@ main(int argc, char *argv[])
 	fd_set fds;
 	
 	srand(time(NULL));
+	previous_selected = strdup("\0");
 	
 	handler.sa_handler = (SIGHANDLER) bailout;
 	sigaction(SIGINT, &handler, NULL);
@@ -674,8 +675,10 @@ process_return(wlist *mp3list, int c, int alt)
 				info->update(files);
 				files->update(files);		
 			} else	
-				if ((prevsel != mp3list->selected) & (c != KEY_RIGHT)){ /* we dont want to add the last file multiple times */
-					prevsel = mp3list->selected;
+				if (strcmp(previous_selected, mp3list->selected->fullpath) & (c != KEY_RIGHT)){ /* we dont want to add the last file multiple times */
+					if (previous_selected)
+						free (previous_selected);
+					previous_selected = strdup(mp3list->selected->fullpath);
 					if ((alt) || (c == KEY_IC))
 						add_to_playlist(play->contents.list, play->contents.list->selected, mp3list->selected);
 					else

@@ -1,0 +1,128 @@
+# Configuration file for Matt's MP3 Selector
+
+#
+# mpgpath: path to mpg123
+# playlist: path to default playlist to load
+# playlist_advance: advance the playlist selection after adding a file?
+# file_advance: advance the file selection after selecting a file?
+# skip_info_box: skip the info box when tabbing through windows?
+
+# buffer: size of the buffer mpg123 uses (integer, in kb)
+# NOTE -- When using the buffer, mpg123 spawns a child process to buffer
+# itself. It seems to have some difficulties cleaning up this child when we
+# are trying to exit ourselves. Use at your own risk, and be sure to kill
+# off any orphan mpg123's because they go berserk on your cpu.
+
+# jump: how many frames to jump with +/-
+# loop: loop over the playlist when we get to the end?
+# nuke_spaces: save id3 tags with space padding (false) or null padding (true)
+# According to the 'id3' standard I have found they are SUPPOSED to be null!
+# up yours, whatever pascal coders decided to space pad them!!!!!
+
+set mpgpath		/usr/local/bin/mpg123
+#set playlist		my_playlist
+set buffer		0
+set jump		1000
+set playlist_advance	false
+set file_advance	true
+set skip_info_box	true
+set loop		true
+set nuke_spaces		true
+
+#
+# Colors
+# 
+# Background colors can be:
+#     black, red, green, brown, blue, magenta, cyan, grey
+# Foreground colors can, in addition to above, be:
+#     b_black, b_red, b_green, yellow, b_blue, b_magenta, b_cyan, white
+#
+
+color active		b_green:blue
+color inactive		yellow:blue
+color selected		yellow:red
+color unselected	white:blue
+color title		white:green
+color scroll		yellow:blue
+color scroll_bar	yellow:blue
+color playing		b_cyan:blue
+color sel_playing	b_cyan:red
+color file_back		black:blue
+color info_back		black:blue
+color play_back		black:blue
+color menu_back		black:blue
+color menu_text		b_red:blue
+color arrows		yellow:blue
+color edit_back		yellow:blue
+color edit_active	white:black
+color edit_inactive	yellow:blue
+# not used, yet
+color edit_prompt	white:blue
+
+#
+# Window positions and sizes and formats (only used for 'list' type windows)
+#
+# Window format tokens:
+# 
+# %t - the song title
+# %a - the artist
+# %f - filename
+# %F - complete filename, incl path
+# %p - the path
+# %m - how many minutes?
+# %s - "remainder" seconds (fraction of minutes)
+# %S - total length in seconds
+# %T - time in format [%m:%s]
+# %g - genre
+# %% - like with printf, insert a %
+#
+# + - * / operators are ok. Use 'w' and 'h' for screen width and height.
+# A 0 for width/height will go from x/y to the max.
+#
+# Be careful here. Don't put spaces in expressions. Borders will take up
+# two spaces. If you screw up things can overlap and look ugly.
+#
+# title.format  = format string for the title (optional)
+# title.default = default title, if no formats apply (optional, has a default)
+#
+
+# file selection window
+files height	h-1
+files width	w/4
+files y		0
+files x		0
+files format	%f
+files title.default MP3  Files
+# info window
+info height	6
+info width	0
+info y		0
+info x		w/4
+info title.default MP3 Info
+# playlist window
+play height	h-10
+play width	0
+play y		9
+play x		w/4
+play format	%a - %t
+play title.default Playlist
+play title.format Playlist - %f
+# the playback window
+playback height	3
+playback width	0
+playback y	6
+playback x	w/4
+playback title.default Playback Info
+playback title.format %t
+# "menubar"
+menubar height	1
+menubar width	w
+menubar y	h-1
+menubar x	0
+# id3 edit box
+id3edit height	8
+id3edit width	50
+id3edit y	9
+id3edit x	15
+id3edit title.default ID3 Tag Editor
+id3edit title.format ID3 Tag Editor - %f

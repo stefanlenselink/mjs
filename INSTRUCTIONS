@@ -34,7 +34,8 @@ F2 will save the current playlist to a file.
  * in the files window or playlist window:
    * 'e' will edit the ID3 tag of the selected mp3
  * in the files window:
-   * \r is your friend. it adds files to the playlist and changes directories.
+   * return is your friend. it adds files to the playlist and changes
+     directories.
    * 'r' will rescan the current dir.
  * in the info window:
    * 'r' will randomize the playlist.

@@ -1,13 +1,19 @@
-#include "mms.h"
+#include "top.h"
 #include "defs.h"
 #include "struct.h"
 #include "extern.h"
-#include "proto.h"
+#include "mms_gpm.h"
+#include "misc.h"
 
-#define BETWEEN(n,start,size) (n > start+1 && n < start+size)
+
+static void	gpm_process_click(Window *, int, int, int);
+static void	gpm_process_arrows(Window *, int);
+static void	gpm_process_scroll(Window *, int, int, int);
+static int	my_gpm_handler(Gpm_Event *, void *);
 
 /* caller must check that the mouse click is in window range */
-static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
+static void
+gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 {
 	flist *ftmp;
 	wlist *wlist;
@@ -30,8 +36,9 @@ static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 	if (was_active && ftmp->flags & F_SELECTED) {
 		if (win == play && click & GPM_B_RIGHT) {
 			if (!(active->flags & W_RDONLY)) {
-				wlist->selected = delete_selected(wlist, wlist->selected);
+				delete_file(active, wlist->selected);
 				win->update(win);
+				info->update(info);
 				doupdate();
 			}
 		}
@@ -40,8 +47,16 @@ static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 	}
 	else {
 		wlist->selected->flags &= ~F_SELECTED;
+		if (wlist->selected->flags & F_PLAY)
+			wlist->selected->colors = colors[PLAYING];
+		else
+			wlist->selected->colors = colors[UNSELECTED];
 		wlist->selected = ftmp;
-		wlist->selected->flags |= F_SELECTED;
+		ftmp->flags |= F_SELECTED;
+		if (ftmp->flags & F_PLAY)
+			ftmp->colors = colors[SEL_PLAYING];
+		else
+			ftmp->colors = colors[SELECTED];
 		for (i = 0, ftmp = wlist->head; ftmp != wlist->selected; i++)
 			ftmp = ftmp->next;
 		wlist->where = i+1;
@@ -52,7 +67,8 @@ static void gpm_process_click(Window *win, int click, int mouse_y, int start_y)
 }
 
 /* process clicks on the arrows above and below scrollbars */
-static void gpm_process_arrows(Window *win, int fakekey)
+static void
+gpm_process_arrows(Window *win, int fakekey)
 {
 	change_active(win);
 	if (info->update(move_selector(win, fakekey))) {
@@ -62,7 +78,8 @@ static void gpm_process_arrows(Window *win, int fakekey)
 }
 
 /* process clicks on the scrollbars */
-static void gpm_process_scroll(Window *win, int click, int mouse_y, int start_y)
+static void
+gpm_process_scroll(Window *win, int click, int mouse_y, int start_y)
 {
 	/* from do_scrollbar in misc.c */
 	int i = 1, offscreen, x = win->width-2, y = win->height-1, key = -1;
@@ -88,8 +105,8 @@ static void gpm_process_scroll(Window *win, int click, int mouse_y, int start_y)
 	} else {
 		double toptmp;
 		toptmp=offscreen / value;
-		top= (int) (double)(int)toptmp/1 == toptmp ? toptmp : (double)(int)toptmp+(double)1;
-		bar=(int)((y / value)+(double).5);
+		top = (int) (double)(int)toptmp/1 == toptmp ? toptmp : (double)(int)toptmp+(double)1;
+		bar = (int)((y / value)+(double).5);
 		bottom = y - top - bar;
 	}
 	if (bottom < 0)
@@ -116,7 +133,8 @@ static void gpm_process_scroll(Window *win, int click, int mouse_y, int start_y)
 	}
 }
 
-static int my_gpm_handler(Gpm_Event *e, void *data)
+static int
+my_gpm_handler(Gpm_Event *e, void *data)
 {
 	if (!(e->type & GPM_DOWN))
 		return 1;
@@ -143,7 +161,8 @@ static int my_gpm_handler(Gpm_Event *e, void *data)
 	return 1;
 }
 
-void gpm_init(void)
+void
+gpm_init(void)
 {
 	Gpm_Connect connect;
 
@@ -159,7 +178,8 @@ void gpm_init(void)
 	gpm_visiblepointer = 1;
 }
 
-void gpm_close(void)
+void
+gpm_close(void)
 {
 	Gpm_Close();
 }

@@ -1,3 +1,10 @@
+#ifndef _struct_h
+#define _struct_h
+
+#ifndef _defs_h
+#include "defs.h"
+#endif  /* _defs_h */
+
 typedef struct {
 	char tag[3];
 	char title[30];
@@ -7,6 +14,17 @@ typedef struct {
 	char comment[30];
 	unsigned char genre;
 } ID3tag;
+
+typedef struct {
+	char tag[3];
+	u_int8_t major_version;
+	u_int8_t minor_version;
+	u_int8_t flags;
+#define UNSYNC 0x100
+#define EXTENDED_HEADER 0x80
+#define EXPERIMENTAL 0x40
+	int32_t	size;
+} ID3v2Header;
 
 typedef struct {
 	char title[31];
@@ -40,9 +58,14 @@ typedef struct {
 
 typedef struct _flist {
 	unsigned short flags;
+#define F_DIR      0x01
+#define F_PLAY     0x02
+#define F_SELECTED 0x04
+#define F_PAUSED   0x08
 	short bitrate;
 	int frequency;
 	int where;
+	u_int32_t colors;
 	time_t length;
 	char *genre;
 	char *filename;
@@ -75,13 +98,13 @@ typedef struct _input {
 	int flen;                          /* Input field length                   */
 	int fpos;                          /* Input field position                 */
 	int (*parse)
-		(struct _input *, int, int);     /* Function that parses input           */
+	    (struct _input *, int, int);   /* Function that parses input           */
 	int (*update)(struct _input *);    /* Function to call to update the line  */
 	int (*finish)(struct _input *);    /* Function to call when input is over  */
-	int (*complete)(struct _input *);  /* Function for tab completion */
+	int (*complete)(struct _input *);  /* Function for tab completion          */
 	char prompt[PROMPT_SIZE+1];        /* Prompt for the input line            */
 	char *anchor;                      /* For wrapped lines, ptr to where the  */
-                                     /* "anchor" for our wrapped text starts */
+					   /* "anchor" for our wrapped text starts */
 	char buf[BUFFER_SIZE+1];           /* The input line itself                */
 } Input;
 
@@ -98,11 +121,17 @@ typedef struct _win {
 	int (*activate) (struct _win *);   /* activate this window                 */
 	int (*deactivate) (struct _win *); /* deactivate the window                */
 	short int flags;                   /* various info about the window        */
+#define W_ACTIVE   0x01              /* is the window active?                */
+#define W_LIST     0x02              /* is it a list, or just 'contents'     */
+#define W_RDONLY   0x04              /* is it read-only, ie can we modify it */
 	union {
-		wlist *list;                     /* if the window has contents, use this */
-		flist *play;                     /* otherwise just this                  */
+		wlist *list;               /* if the window has contents, use this */
+		flist *play;               /* otherwise just this                  */
 	} contents;
-	const u_char *title;               /* the window title                     */
+	const u_char *title_fmt;           /* format string for window title       */
+	const u_char *title_dfl;           /* default (if needed) window title     */
+	u_char *title;                     /* the window title                     */
+	const u_char *format;              /* format for the text in the window    */
 	struct _win *next;                 /* next window in the cycle             */
 	struct _win *prev;                 /* previous window in the cycle         */
 } Window;
@@ -110,11 +139,13 @@ typedef struct _win {
 typedef struct _config {
 	char mpgpath[256];
 	char dfl_plist[256];
-	int p_advance;
-	int f_advance;
+	u_int16_t c_flags;
+#define C_PADVANCE 0x01
+#define C_FADVANCE 0x02
+#define C_SKIPINFO 0x04
+#define C_LOOP     0x08
+#define C_NUKE     0x10
 	int buffer;
-	int skip_info;
-	int loop;
 	int jump;
 } Config;
 
@@ -124,3 +155,18 @@ typedef struct {
 	double elapsed;
 	double remaining;
 } mpgreturn;
+
+/* this struct holds all the info to construct a question/answer input dialog */
+
+typedef struct {
+	char **prompts;                 /* array of prompts for our edit box */
+	char **inputs;                  /* array of default values           */
+	int num_prompts;                /* total # of prompts/defaults       */
+	int (*finish) (char **, int);   /* function to parse the final input */
+	
+
+
+
+} Inputbox;
+
+#endif /* _struct_h */

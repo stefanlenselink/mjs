@@ -1,22 +1,22 @@
+#include "top.h"
 #include "defs.h"
-#include "mms.h"
 #include "struct.h"
-#include "proto.h"
+#include "inputline.h"
 
 /* hide these babies from everyone else */
 
-static int del_char (Input *, int);
-static int add_char (Input *, int);
-static int del_word (Input *);
+static int	del_char (Input *, int);
+static int	add_char (Input *, int);
+static int	del_word (Input *);
 
 /* Add a char at the current position */
 
 static int
-add_char (Input *input, int c)
+add_char(Input *input, int c)
 {
 	if ((input->len < BUFFER_SIZE) && isprint(c)) {
 		if (input->pos <= input->len) { /* We are inserting a char */
-			memmove (&input->buf[input->pos], &input->buf[input->pos-1], input->len-input->pos+1);
+			memmove(&input->buf[input->pos], &input->buf[input->pos-1], input->len-input->pos+1);
 			input->buf[input->pos-1] = c;
 		}
 		else
@@ -31,14 +31,14 @@ add_char (Input *input, int c)
 /* Delete the char at position pos */
 
 static int
-del_char (Input *input, int backspace)
+del_char(Input *input, int backspace)
 {
 	int len = input->len, pos = input->pos;
 	if (len > 0) {
 		if (backspace) {
 			if (pos > 1) {
 				if (pos <= len)
-					memmove (&input->buf[pos-2], &input->buf[pos-1], len-pos+1);
+					memmove(&input->buf[pos-2], &input->buf[pos-1], len-pos+1);
 				input->buf[--input->len] = '\0';
 				input->pos--;
 				return 1;
@@ -46,7 +46,7 @@ del_char (Input *input, int backspace)
 		}
 		else {
 			if (pos <= len) {
-				memmove (&input->buf[pos-1], &input->buf[pos], len-pos+1);
+				memmove(&input->buf[pos-1], &input->buf[pos], len-pos+1);
 				input->buf[--input->len] = '\0';
 				return 1;
 			}
@@ -58,7 +58,7 @@ del_char (Input *input, int backspace)
 /* Delete the word (including trailing spaces) before position pos */
 
 static int
-del_word (Input *input)
+del_word(Input *input)
 {
 	int i = 0, len = input->len, pos = input->pos;
 	char *p, *s;
@@ -97,7 +97,7 @@ del_word (Input *input)
 }
 
 int
-do_inputline (Input *inputline, int c, int alt)
+do_inputline(Input *inputline, int c, int alt)
 {
 	int i;
 
@@ -154,7 +154,7 @@ do_inputline (Input *inputline, int c, int alt)
 }
 
 Input *
-update_anchor (Input *inputline)
+update_anchor(Input *inputline)
 {
 	int i, j, k;
 	j = inputline->pos-5;
@@ -170,13 +170,15 @@ update_anchor (Input *inputline)
 	return inputline;
 }
 
-int dummy_complete(Input *input)
+int
+dummy_complete(Input *input)
 {
 	return 0;
 }
 
 /* return 1 if name is a directory, else 0 */
-static int is_dir(char *name)
+static int
+is_dir(char *name)
 {
 	struct stat s;
 
@@ -186,7 +188,8 @@ static int is_dir(char *name)
 }
 
 /* tab completion for filenames */
-int filename_complete(Input *input)
+int
+filename_complete(Input *input)
 {
 	struct dirent **files;
 	char dir[256], file[256], *p;

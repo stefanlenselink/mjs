@@ -1,14 +1,16 @@
-#include "mms.h"
+#include "top.h"
 #include "defs.h"
 #include "struct.h"
 #include "extern.h"
-#include "proto.h"
+#include "misc.h"
+#include "inputline.h"
+#include "id3.h"
 
-static ID3tag id3;
-static my_tag new_tag;
-static int count = 0;
-static int had_tag = 0;
-static char *filename;
+static	ID3tag id3;
+static	my_tag new_tag;
+static	int count = 0;
+static	int had_tag = 0;
+static	flist *file;
 
 char *Genres[255] = {
 	"Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk", "Grunge",
@@ -39,14 +41,15 @@ char *Genres[255] = {
 	"Anime", "JPop", "SynthPop"
 };
 
-static void edit_next(Input *);
-static int edit_field_finish(Input *);
-static void init_id3_box (Window *);
-static int id3_input (Input *, int, int);
-static int update_edit_wrapper (Input *);
-static int finish_edit (void);
+static void	 edit_next(Input *);
+static int	 edit_field_finish(Input *);
+static void	 init_id3_box (Window *, int);
+static int	 update_edit_wrapper (Input *);
+static int	 finish_edit (void);
+static my_tag	*nuke_spaces_in_that_damn_tag (my_tag *);
 
-static int read_id3(char *filename, ID3tag *tag)
+static int
+read_id3(char *filename, ID3tag *tag)
 {
 	
 	int fd = open(filename, O_RDONLY);
@@ -58,6 +61,7 @@ static int read_id3(char *filename, ID3tag *tag)
 	memset(tag, 0, sizeof(ID3tag));
 	if ((read(fd, tag, 128) == 128) && strncmp(tag->tag, "TAG", 3)) {
 		memset(tag, 0, sizeof(ID3tag));
+		tag->genre = (char)255;
 		strncpy(tag->tag, "TAG", 3);
 		had_tag = 0; /* i guess we were wrong :) */
 	}
@@ -65,7 +69,8 @@ static int read_id3(char *filename, ID3tag *tag)
 	return had_tag;
 }
 
-static void write_id3(char *filename, ID3tag *tag)
+static void
+write_id3(char *filename, ID3tag *tag)
 {
 	int fd = open(filename, O_RDWR);
 
@@ -75,7 +80,8 @@ static void write_id3(char *filename, ID3tag *tag)
 	}
 }
 
-static int genre_number(char *name)
+static int
+genre_number(char *name)
 {
 	int i;
 
@@ -86,7 +92,8 @@ static int genre_number(char *name)
 }
 
 /* tab completion for genres. return 1 if update is needed */
-static int genre_complete(Input *input)
+static int
+genre_complete(Input *input)
 {
 	int matches[256], num_matches;
 	int i;
@@ -122,18 +129,19 @@ void
 edit_tag(flist *selected)
 {
 	Input *inputline;
-	filename = selected->filename;
+	file = selected;
 	old_active = active;
 	old_active->deactivate(old_active);
 	active = id3box;
-	active->flags |= W_ACTIVE;
+	active->activate(active);
 	memset(&new_tag, 0, sizeof(new_tag));
-	if (read_id3(filename, &id3)) {
+	if (read_id3(selected->fullpath, &id3)) {
 		memcpy(new_tag.title, id3.title, 30);
 		memcpy(new_tag.artist, id3.artist, 30);
 		memcpy(new_tag.album, id3.album, 30);
 		memcpy(new_tag.year, id3.year, 4);
 		memcpy(new_tag.comment, id3.comment, 30);
+		nuke_spaces_in_that_damn_tag(&new_tag);
 	}
 	if (id3.genre < 255)
 		strncpy(new_tag.genre, Genres[id3.genre], sizeof(new_tag.genre)-1);
@@ -150,12 +158,13 @@ edit_tag(flist *selected)
 	/* kkkkkkkkkkludgy, do this better */
 	inputline->flen = active->width - 26;
 	inputline->x = 22+3;
-	init_id3_box(active);
+	init_id3_box(active, inputline->flen);
 	curs_set(1);
 	edit_next(inputline);
 }
 
-static void edit_next(Input *inputline)
+static void
+edit_next(Input *inputline)
 {
 	int len = 0;
 	char *buf = NULL;
@@ -180,7 +189,8 @@ static void edit_next(Input *inputline)
 	doupdate();
 }
 
-static int edit_field_finish(Input *input)
+static int
+edit_field_finish(Input *input)
 {
 	char *buf;
 	switch (count) {
@@ -212,7 +222,7 @@ static int edit_field_finish(Input *input)
 			buf = new_tag.title;
 			break;
 		default:
-			break;
+			return 0;
 	}
 
 	my_mvwnaddstr(input->win, input->y, input->x, colors[EDIT_INACTIVE], input->flen, input->buf);
@@ -221,7 +231,8 @@ static int edit_field_finish(Input *input)
 	return 1;
 }
 
-static void init_id3_box (Window *window)
+static void
+init_id3_box(Window *window, int field)
 {
 	WINDOW *win = window->win;
 
@@ -230,26 +241,27 @@ static void init_id3_box (Window *window)
 	wbkgd(win, colors[EDIT_BACK]);
 	my_mvwaddstr(win, 1, 13, colors[EDIT_INACTIVE], "Title (30): ");
 	if (*new_tag.title)
-		my_waddstr(win, colors[EDIT_INACTIVE], new_tag.title);
+		my_wnaddstr(win, colors[EDIT_INACTIVE], field, new_tag.title);
 	my_mvwaddstr(win, 2, 12, colors[EDIT_INACTIVE], "Artist (30): ");
 	if (*new_tag.artist)
-		my_waddstr(win, colors[EDIT_INACTIVE], new_tag.artist);
+		my_wnaddstr(win, colors[EDIT_INACTIVE], field, new_tag.artist);
 	my_mvwaddstr(win, 3, 13, colors[EDIT_INACTIVE], "Album (30): ");
 	if (*new_tag.album)
-		my_waddstr(win, colors[EDIT_INACTIVE], new_tag.album);
+		my_wnaddstr(win, colors[EDIT_INACTIVE], field, new_tag.album);
 	my_mvwaddstr(win, 4, 14, colors[EDIT_INACTIVE], "Year (30): ");
 	if (*new_tag.year)
-		my_waddstr(win, colors[EDIT_INACTIVE], new_tag.year);
+		my_wnaddstr(win, colors[EDIT_INACTIVE], field, new_tag.year);
 	my_mvwaddstr(win, 5, 11, colors[EDIT_INACTIVE], "Comment (30): ");
 	if (*new_tag.comment)
-		my_waddstr(win, colors[EDIT_INACTIVE], new_tag.comment);
+		my_wnaddstr(win, colors[EDIT_INACTIVE], field, new_tag.comment);
 	my_mvwaddstr(win, 6, 2, colors[EDIT_INACTIVE], "Genre (0-255 or name): ");
 	if (*new_tag.genre)
-		my_waddstr(win, colors[EDIT_INACTIVE], new_tag.genre);
+		my_wnaddstr(win, colors[EDIT_INACTIVE], field, new_tag.genre);
 }
 
 /* wrapper function for checking arrow keys */
-int id3_input (Input *inputline, int c, int alt)
+int
+id3_input(Input *inputline, int c, int alt)
 {
 	switch (c) {
 		case KEY_UP:
@@ -288,12 +300,14 @@ int id3_input (Input *inputline, int c, int alt)
 	return 1;
 }
 
-static int update_edit_wrapper (Input *inputline)
+static int
+update_edit_wrapper(Input *inputline)
 {
 	return update_edit (id3box);
 }
 
-int update_edit (Window *window)
+int
+update_edit(Window *window)
 {
 	WINDOW *win = window->win;
 	Input *inputline = window->inputline;
@@ -307,29 +321,81 @@ int update_edit (Window *window)
 	return 1;
 }
 
-static int finish_edit (void)
+static int
+finish_edit(void)
 {
 	memcpy(id3.title, new_tag.title, 30);
 	memcpy(id3.artist, new_tag.artist, 30);
 	memcpy(id3.album, new_tag.album, 30);
 	memcpy(id3.year, new_tag.year, 4);
 	memcpy(id3.comment, new_tag.comment, 30);
+	if (!(conf->c_flags & C_NUKE)) {
+		/* replace the space padding in the tag.. fuznugget! */
+		char *p = id3.title+29;
+		while (*p == '\0')
+			*p-- = ' ';
+		p = id3.artist+29;
+		while (*p == '\0')
+			*p-- = ' ';
+		p = id3.album+29;
+		while (*p == '\0')
+			*p-- = ' ';
+		p = id3.year+3;
+		while (*p == '\0')
+			*p-- = ' ';
+		p = id3.comment+29;
+		while (*p == '\0')
+			*p-- = ' ';
+	}		
 	if (isdigit(*new_tag.genre))
 		id3.genre = (unsigned char)atoi(new_tag.genre);
 	else
 		id3.genre = genre_number(new_tag.genre);
+	if (file->title)
+		free(file->title);
+	file->title = strdup(new_tag.title);
+	if (file->artist)
+		free(file->artist);
+	file->artist = strdup(new_tag.artist);
+	if (isdigit(*new_tag.genre))
+		file->genre = Genres[atoi(new_tag.genre)];
+	else
+		file->genre = Genres[genre_number(new_tag.genre)];
 	curs_set(0);
 	active->deactivate(active);
-	active->flags &= ~W_ACTIVE;
 	active->update(active);
 	free(active->inputline);
 	active->inputline = NULL;
 	old_active->activate((active = old_active));
-	active->flags |= W_ACTIVE;
 	active->update(active);
+	info->update(active);
 	update_panels();
 	doupdate();
-	write_id3(filename, &id3);
+	write_id3(file->fullpath, &id3);
 	count = 0;
 	return 1;
+}
+
+/* Rip the trailing spaces out of the tag to be. I hate those spaces. */
+static my_tag *
+nuke_spaces_in_that_damn_tag(my_tag *space_free_tag)
+{
+	char *p = NULL;
+	
+	p = strchr(space_free_tag->title, '\0') - 1;
+	while (isspace(*p))
+		*p-- = '\0';
+	p = strchr(space_free_tag->artist, '\0') - 1;
+	while (isspace(*p))
+		*p-- = '\0';
+	p = strchr(space_free_tag->album, '\0') - 1;
+	while (isspace(*p))
+		*p-- = '\0';
+	p = strchr(space_free_tag->year, '\0') - 1;
+	while (isspace(*p))
+		*p-- = '\0';
+	p = strchr(space_free_tag->comment, '\0') - 1;
+	while (isspace(*p))
+		*p-- = '\0';
+	return space_free_tag;
 }

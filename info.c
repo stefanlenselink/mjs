@@ -1,18 +1,24 @@
+/*
+ * most of this code is NOT mine. I don't know where it came from, but it
+ * sure as hell is ugly! It _really_ needs some cleanup. Someday...
+ */
+
+#include "top.h"
 #include "defs.h"
-#include "mms.h"
 #include "struct.h"
-#include "proto.h"
 #include "info.h"
+#include "misc.h"
+#include "window.h"
 #include "extern.h"
 
-static u_char _buffer[32];
-static int _bptr = 0;
+static u_char	_buffer[32];
+static int	_bptr = 0;
 
-static inline int _fillbfr (int, u_int);
-static inline int gethdr (int, AUDIO_HEADER *);
-static inline int readsync (int);
-static inline u_int _getbits (int);
-static inline void parse_header (AUDIO_HEADER *) ;
+static inline int	_fillbfr(int, u_int);
+static inline int	gethdr(int, AUDIO_HEADER *);
+static inline int	readsync(int);
+static inline u_int	_getbits(int);
+static inline void	parse_header(AUDIO_HEADER *) ;
 
 static inline int
 _fillbfr(int file, u_int size)
@@ -34,7 +40,6 @@ readsync(int file)
 		return -1;
 	return 0;
 }
-
 
 static inline u_int
 _getbits(int n)
@@ -93,10 +98,14 @@ gethdr(int file, AUDIO_HEADER *header)
 	return 1;
 }
 
+/* 
+ * this routine will clobber existing stats in the file parameter with
+ * extreme prejudice. you have been warned.
+ */
+
 flist *
-mp3_info(char *filename, u_int32_t size)
+mp3_info(char *filename, flist *file, u_int32_t size)
 {
-	flist *file = NULL;
 	u_int32_t framesize = 0;
 	double totalframes = 0;
 	short t_bitrate[2][3][15] = {{
@@ -130,7 +139,10 @@ mp3_info(char *filename, u_int32_t size)
 	memset(&header, 0, sizeof(AUDIO_HEADER));
 	if (gethdr(fd, &header) == -1)
 		return NULL;
-	file = calloc(1, sizeof(flist));
+
+	if (!file)
+		file = calloc(1, sizeof(flist));
+
 	file->bitrate = btr=t_bitrate[header.ID][3-header.layer][header.bitrate_index];
 
 	framesize = (header.ID ? 144000 : 72000) * btr / (file->frequency = t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency]);
@@ -150,8 +162,12 @@ mp3_info(char *filename, u_int32_t size)
 			*s-- = '\0';
 		file->title = (char *)calloc(1, 31);
 		strncpy(file->title, tmp.title, 30);
+		if (strlen(file->title) == 0)
+			strncpy(file->title, filename, 30);
 		file->artist = (char *)calloc(1, 31);
 		strncpy(file->artist, tmp.artist, 30);
+		if (strlen(file->artist) == 0)
+			strcpy(file->artist, "Unknown");
 		file->genre = Genres[(int)tmp.genre];
 	}
 	return file;

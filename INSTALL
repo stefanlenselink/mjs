@@ -4,7 +4,8 @@ Quick installation:
 2) Type "make".
 3) Move the binary "mms" to somewhere convenient, or run "make install" as
    root
-4) Create a configuration file (example provided as mmsrc) in $HOME/.mmsrc.
-   Set the path to the player and a couple of various options. This is also
-   where you configure window sizes, positions and colors.
+4) Create a configuration file (example provided as mmsrc.EXAMPLE) in
+   $HOME/.mmsrc.  Set the path to the player and a couple of various
+   options. This is also where you configure window sizes, positions and
+   colors.
 5) enjoy!

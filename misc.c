@@ -1,8 +1,9 @@
+#include "top.h"
 #include "defs.h"
-#include "mms.h"
 #include "colors.h"
 #include "struct.h"
-#include "proto.h"
+#include "misc.h"
+#include "window.h"
 #include "extern.h"
 
 /*
@@ -18,7 +19,7 @@
  */
 
 void
-init_ansi_pair (void)
+init_ansi_pair(void)
 {
 	u_int8_t fore, back;
 	for (fore = 0; fore < COLORS; fore++)
@@ -27,7 +28,7 @@ init_ansi_pair (void)
 }	
 
 int
-my_mvwprintw (WINDOW *win, int y, int x, u_int32_t attribs, const u_char *format, ...)
+my_mvwprintw(WINDOW *win, int y, int x, u_int32_t attribs, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
@@ -44,7 +45,7 @@ my_mvwprintw (WINDOW *win, int y, int x, u_int32_t attribs, const u_char *format
 }
 
 int
-my_wprintw (WINDOW *win, u_int32_t attribs, const u_char *format, ...)
+my_wprintw(WINDOW *win, u_int32_t attribs, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
@@ -60,7 +61,7 @@ my_wprintw (WINDOW *win, u_int32_t attribs, const u_char *format, ...)
 }
 
 int
-my_mvwnprintw (WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ...)
+my_mvwnprintw(WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
@@ -77,7 +78,7 @@ my_mvwnprintw (WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char
 }
 
 int
-my_mvwnprintw2 (WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ...)
+my_mvwnprintw2(WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
@@ -100,7 +101,7 @@ my_mvwnprintw2 (WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_cha
 }
 
 int
-my_wnprintw (WINDOW *win, u_int32_t attribs, int n, const u_char *format, ...)
+my_wnprintw(WINDOW *win, u_int32_t attribs, int n, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
@@ -116,13 +117,13 @@ my_wnprintw (WINDOW *win, u_int32_t attribs, int n, const u_char *format, ...)
 }
 
 int
-my_mvwnaddstr (WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_char *str)
+my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_char *str)
 {
 	u_char *s = NULL;
 
 	wmove(win, y, x);
 	if (str && *str)
-		for (s = (char *)str; *s && n; n--)
+		for (s = (u_char *)str; *s && n; n--)
 			waddch(win, *s++ | attribs);
 	for (; n; n--)
 		waddch(win, ' ' | attribs);
@@ -130,12 +131,12 @@ my_mvwnaddstr (WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_c
 }
 
 int
-my_wnaddstr (WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
+my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
 {
 	u_char *s = NULL;
 
 	if (str && *str)
-		for (s = (char *)str; *s && n; n--)
+		for (s = (u_char *)str; *s && n; n--)
 			waddch(win, *s++ | attribs);
 	for (; n; n--)
 		waddch(win, ' ' | attribs);
@@ -143,7 +144,7 @@ my_wnaddstr (WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
 }
 
 int
-my_waddstr (WINDOW *win, u_int32_t attribs, const u_char *str)
+my_waddstr(WINDOW *win, u_int32_t attribs, const u_char *str)
 {
 	u_char *s = NULL;
 	
@@ -154,14 +155,14 @@ my_waddstr (WINDOW *win, u_int32_t attribs, const u_char *str)
 }
 
 int
-my_mvwaddstr (WINDOW *win, int y, int x, u_int32_t attribs, const u_char *str)
+my_mvwaddstr(WINDOW *win, int y, int x, u_int32_t attribs, const u_char *str)
 {
 	wmove(win, y, x);
 	return my_waddstr(win, attribs, str);
 }
 
 __inline__ void
-my_wnclear (WINDOW *win, int n)
+my_wnclear(WINDOW *win, int n)
 {
 	int x, y;
 	getyx(win, y, x);
@@ -170,113 +171,40 @@ my_wnclear (WINDOW *win, int n)
 	wmove(win, y, x);
 }
 
-int
-active_win (Window *window)
+__inline__ void
+my_mvwnclear(WINDOW *win, int y, int x, int n)
 {
-	WINDOW *win = window->win;
-	PANEL *panel = window->panel;
-	const u_char *title = window->title;
-	int i, x, y;
-	wborder(win, 'º', 'º', 'Í', 'Í', 'É', '»', 'È', '¼');
-	getmaxyx(win, y, x);
-	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
-	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
-	for (i = 0; i < y; i++) {
-		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
-		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
-	}	
-	if (title && ((i = strlen(title)+4) < x))
-		my_mvwprintw(win, 0, x-i-(x-i)/2, colors[TITLE], "[ %s ]", title);
-	top_panel(panel);
-	update_panels();
-	return 1;
-}
-
-int
-inactive_win (Window *window)
-{
-	WINDOW *win = window->win;
-	const u_char *title = window->title;
-	int i, x, y;
-	wborder(win, 0, 0, 0, 0, 0, 0, 0, 0);
-	getmaxyx(win, y, x);
-	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
-	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
-	for (i = 0; i < y; i++) {
-		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
-		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
-	}	
-	if (title && ((i = strlen(title)+4) < x))
-		my_mvwprintw(win, 0, x-i-(x-i)/2, colors[TITLE], "[ %s ]", title);
-	update_panels();
-	return 1;
-}
-
-int inactive_edit (Window *window)
-{
-	/* this is kind of stupid but its how its gotta be! */
-	return hide_panel(window->panel);
+	wmove(win, y, x);
+	for (; n > 0; n--)
+		waddch(win, ' ');
+	wmove(win, y, x);
 }
 
 void
-do_scrollbar (Window *window)
-{
-	int i = 1, offscreen, x, y; /* window dimensions, etc */
-	int top, bar, bottom; /* scrollbar portions */
-	double value; /* how much each notch represents */
-	wlist *wtmp = window->contents.list;
-	flist *ftmp = NULL, *selected = wtmp->selected;
-	WINDOW *win = window->win;
-	if (wtmp->length < 1)
-		return;
-	getmaxyx(win, y, x);
-	y -= 2;
-	x -= 1;
-	value = wtmp->length / (double) y;
-	for (ftmp = wtmp->top; ftmp != selected; ftmp = ftmp->next)
-		i++;
-	/* now we calculate the number preceeding the screenfull */
-	offscreen = wtmp->where - i;
-
-	/* calculate the sizes of our status bar */
-	if (value < 1) {
-		top = 0;
-		bar = y;
-		bottom = 0;
-	} else {
-		/* drago's code */
-		double toptmp;
-		toptmp=offscreen / value;
-		top= (int) (double)(int)toptmp/1 == toptmp ? toptmp : (double)(int)toptmp+(double)1;
-		bar=(int)((y / value)+(double).5);
-		bottom = y - top - bar;
-		/* end drago's code =) */
-	}
-	/* because of rounding we may end up with too much, correct for that */
-	if (bottom < 0)
-		top += bottom;
-	mvwvline(win, 1, x, ACS_CKBOARD | A_ALTCHARSET | colors[SCROLL], top);
-	mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[SCROLLBAR], bar);
-	if (bottom > 0)
-		mvwvline(win, 1+top+bar, x, ACS_CKBOARD | A_ALTCHARSET | colors[SCROLL], bottom);
-#ifdef GPM_SUPPORT
-	mvwaddch(win, 0, x, ACS_UARROW | A_ALTCHARSET | colors[ARROWS]);
-	mvwaddch(win, y+1, x, ACS_DARROW | A_ALTCHARSET | colors[ARROWS]);
-#endif
-	update_panels();
-}
-
-void
-free_list (flist *list)
+free_list(flist *list)
 {
 	flist *ftmp;
 	
 	for (ftmp = list; ftmp; ftmp = ftmp->next) {
-		free(ftmp->filename);
-		free(ftmp->artist);
-		free(ftmp->title);
-		free(ftmp->path);
+		free_flist(ftmp);
 		free(ftmp->prev);
 	}
 	free(ftmp);
+}
+
+void
+free_flist(flist *file)
+{
+	if (!file)
+		return;
+	if (file->filename)
+		free(file->filename);
+	if (file->artist)
+		free(file->artist);
+	if (file->title)
+		free(file->title);
+	if (file->path);
+		free(file->path);
+	if (file->fullpath)
+		free(file->fullpath);
 }

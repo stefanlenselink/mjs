@@ -1,0 +1,25 @@
+Window format tokens:
+
+%t - the song title
+%a - the artist
+%f - filename
+%F - complete filename, incl path
+%p - the path
+%m - how many minutes?
+%s - "remainder" seconds (fraction of minutes)
+%S - total length in seconds
+%T - time in format [%m:%s]
+%g - genre
+%% - like with printf, insert a %
+
+The window "format" parameter applies to the list format.
+The window.[title_fmt,title_dfl] applies to the title obviously.
+The 'title' tokens have refer to different things for each window...
+File list: tokens refer to the currently selected file
+Playlist: same as above
+Playback info: refer to currently playing song
+Info window: refer to currently selected file (regardless of window)
+
+If a window title would exceed the width of the window, it is disregarded
+and replaced with the default title. No truncations... However, we DO have
+truncations for the window lists themselves.

@@ -8,22 +8,24 @@
  * More sanity checks on the colors, too.
  */
 
-#include "mms.h"
+#include "top.h"
 #include "defs.h"
 #include "colors.h"
 #include "struct.h"
 #include "extern.h"
+#include "config.h"
 
 #define COMMENT '#'
 #define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1')
 
-static Config *set_option (Config *, char *, char *);
-static u_int32_t merge_colors(u_int32_t, u_int32_t);
-static u_int32_t str2color(char *);
-static void set_color(char *, char *);
-static void set_window_defaults(void);
-static void set_color_defaults(void);
-static void set_window(char *, char *);
+static Config		*set_option(Config *, char *, char *);
+static u_int32_t	 merge_colors(u_int32_t, u_int32_t);
+static u_int32_t	 str2color(char *);
+static void		 set_color(char *, char *);
+static void		 set_window_defaults(void);
+static void		 set_color_defaults(void);
+static void		 set_window(Window *, char *, char *);
+static int		 break_line(const char *, char *, char *, char *);
 
 u_int32_t colors[20];
 
@@ -31,7 +33,7 @@ Config *
 read_config(Config *conf)
 {
 	char line[1024], fname[256], *p;
-	char keyword[32], param[32], value[256];
+	char keyword[256], param[256], value[256];
 	struct stat sb;
 	FILE *cfg;
 
@@ -56,16 +58,29 @@ read_config(Config *conf)
 		return conf;
 
 	while (fgets(line, sizeof(line), cfg)) {
-		if (*line == COMMENT)
+		if (*line == COMMENT || *line == '\n')
 			continue;
-		if (sscanf(line, "%s %s %s", keyword, param, value) != 3)
+		memset(keyword, 0, sizeof(keyword));
+		memset(param, 0, sizeof(param));
+		memset(value, 0, sizeof(value));
+		if (break_line(line, keyword, param, value) < 3)
 			continue;
 		if (!strcasecmp(keyword, "set"))
 			set_option(conf, param, value);
 		else if (!strcasecmp(keyword, "color"))
 			set_color(param, value);
-		else if (!strcasecmp(keyword, "window"))
-			set_window(param, value);
+		else if (!strcasecmp(keyword, "info"))
+			set_window(info, param, value);
+		else if (!strcasecmp(keyword, "files"))
+			set_window(files, param, value);
+		else if (!strcasecmp(keyword, "play"))
+			set_window(play, param, value);
+		else if (!strcasecmp(keyword, "menubar"))
+			set_window(menubar, param, value);
+		else if (!strcasecmp(keyword, "id3edit"))
+			set_window(id3box, param, value);
+		else if (!strcasecmp(keyword, "playback"))
+			set_window(playback, param, value);
 	}
 	fclose(cfg);
 	return conf;
@@ -81,13 +96,15 @@ set_option(Config *conf, char *option, char *value)
 	if (!strcasecmp(option, "playlist"))
 		strncpy(conf->dfl_plist, value, sizeof(conf->mpgpath)-1);
 	else if (!strcasecmp(option, "file_advance"))
-		conf->f_advance = YESNO(value);
+		conf->c_flags |= YESNO(value) * C_FADVANCE;
 	else if (!strcasecmp(option, "playlist_advance"))
-		conf->p_advance = YESNO(value);
+		conf->c_flags |= YESNO(value) * C_PADVANCE;
 	else if (!strcasecmp(option, "skip_info_box"))
-		conf->skip_info = YESNO(value);
+		conf->c_flags |= YESNO(value) * C_SKIPINFO;
 	else if (!strcasecmp(option, "loop"))
-		conf->loop = YESNO(value);
+		conf->c_flags |= YESNO(value) * C_LOOP;
+	else if (!strcasecmp(option, "nuke_spaces"))
+		conf->c_flags |= YESNO(value) * C_NUKE;
 	else if (!strcasecmp(option, "buffer")) {
 		errno = 0;
 		conf->buffer = strtoul(value, NULL, 10);
@@ -198,7 +215,8 @@ set_color(char *color, char *value)
  * 'w' and 'h' are replaced by the screen width and height.
  * -1 is returned on error.
  */
-static int window_calc(char *e)
+static int
+window_calc(char *e)
 {
 	int result = 0, tmp = 0, op = 0;
 	char *s = NULL;
@@ -235,47 +253,72 @@ static int window_calc(char *e)
 	return result;
 }
 
-static void set_window(char *param, char *value)
+static void
+set_window(Window *win, char *param, char *value)
 {
 	int *p = NULL, result;
 
-	if (!strcasecmp(param, "files_height")) p = &files->height;
-	else if (!strcasecmp(param, "files_width")) p = &files->width;
-	else if (!strcasecmp(param, "files_y")) p = &files->y;
-	else if (!strcasecmp(param, "files_x")) p = &files->x;
-	else if (!strcasecmp(param, "info_height")) p = &info->height;
-	else if (!strcasecmp(param, "info_width")) p = &info->width;
-	else if (!strcasecmp(param, "info_y")) p = &info->y;
-	else if (!strcasecmp(param, "info_x")) p = &info->x;
-	else if (!strcasecmp(param, "play_height")) p = &play->height;
-	else if (!strcasecmp(param, "play_width")) p = &play->width;
-	else if (!strcasecmp(param, "play_y")) p = &play->y;
-	else if (!strcasecmp(param, "play_x")) p = &play->x;
-	else if (!strcasecmp(param, "menubar_height")) p = &menubar->height;
-	else if (!strcasecmp(param, "menubar_width")) p = &menubar->width;
-	else if (!strcasecmp(param, "menubar_y")) p = &menubar->y;
-	else if (!strcasecmp(param, "menubar_x")) p = &menubar->x;
-	else if (!strcasecmp(param, "id3box_height")) p = &id3box->height;
-	else if (!strcasecmp(param, "id3box_width")) p = &id3box->width;
-	else if (!strcasecmp(param, "id3box_y")) p = &id3box->y;
-	else if (!strcasecmp(param, "id3box_x")) p = &id3box->x;
+	switch (*param) {
+		case 'h':
+			p = &win->height;
+			break;
+		case 'w':
+			p = &win->width;
+			break;
+		case 'y':
+			p = &win->y;
+			break;
+		case 'x':
+			p = &win->x;
+			break;
+		case 't':
+			if (!strcasecmp(param, "title.default"))
+				win->title_dfl = strdup(value);
+			else if (!strcasecmp(param, "title.format"))
+				win->title_fmt = strdup(value);
+			return;
+		case 'f':
+			win->format = strdup(value);
+			return;
+		default:
+			return;
+	}
+/* -- not needed until some options start with the same letter :)
+	if (!strcasecmp(param, "height")) p = &win->height;
+	else if (!strcasecmp(param, "width")) p = &win->width;
+	else if (!strcasecmp(param, "y")) p = &win->y;
+	else if (!strcasecmp(param, "x")) p = &win->x;
+	else if (!strcasecmp(param, "title"))
+		win->title = strdup(value);
+	else if (win->flags & W_LIST && !strcasecmp(param, "format"))
+		win->format = strdup(value);
 	else return;
-
-	if ((result = window_calc(value)) >= 0)
+*/
+	if (p && ((result = window_calc(value)) >= 0))
 		*p = result;
 }
 
 
-static void set_window_defaults(void)
+static void
+set_window_defaults(void)
 {
 	files->height = LINES-1, files->width = COLS/4, files->y = files->x = 0;
+	files->title_dfl = "MP3  Files", files->format = "%f";
 	info->height = 8, info->width = 0, info->y = 0, info->x = COLS/4;
+	info->title_dfl = "MP3 Info";
 	play->height = LINES-9, play->width = 0, play->y = 8, play->x = COLS/4;
+	play->title_dfl = "Playlist", play->format = "%f";
 	menubar->height = 1, menubar->width = 0, menubar->y = LINES-1, menubar->x = 0;
 	id3box->height = 8, id3box->width = 60, id3box->y = 9, id3box->x = 15;
+	id3box->title_dfl = "ID3 Tag Editor";
+	playback->height = 3, playback->width = 0, playback->y = 6, playback->x = COLS/4;
+	playback->title_dfl = "Playback Info";
+	playback->title_fmt = "%t";
+
 }
 
-static void set_color_defaults(void)
+static void
+set_color_defaults(void)
 {
 	colors[ACTIVE] = merge_colors(B_GREEN, BLUE);
 	colors[INACTIVE] = merge_colors(YELLOW, BLUE);
@@ -296,4 +339,35 @@ static void set_color_defaults(void)
 	colors[EDIT_ACTIVE] = merge_colors(WHITE, BLACK);
 	colors[EDIT_INACTIVE] = merge_colors(YELLOW, BLUE);
 	colors[EDIT_PROMPT] = merge_colors(WHITE, BLUE);
+}
+
+static int
+break_line(const char *line, char *keyword, char *param, char *value)
+{
+	char *p = (char *)line, *s = keyword;
+	int i = 0;
+	
+	while (isspace(*p))
+		p++;
+	if (!*p)
+		return 0;
+	while (i++ < 256 && !isspace(*p))
+		*s++ = *p++;
+	while (isspace(*p))
+		p++;
+	if (!*p)
+		return 1;
+	i = 0;
+	s = param;
+	while (i++ < 256 && !isspace(*p))
+		*s++ = *p++;
+	while (isspace(*p))
+		p++;
+	if (!*p)
+		return 2;
+	i = 0;
+	s = value;
+	while (i++ < 256 && isprint(*p))
+		*s++ = *p++;
+	return 3;
 }

@@ -9,7 +9,8 @@ static void	free_flist(flist *);
 
 
 void
-wlist_add(wlist *list, flist *position, flist *new) {
+wlist_add(wlist *list, flist *position, flist *new) 
+{
 	if (!list)
 		abort();
 	flist *after;
@@ -38,7 +39,8 @@ wlist_add(wlist *list, flist *position, flist *new) {
 }
 
 void 
-wlist_del(wlist *list, flist *position) {
+wlist_del(wlist *list, flist *position) 
+{
 	flist *before = position->prev, *after = position->next;
 	if (!list->head)
 		return;
@@ -127,7 +129,8 @@ move_forward(wlist *list)
 }
 	
 void
-wlist_clear(wlist *list) {
+wlist_clear(wlist *list) 
+{
 	if (list->head)
 		free_list(list->head);
 	list->length = 

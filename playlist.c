@@ -56,14 +56,18 @@ jump_to_song(wlist *list, flist *next)
 		return 0;
 	
 	list->playing = next;
-	info->contents.play = next;
 	memset(buf, 0, sizeof(buf));
 	snprintf(buf, BIG_BUFFER_SIZE, "%s", list->playing->fullpath);
 	send_cmd(LOAD, buf);
 
 	clear_play_info();
 	p_status = PLAYING;
-			
+	
+	play->update(play);
+	info->update(info);
+	update_title(playback);
+	doupdate();
+
 	timevalue = time(NULL);
 	activefile = fopen(conf->statefile,"w");
 	if (activefile) {
@@ -75,10 +79,6 @@ jump_to_song(wlist *list, flist *next)
 		fprintf(logfile,"%.24s\t%s\n",ctime(&timevalue), list->playing->fullpath);
 		fclose(logfile);
 	}
-	
-	play->update(play);
-	update_title(playback);
-	doupdate();
 	return 1;
 }
 
@@ -88,7 +88,6 @@ stop_player(wlist *list)
 	FILE *activefile;
 		
 	if (list->playing) {
-		info->contents.play = NULL;
 		list->playing->flags &= ~F_PAUSED;
 		list->playing = NULL;
 		play->update(play);
@@ -146,22 +145,22 @@ resume_player(wlist *list)
 }
 
 wlist *
-randomize_list(wlist *playlist)
+randomize_list(wlist *list)
 {
-	int i = playlist->length, j, k;
+	int i = list->length, j, k;
 	flist *ftmp = NULL, *newlist = NULL, **farray = NULL;
 	
 	if (i < 2)
-		return playlist;
+		return list;
 	if (!(farray = (flist **) calloc(i, sizeof(flist *))))
-		return playlist;
-	for (ftmp = playlist->head, j = 0; ftmp; ftmp = ftmp->next, j++) 
+		return list;
+	for (ftmp = list->head, j = 0; ftmp; ftmp = ftmp->next, j++) 
 		farray[j] = ftmp;
 	k = (int)((float)i--*rand()/(RAND_MAX+1.0));
 	newlist = farray[k];
 	newlist->prev = NULL;
 	farray[k] = NULL;
-	playlist->head = playlist->top = newlist;
+	list->head = list->top = newlist;
 	for (ftmp = NULL; i; i--) {
 		k = (int)((float)i*rand()/(RAND_MAX+1.0));
 		for (j = 0; j <= k; j++)
@@ -175,17 +174,17 @@ randomize_list(wlist *playlist)
 			newlist = ftmp;
 		}
 	}
-	playlist->selected = playlist->head;
-	playlist->where = playlist->wheretop = 0;
-	playlist->tail = newlist;
+	list->selected = list->head;
+	list->where = list->wheretop = 0;
+	list->tail = newlist;
 	newlist->next = NULL;
 	free(farray);
-	return playlist;
+	return list;
 }
 
 
 void
-add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
+add_to_playlist_recursive(wlist *list, flist *position, flist *file)
 {
 	char *prevpwd = NULL;
 	wlist *templist = NULL;
@@ -203,9 +202,9 @@ add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
 	
 	while (templist->selected) {
 		if (templist->selected->flags & F_DIR)
-			add_to_playlist_recursive(playlist, playlist->tail, templist->selected);
+			add_to_playlist_recursive(list, list->tail, templist->selected);
 		else if (!(templist->selected->flags & F_PLAYLIST))
-			add_to_playlist(playlist, playlist->tail, templist->selected);
+			add_to_playlist(list, list->tail, templist->selected);
 		
 		templist->selected = next_valid(templist, templist->selected->next, KEY_DOWN);
 	}
@@ -217,7 +216,7 @@ add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
 }
 
 void
-add_to_playlist(wlist *playlist, flist *position, flist *file)
+add_to_playlist(wlist *list, flist *position, flist *file)
 {
 	flist *newfile;
 	
@@ -233,6 +232,7 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		} else if (!strncasecmp(file->filename,"cd",2))
 			newfile->filename = strdup(file->filename+7);	
 	}
+
 	if (!newfile->filename)
 		newfile->filename = strdup(file->filename);
 	if (strlen(newfile->filename) == 0) {
@@ -251,11 +251,11 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		newfile->artist = strdup(file->artist);
 
 	
-	wlist_add(playlist, position, newfile); 
+	wlist_add(list, position, newfile); 
 
 	if (conf->c_flags & C_PADVANCE) {
-		playlist->selected = newfile;
-		playlist->where = playlist->length;
+		list->selected = newfile;
+		list->where = list->length;
 	} 
 	return;
 }

@@ -7,7 +7,6 @@
 
 static int	del_char (Input *, int);
 static int	add_char (Input *, int);
-static int	del_word (Input *);
 
 /* Add a char at the current position */
 
@@ -55,52 +54,11 @@ del_char(Input *input, int backspace)
 	return 0;
 }
 
-/* Delete the word (including trailing spaces) before position pos */
 
-static int
-del_word(Input *input)
-{
-	int i = 0, len = input->len, pos = input->pos;
-	char *p, *s;
-	if (len > 0) {
-		if (pos > 1) {
-			/* skip leading spaces, find the first space afterwards */
-			s = (char *)input->buf;
-			p = (char *)(input->buf + (pos - 1));
-			if (!*p) {
-				p--;
-				i++;
-			}
-			while ((p > s) && (isspace(*p) || ispunct(*p))) {
-				p--;
-				i++;
-			}
-			while ((p > s) && !(isspace(*p) || ispunct(*p))) {
-				p--;
-				i++;
-			}
-			if (p == s) { /* oops, we hit the start of the buffer */
-				memset(s, 0, len); /* we know the length, why bother zero'ing everything? */
-				input->len = 0;
-				input->pos = 1;
-			}
-			else {
-				memmove(++p, p+i--, len-pos+2);
-				memset(s+len-i, 0, i);
-				input->len -= i;
-				input->pos -= i;
-			}
-			return i;
-		}
-	}
-	return 0;
-}
 
 int
 do_inputline(Input *inputline, int c, int alt)
 {
-	int i;
-
 	switch (c) {
 		case KEY_ENTER:
 		case '\n':
@@ -113,14 +71,8 @@ do_inputline(Input *inputline, int c, int alt)
 				inputline->update(inputline);
 			break;
 		case KEY_BACKSPACE:
-			if (alt) {
-				if ((i = del_word(inputline)))
-					inputline->update(inputline);
-			}
-			else {
-				if (del_char(inputline, 1))
-					inputline->update(inputline);
-			}
+			if (del_char(inputline, 1))
+				inputline->update(inputline);
 			break;
 		case KEY_LEFT:
 			if ((inputline->len > 0) && (inputline->pos > 1)) {

@@ -88,7 +88,7 @@ color files_selected_directory		black:green
 color files_background			black
 
 color playlist_unselected		green:black
-color playlist_selected			green:green
+color playlist_selected			black:green
 color playlist_unselected_playing	b_green:black
 color playlist_selected_playing		b_green:green
 color playlist_background	 	black

@@ -173,17 +173,11 @@ move_selector(Window *window, int c)
 int
 update_info(Window *window)
 {
-	WINDOW *win = info->win;
-	int i = info->width;
+	WINDOW *win = window->win;
+	int i = window->width;
 	flist *file = NULL;
 
-	if (!window || !window->contents.list)
-		return 0;
-
-	if (window->flags & W_LIST)
-		file = window->contents.list->selected;
-	else
-		file = window->contents.play;
+	file = *window->contents.show;
 
 	clear_info();
 
@@ -194,7 +188,8 @@ update_info(Window *window)
 		if (file->album)
 			my_mvwnprintw(win, 3, 10, colors[INFO_TEXT], i-11, "%s", file->album);
 	}
-	update_title(info);
+
+	update_title(window);
 	update_panels();
 	return 1;
 }
@@ -206,7 +201,8 @@ void change_active(Window *new)
 	active = new;
 	active->activate(active);
 	active->update(active);
-	info->update(active);
+	info->contents.show = &active->contents.list->selected;
+	info->update(info);
 	doupdate();
 }
 
@@ -316,7 +312,7 @@ update_title(Window *window)
 	p = parse_title(window, title, BUFFER_SIZE);
 	i = strlen(p)+4;
 
-	if (i > x) { 
+	if ((i > x) | (i <= 4)) { 
 		if ((i = strlen(window->title_dfl)) < x) {
 			i += 4;
 			p = (u_char *)window->title_dfl;
@@ -367,6 +363,8 @@ do_scrollbar(Window *window)
 	} else {
 		top = (int)(((double)list->wheretop / value)+(double).5);
 		bar = (int)((y / value)+(double).5);
+		if (bar<1)
+			bar = 1;
 		bottom = y - top - bar ;
 	}
 
@@ -398,10 +396,10 @@ parse_title(Window *win, u_char *title, int len)
 	if (win->title_fmt) {
 		if (win->flags & W_LIST && win->contents.list && win->contents.list->selected)
 			p = (u_char *)parse_tokens(win, win->contents.list->selected, title, len, win->title_fmt);
-		else if (!(win->flags & W_LIST) && win->contents.play)
-			p = (u_char *)parse_tokens(win, win->contents.play, title, len, win->title_fmt);
-		else if (info->contents.play)
-			p = (u_char *)parse_tokens(win, info->contents.play, title, len, win->title_fmt);
+		else if (!(win->flags & W_LIST) && (win==info))
+			p = (u_char *)parse_tokens(win, *win->contents.show, title, len, win->title_fmt);
+//		else if (info->contents.show)
+//			p = (u_char *)parse_tokens(win, *info->contents.show, title, len, win->title_fmt);
 	}
 
 	return p;

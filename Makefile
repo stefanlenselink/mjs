@@ -1,7 +1,6 @@
 CC = gcc
 prefix = /usr/local/bin
 
-PROGRAM = mjs
 VERSION = 3.1-rc3
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
@@ -23,25 +22,26 @@ CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS) -DVERSION=\"$(VERSION)\
 # Uncomment these if you use FreeBSD and their weird ncurses port
 #CFLAGS += -DFREEBSD_NCURSES_PORT
 
-all: $(PROGRAM)
+all: mjs
 
 default: all
 
 run: all
-	./$(PROGRAM)
+	./mjs
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
-$(PROGRAM): $(OBJS)
-	$(CC) $(PROFILE) $(ARCHFLAGS) -o $(PROGRAM) $(OBJS) $(LIBRARY) $(LIBS)
+mjs: $(OBJS)
+	$(CC) $(PROFILE) $(ARCHFLAGS) -o mjs $(OBJS) $(LIBRARY) $(LIBS)
 
 static : $(OBJS)
 	@echo "" 
-	$(CC) -static $(PROFILE) $(ARCHFLAGS) -o $(PROGRAM) $(OBJS) $(LIBRARY) $(LIBS)
+	$(CC) -static $(PROFILE) $(ARCHFLAGS) -o mjs $(OBJS) $(LIBRARY) $(LIBS)
 
 clean:
-	rm -f *~ *.o $(PROGRAM) core *.core ktrace.out gmon.out DEADJOE include/*~
+	rm -f *~ *.o mjs core *.core ktrace.out gmon.out DEADJOE include/*~
+	make -C tools clean
 
 install: all
 	install -c -o 0 -g 0 mjs /usr/local/bin
@@ -61,6 +61,7 @@ dist: clean
 
 mostlyclean:
 	rm -f *~ core *.core *.o
+	make -C tools mostlyclean
 
 # file dependencies
 

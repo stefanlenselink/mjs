@@ -3,6 +3,8 @@ mjs 2.9.8 (cvs + release):
    Hopefully this will cause less problems than id3-tags.
  * Added intro mp3, because mpg123 has problems playing some files
    with id3v2 tags as first song.
+ * Removed some references to mms, the first line of playlists
+   must now contain mjs instead of mms.
 mjs 2.9.7 (cvs):
  * removed al id3-tag code once again. Bugs in mplib cause to many problems
 mjs 2.9.6 (not in cvs):

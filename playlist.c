@@ -282,9 +282,12 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	if (!head)
 		playlist->head = playlist->top = newfile;
 	/* remove tracknumber if it exists */
-	if (((file->filename[0]=='0')|(file->filename[0]=='1')) & (!(conf->c_flags & C_TRACK_NUMBERS)))
-		newfile->filename = strdup(file->filename+3);	
-	else
+	if (((file->filename[0]>='0') & (file->filename[0]<='9')) & (!(conf->c_flags & C_TRACK_NUMBERS))){
+		if ((file->filename[1]>='0') & (file->filename[1]<='9'))
+			newfile->filename = strdup(file->filename+3);	
+		else
+			newfile->filename = strdup(file->filename+2);
+	} else
 		newfile->filename = strdup(file->filename);
 		
 	newfile->path = strdup(file->path);

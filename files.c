@@ -87,7 +87,7 @@ read_mp3_list(wlist *list)
 			length++;
 		} else if (S_ISREG(st.st_mode)) {
 
-			if ((strncasecmp(".mp3", strchr(dent->d_name, '\0')-4, 4)) && (strncasecmp(".mms", strchr(dent->d_name, '\0')-4, 4)))
+			if ((strncasecmp(".mp3", strchr(dent->d_name, '\0')-4, 4)) && (strncasecmp(".mjs", strchr(dent->d_name, '\0')-4, 4)))
 				continue;
 			if (strncasecmp(".mp3", strchr(dent->d_name, '\0')-4, 4)){
 				ftmp = calloc(1, sizeof(flist));
@@ -146,7 +146,7 @@ write_mp3_list_file(wlist *list, char *filename)
 	
 	if (!(fp = fopen(filename,"w")))
 		return 1;
-	fprintf(fp,"Playlist for mms\n");
+	fprintf(fp,"Playlist for mjs\n");
 	for (ftmp = list->head; ftmp; ftmp=ftmp->next)
 		fprintf(fp,"%s\n",ftmp->fullpath);
 	fclose(fp);
@@ -226,10 +226,10 @@ read_mp3_list_file(wlist *list, char *filename)
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
 		if (buf=='\0')
 			goto endloop;
-		dir = malloc(lengte+1);
+		dir = malloc(lengte+2);
 		file = malloc(strlen(buf)-lengte);		
 		strncpy(dir, buf, lengte);
-		dir[lengte]='\0';
+		dir[lengte+1]='\0';
 		strcpy(file, buf+lengte+1);
 
 		if (stat(buf, &st))
@@ -265,7 +265,7 @@ read_mp3_list_file(wlist *list, char *filename)
 					if (ftmp->album)
 						free(ftmp->album);
 					ftmp->album = strdup(playlistname);
-					if ((file[0]=='0')|(file[0]=='1')|(file[0]=='2')) {
+					if ((file[0]>='0')&&(file[0]<='9')) {
 						// get rid of old tracknumber add new tracknumber
 						ftmp->filename = malloc(strlen(file)-3);
 						snprintf(ftmp->filename, 3, "%02.0f", (float)length);

@@ -1,3 +1,3 @@
 #!/bin/sh
-echo "Findresults for mms" >$2
+echo "Findresults for mjs" >$2
 slocate -i -l 0 -n 200 -d /pub/mp3/mp3.db "$1" >>$2

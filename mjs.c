@@ -20,7 +20,8 @@ Config *conf;
 pid_t pid;
 static struct sigaction handler;
 int p_status = STOPPED;
-flist *prevsel = NULL;
+flist *prevsel = NULL;		// previous selected number
+char typedletters[10] = "\0";	// letters previously typed when jumping
 
 /* some internal functions */
 static int	read_key(Window *);
@@ -229,18 +230,26 @@ main(int argc, char *argv[])
 	start_mpg_child();
 	send_cmd(LOAD, "/usr/local/share/intro.mp3");
 	for (;;) {
-		    struct timeval wait1700 = {0, 1700000};
+		struct timeval wait1700 = {0, 1700000};
+		int timeout = 0;
 		FD_ZERO(&fds);
 		FD_SET(0, &fds);
 		add_player_descriptor(&fds);
 		if (select(FD_SETSIZE, &fds, NULL, NULL, &wait1700) > 0) {
 			if (FD_ISSET(0, &fds)){
 				active->input(active);
+				timeout = 25;
 				}
 
 			else 
 				check_player_output(&fds);
 		}
+		if (timeout >= 0) {
+			if (timeout == 0)
+				typedletters[0] = '\0';
+			timeout--;
+		}
+		
 	}
 	bailout(-1);
 }
@@ -572,13 +581,14 @@ read_key(Window *window)
 // Jump to directory with matching first letter
 		case 'a'...'z':
 		case 'A'...'Z': {
-			if (!strncasecmp(mp3list->selected->filename, (char *)&c,1)) {	// At least one dirname starting with S
-				do {	
+			if (strlen(typedletters) < 10)
+				strcat(typedletters, (char *)&c);
+			if (!strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters))) {	// At least one dirname starting with c	
+				while (strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters))){
 					move_selector(files, KEY_DOWN);
 					if (mp3list->selected == mp3list->tail) 
 						move_selector(files, KEY_HOME);
 					}
-				while (strncasecmp(mp3list->selected->filename, (char *)&c,1));
 				}
 			else {
 				move_selector(files, KEY_HOME);
@@ -591,9 +601,8 @@ read_key(Window *window)
 						break;
 						}
 					}
-				while (strncasecmp(mp3list->selected->filename, (char *)&c,1));
+				while (strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters)));
 				}
-
 			files->update(files);
 			doupdate();
 			}

@@ -13,6 +13,8 @@
 
 # playlistpath: path to the directory where we save our playlists
 
+# output_device: desired output device e.g. /dev/dsp or /dev/dsp1
+
 # playlist_advance: advance the playlist selection after adding a file?
 
 # file_advance: advance the file selection after selecting a file?
@@ -37,15 +39,15 @@
  
 
 
-set mpgpath		/usr/local/bin/mpg123
-set mp3dir		/pub/mp3
-set logfile		/var/log/mp3log
-set statefile		/var/state/mp3active
-set resultsfile		/tmp/findresults
-set playlistpath	/pub/mp3/- Playlists
-set bottomtext		MP3 Jukebox D.S.V. Nieuwe Delft - De Bolk   
-set buffer		4000
-set jump		100
+set mpgpath			/usr/local/bin/mpg123
+set mp3dir			/pub/mp3
+set logfile			/var/log/mp3log
+set statefile			/var/state/mp3active
+set resultsfile			/tmp/findresults
+set playlistpath		/pub/mp3/- Playlists
+set output_device		/dev/dsp
+set buffer			4000
+set jump			100
 set playlist_advance		false
 set file_advance		true
 set loop			false

@@ -105,9 +105,11 @@ set_option (Config * conf, char *option, char *value)
 {
 	if (!strcasecmp (option, "mpgpath"))
 		strncpy (conf->mpgpath, value, sizeof (conf->mpgpath) - 1);
-	else if (!strcasecmp (option, "mp3dir"))
+	else if (!strcasecmp (option, "mp3dir")) {
 		strncpy (conf->mp3path, value, sizeof (conf->mp3path) - 1);
-	else if (!strcasecmp (option, "statefile"))
+		if (conf->mp3path[strlen(conf->mp3path)-1] != '/')
+			strcat(conf->mp3path,"/\0");
+	} else if (!strcasecmp (option, "statefile"))
 		strncpy (conf->statefile, value, sizeof (conf->statefile) - 1);
 	else if (!strcasecmp (option, "logfile"))
 		strncpy (conf->logfile, value, sizeof (conf->logfile) - 1);

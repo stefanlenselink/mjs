@@ -14,7 +14,7 @@ mp3_info(char *dir, char *filename, flist *file, u_int32_t size)
 	if (!file)
 		file = calloc(1, sizeof(flist));
 	
-	startp=dir+strlen(conf->mp3path)+1;
+	startp=dir+strlen(conf->mp3path);
 	if ((endp=strchr(startp,'/')))
 		length = endp-startp;
 	else

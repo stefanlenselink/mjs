@@ -248,7 +248,7 @@ add_to_playlist(wlist *list, flist *position, flist *file)
 	
 	/* remove tracknumber if it exists and user wants it*/
 	if (!(conf->c_flags & C_TRACK_NUMBERS)){
-		char *p = (char *)strip_track_numbers(file->filename);
+		char *p = strip_track_numbers(file->filename);
 		newfile->filename = strdup(p);
 	} else
 		newfile->filename = strdup(file->filename);

@@ -20,7 +20,6 @@ Config *conf;
 pid_t pid;
 static struct sigaction handler;
 int p_status = STOPPED;
-char version_str[128];
 flist *prevsel = NULL;							// !!!!!!!!
 
 /* some internal functions */
@@ -35,10 +34,7 @@ do_save(Input* input)
         sprintf(s,"%s/%s.mms", conf->playlistpath, input->buf);
 	write_mp3_list_file(play->contents.list,s);
 	free(input);
-	wmove(menubar->win, 0, 0);
-	wclrtoeol(menubar->win);
-	wbkgd(menubar->win, colors[MENU_BACK]);
-	my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+	menubar->activate(menubar);
 	menubar->inputline = NULL;
 	curs_set(0);
 	update_panels();
@@ -51,10 +47,7 @@ do_search(Input* input)
 {
 	pid_t childpid;
 	wlist *mp3list = files->contents.list;
-	wmove(menubar->win, 0, 0);
-	wbkgd(menubar->win, colors[MENU_BACK]);
-	wclrtoeol(menubar->win);
-
+	menubar->deactivate(menubar);
 	active=old_active;
 	my_mvwaddstr(menubar->win, 0, 2, colors[MENU_TEXT], "Busy searching.....  [                                                   ]");
 	update_panels();
@@ -88,10 +81,7 @@ do_search(Input* input)
 		files->update(files);
 		}
 	free(input);
-	wmove(menubar->win, 0, 0);
-	wclrtoeol(menubar->win);
-	wbkgd(menubar->win, colors[MENU_BACK]);
-	my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+	menubar->activate(menubar);
 	menubar->inputline = NULL;
 	curs_set(0);
 	update_panels();
@@ -127,7 +117,6 @@ main(int argc, char *argv[])
 	init_ansi_pair();
 	if (argc>1)
 		bailout(0);
-//        snprintf(version_str, 128, "MP3 Jukebox D.S.V. Nieuwe Delft - De Bolk   v%s         HELP: Alt-F3", VERSION);
 /* malloc() for the windows and set up our initial callbacks ... */
 
 	info = calloc(1, sizeof(Window));
@@ -171,12 +160,13 @@ main(int argc, char *argv[])
 	files->input = read_key;
 	files->flags |= W_LIST | W_RDONLY;
 
+	menubar->activate = std_bottom_line;
+	menubar->deactivate = clear_bottom_line;
+
 	/* now we have initialized most of the window stuff, read our config */
 	conf = calloc(1, sizeof(Config));
 	strncpy(conf->mpgpath, MPGPATH, 255);
 	read_config(conf);
-
-	snprintf(version_str, 128, "%s   v%s                ", conf->bottomtext, VERSION);
 
 
 	/* check window settings for sanity -- not perfect yet :) */
@@ -220,7 +210,7 @@ main(int argc, char *argv[])
 	wbkgd(play->win, colors[PLAY_BACK]);
 	wbkgd(menubar->win, colors[MENU_BACK]);
 	wbkgd(playback->win, colors[INFO_BACK]);
-	my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+	menubar->activate(menubar);
 	init_info();
 
 	play->deactivate(play);
@@ -389,9 +379,7 @@ read_key(Window *window)
 
 // Exit mms			
 		case KEY_F(1):
-			wmove(menubar->win, 0, 0);
-			wbkgd(menubar->win, colors[MENU_BACK]);
-			wclrtoeol(menubar->win);
+			menubar->deactivate(menubar);
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Are you sure you want to reset this program ? (y/n)");
 			update_panels();
 			doupdate();
@@ -400,16 +388,15 @@ read_key(Window *window)
 				c = WGETCH(window->win);
 			if ((c == 'y')|(c == 'Y')) 
 				bailout(0);
-			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+			menubar->activate(menubar);
 			curs_set(0);
 			update_panels();
-			doupdate();	
+			doupdate();
+			break;
 
 // Clear playlist
 		case KEY_F(2):
-			wmove(menubar->win, 0, 0);
-			wbkgd(menubar->win, colors[MENU_BACK]);
-			wclrtoeol(menubar->win);
+			menubar->deactivate(menubar);
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Are you sure you want to clear the playlist ? (y/n)");
 			update_panels();
 			doupdate();
@@ -425,7 +412,7 @@ read_key(Window *window)
 				play->contents.list = (wlist *)calloc(1, sizeof(wlist));
 				play->update(play);
 				}
-			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+			menubar->activate(menubar);
 			curs_set(0);
 			info->update(play);
 			update_panels();
@@ -463,10 +450,7 @@ read_key(Window *window)
 			mp3list->head = read_mp3_list_file(mp3list,conf->resultsfile);
 			if (mp3list->head)
 				sort_search(mp3list);
-			wmove(menubar->win, 0, 0);
-			wbkgd(menubar->win, colors[MENU_BACK]);
-			wclrtoeol(menubar->win);
-			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+			menubar->activate(menubar);
 			info->update(files);
 			files->update(files);
 			doupdate();
@@ -474,9 +458,7 @@ read_key(Window *window)
 
 // Randomize the playlist				
 		case KEY_F(5): 
-			wmove(menubar->win, 0, 0);
-			wbkgd(menubar->win, colors[MENU_BACK]);
-			wclrtoeol(menubar->win);
+			menubar->deactivate(menubar);
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Shuffle Playlist ? (y/n)");
 			update_panels();
 			doupdate();
@@ -491,7 +473,7 @@ read_key(Window *window)
 				play->update(play);
 				info->update(play);
 				}
-			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+			menubar->activate(menubar);
 			curs_set(0);
 			update_panels();
 			doupdate();	
@@ -664,10 +646,7 @@ process_return(wlist *mp3list, int c, int alt)
 					mp3list->head = mp3list->top = mp3list->selected = read_mp3_list_file(mp3list,filename);
 					mp3list->selected->flags |= F_SELECTED;
 				}
-				wmove(menubar->win, 0, 0);
-				wbkgd(menubar->win, colors[MENU_BACK]);
-				wclrtoeol(menubar->win);
-				my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], version_str);
+				menubar->activate(menubar);
 				info->update(files);
 				files->update(files);		
 				}

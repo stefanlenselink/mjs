@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 2.9
+VERSION = 2.9.1
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c
@@ -44,8 +44,8 @@ install: all
 	install -c -o 0 -g 0 findmp3 /usr/local/bin
 	touch /var/log/mp3log
 	chmod a+rw /var/log/mp3log
-	touch /var/state/mp3actief
-	chmod a+rw /var/state/mp3actief
+	touch /var/state/mp3active
+	chmod a+rw /var/state/mp3active
 
 release: dist
 

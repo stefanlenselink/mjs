@@ -1,0 +1,166 @@
+# Configuration file for the MP3 Jukebox System
+
+# mpgpath: path to mpg123
+set mpgpath			/usr/local/bin/mpg123
+
+# mp3dir: path to the base mp3 directory
+set mp3dir			/pub/mp3
+
+# logfile: path to the file in which to save played mp3 titles
+set logfile			/var/log/mp3log
+
+# statefile: path to the file in which to save te playing mp3 title
+set statefile			/var/state/mp3active
+
+# resultsfile: path to the file we grab our searchresults from
+set resultsfile			/tmp/findresults
+
+# playlistpath: path to the directory where we save our playlists
+set playlistpath		/pub/mp3/# Playlists
+
+# output_device: desired output device e.g. /dev/dsp or /dev/dsp1
+set output_device		/dev/dsp
+
+# buffer: size of the buffer mpg123 uses (integer, in kb)
+# NOTE -- When using the buffer, mpg123 spawns a child process to buffer
+# itself. It seems to have some difficulties cleaning up this child when we
+# are trying to exit ourselves. Use at your own risk, and be sure to kill
+# off any orphan mpg123's because they go berserk on your cpu.
+set buffer			4000
+
+# jump: how many frames to jump with +/-
+set jump			100
+
+# playlist_advance: advance the playlist selection after adding a file?
+set playlist_advance		false
+
+# file_advance: advance the file selection after selecting a file?
+set file_advance		true
+
+# loop: loop over the playlist when we get to the end?
+set loop			false
+
+# playlist_to_files: Open playlists in the files window
+# browsing them as a directory, instead of adding the playlist directly to 
+# the playlist
+set playlists_to_files		true
+
+# mono_output: Let mpg123 produce single channel (mono) output only.
+# show_playlist_length: Let mpg123 show not only the remaining time per
+# track but also to the end of the playlist (not really accurate yet)
+set mono_output			false
+
+# alternative_scrolling: move the list instead of the selector
+set alternative_scrolling	false
+
+# allow_playlist_saving: Allow saving of the playlist to a file
+set allow_playlist_saving	true
+
+# Show tracknumbers in the playlist window
+set show_track_numbers		false
+
+# Fix the ugly borders in xterm's (true/false/auto)
+set fix_window_borders		true
+
+set keep_playlist_at_exit	true
+
+#
+# Colors
+# 
+# Background colors can be:
+#     black, red, green, brown, blue, magenta, cyan, grey
+# Foreground colors can, in addition to above, be:
+#     b_black, b_red, b_green, yellow, b_blue, b_magenta, b_cyan, white
+#
+color window_active			white:blue
+color window_inactive			grey:blue
+color window_inactive_title		grey:blue
+color window_inactive_scroll		grey:blue
+color window_inactive_scroll_bar	white:blue
+color window_active_title		black:grey
+color window_active_scroll		grey:blue
+color window_active_scroll_bar		white:blue
+
+color files_selected_file		black:cyan
+color files_unselected_file		grey:blue
+color files_unselected_directory	white:blue
+color files_selected_directory		black:cyan
+color files_background			blue
+
+color playlist_unselected		grey:blue
+color playlist_selected			black:cyan
+color playlist_unselected_playing	white:blue
+color playlist_selected_playing		white:cyan
+color playlist_background 		blue
+
+color info_text				yellow:blue
+color info_background			blue
+
+color menu_text				black:cyan
+color menu_background	 		cyan
+
+color playback_text	 		b_green:blue
+color playback_background		blue
+
+#
+# Window positions and sizes and formats (only used for 'list' type windows)
+#
+# Window format tokens:
+# 
+# %t - the song title
+# %a - the artist
+# %f - filename
+# %F - complete filename, incl path
+# %p - the path
+# %P - the path without the mp3path part
+# %% - like with printf, insert a %
+#
+# + - * / operators are ok. Use 'w' and 'h' for screen width and height.
+# A 0 for width/height will go from x/y to the max.
+#
+# Be careful here. Don't put spaces in expressions. Borders will take up
+# two spaces. If you screw up things can overlap and look ugly.
+#
+# title.format  = format string for the title (optional)
+# title.default = default title, if no formats apply (optional, has a default)
+#
+
+# file selection window
+files height	h-1
+files width	w/2
+files y		0
+files x		0
+files format	%t
+files title.default MP3  Files
+files title.format %P
+
+# info window
+info height	5
+info width	0
+info y		3
+info x		w/2
+info title.default MP3 Info
+
+# playlist window
+play height	h-9
+play width	0
+play y		8
+play x		w/2
+play format	%t 
+play title.default Playlist
+play title.format Playlist
+
+# the playback window
+playback height	3
+playback width	0
+playback y	0
+playback x	w/2
+playback title.default Playback Info
+playback title.format %t
+
+# "menubar"
+menubar height	1
+menubar width	w
+menubar y	h-1
+menubar x	0
+menubar title.default MP3 Jukebox System (mjs)

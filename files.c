@@ -167,8 +167,6 @@ read_mp3_list_file(wlist *list, char *filename)
 	int length = 0, lengte = 0, n = 0;
 	int playlist = 0;
 	
-	list->where = 1;
-	list->flags |= F_VIRTUAL;
 	errno=0;
 	if (!(fp = fopen(filename,"r")))
 		return list;
@@ -187,11 +185,13 @@ read_mp3_list_file(wlist *list, char *filename)
 		playlistname[strlen(filename)-lengte-5]='\0';
 	}
 
-	if (!(conf->c_flags & C_P_TO_F) && (playlist)) {
+	if (list) {
 		if (list->tail)
 			tail = list->tail;
-	}
-	else {
+	} else {
+		list = calloc(1, sizeof(wlist));
+		list->where = 1;
+		list->flags |= F_VIRTUAL;
 		ftmp = calloc(1, sizeof(flist));
 		ftmp->flags |= F_DIR;
 		ftmp->filename = strdup("../");

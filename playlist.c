@@ -191,19 +191,22 @@ stop_player(wlist *playlist)
 		ftmp->flags &= ~F_PAUSED;
 		play->update(play);
 	}
+
 	if (p_status == PAUSED)
 		send_cmd(PAUSE);
+
 	p_status = STOPPED;
 	send_cmd(STOP);
 
+	update_title(playback);
+	clear_play_info();
+	
 	activefile = fopen(conf->statefile,"w");
 	if (activefile) {
 		fprintf(activefile,"%s","                      \n");
 		fclose(activefile);
 	}
 
-	update_title(playback);
-	doupdate();
 	return playlist;
 }
 
@@ -214,6 +217,7 @@ pause_player(wlist *playlist)
 	FILE *activefile;
 	flist *playing=playlist->playing;
 	playlist->playing->flags |= F_PAUSED;
+	play->update(play);
 	p_status = PAUSED;
 	send_cmd(PAUSE);
 	activefile = fopen(conf->statefile,"w");
@@ -231,6 +235,7 @@ resume_player(wlist *playlist)
 	extern int p_status;
 	FILE *active;
 	playlist->playing->flags &= ~F_PAUSED;
+	play->update(play);
 	p_status = PLAYING;
 	send_cmd(PAUSE);
 	active = fopen(conf->statefile,"w");
@@ -317,6 +322,7 @@ add_to_playlist_recursive(wlist *playlist, flist *position, flist *file)
 	free(templist);
 	chdir(prevpwd);
 	free(prevpwd);
+	play->update(play);
 }
 
 void
@@ -382,16 +388,17 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		playlist->selected = newfile;
 		playlist->where = ++playlist->length;
 		newfile->flags |= F_SELECTED;
-		if (playlist->length < maxx)
-			return;
+//		if (playlist->length < maxx)
+//			return;
 		/* this is inefficient, we could "store" more data about the list, but
 		 * who really cares. :) */
-		for (head = newfile; head && i < maxy; i++, head = head->prev)
-			if (head == playlist->top)
-				return;
-		playlist->top = head;
+//		for (head = newfile; head && i < maxy; i++, head = head->prev)
+//			if (head == playlist->top)
+//				return;
+//		playlist->top = head;
 	} else
 		++playlist->length;
+	play->update(play);
 	return;
 }
 

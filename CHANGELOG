@@ -1,6 +1,9 @@
+mjs 2.9.4 :
+ * Fixed mjsrc.EXAMPLE The bottomline error message about ~/.mjsrc not
+   existing while it does, should be solved.
 mjs 2.9.3 :
  * read_mp3_list_file now returns wlist, so files->tail will not be NULL any
-   more
+   more and playlists wont segfault when end is pressed
 mjs 2.9.2 (cvs) :
  * Added config option for output device choosing
  * Added posibility to go into a linked playlist directory outside your

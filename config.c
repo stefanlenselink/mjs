@@ -107,8 +107,6 @@ set_option (Config * conf, char *option, char *value)
 		strncpy (conf->resultsfile, value, sizeof (conf->resultsfile) - 1);
 	else if (!strcasecmp (option, "playlistpath"))
 		strncpy (conf->playlistpath, value, sizeof (conf->playlistpath) - 1);
-	else if (!strcasecmp (option, "bottomtext"))
-		strncpy (conf->bottomtext, value, sizeof (conf->playlistpath) - 1);
 	else if (!strcasecmp (option, "file_advance"))
 		conf->c_flags |= YESNO (value) * C_FADVANCE;
 	else if (!strcasecmp (option, "playlist_advance"))
@@ -404,6 +402,7 @@ set_window_defaults (void)
 		6, playback->x = COLS / 4;
 	playback->title_dfl = "Playback Info";
 	playback->title_fmt = "%t";
+	menubar->title_dfl = "MP3 Jukebox System";
 
 }
 

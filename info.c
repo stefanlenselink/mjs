@@ -108,19 +108,20 @@ mp3_info(char *filename, flist *file, u_int32_t size)
 {
 	u_int32_t framesize = 0;
 	double totalframes = 0;
+// All -1 values will be ignored below...
 	short t_bitrate[2][3][15] = {{
-		{0,32,48,56,64,80,96,112,128,144,160,176,192,224,256},
-		{0,8,16,24,32,40,48,56,64,80,96,112,128,144,160},
-		{0,8,16,24,32,40,48,56,64,80,96,112,128,144,160}
+		{-1,32,48,56,64,80,96,112,128,144,160,176,192,224,256},
+		{-1,8,16,24,32,40,48,56,64,80,96,112,128,144,160},
+		{-1,8,16,24,32,40,48,56,64,80,96,112,128,144,160}
 		},{
-		{0,32,64,96,128,160,192,224,256,288,320,352,384,416,448},
-		{0,32,48,56,64,80,96,112,128,160,192,224,256,320,384},
-		{0,32,40,48,56,64,80,96,112,128,160,192,224,256,320}
+		{-1,32,64,96,128,160,192,224,256,288,320,352,384,416,448},
+		{-1,32,48,56,64,80,96,112,128,160,192,224,256,320,384},
+		{-1,32,40,48,56,64,80,96,112,128,160,192,224,256,320}
 	}};
 	int t_sampling_frequency[2][2][3] = {
 		{ /* MPEG 2.5 samplerates */ 
 	  		{ 11025, 12000, 8000},
-			{ 0, }
+			{ -1, }
 		},{ /* MPEG 2.0/1.0 samplerates */
 			{ 22050 , 24000 , 16000},
 			{ 44100 , 48000 , 32000}
@@ -132,6 +133,7 @@ mp3_info(char *filename, flist *file, u_int32_t size)
 	int fd = -1;
 	ID3tag tmp;
 	char *s;
+	int sample_frequency;
 
 	if ((fd = open(filename, O_RDONLY)) == -1)
 		return file;
@@ -146,8 +148,11 @@ mp3_info(char *filename, flist *file, u_int32_t size)
 	btr=t_bitrate[header.ID][3-header.layer][header.bitrate_index];
 
 	framesize = (header.ID ? 144000 : 72000) * btr / (t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency]);
-	totalframes = (double)size / (double)framesize;
-	file->length = (time_t)(totalframes * (header.ID==0?576.0:1152.0)/(float)t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency]);
+	if (framesize != 0) 
+		totalframes = (double)size / (double)framesize;
+	sample_frequency = t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency];
+	if ((float)sample_frequency != 0) 
+		file->length = (time_t)(totalframes * (header.ID==0?576.0:1152.0)/(float)sample_frequency);
 
 	/* Used to do a sizeof() here, but that caused problems under freebsd/egcs? */
 	lseek(fd, -128, SEEK_END);
@@ -160,10 +165,6 @@ mp3_info(char *filename, flist *file, u_int32_t size)
 		s = tmp.artist + 29;
 		while (!isalnum(*s))
 			*s-- = '\0';
-//		file->title = (char *)calloc(1, 31);
-//		strncpy(file->title, tmp.title, 30);
-//		if (strlen(file->title) == 0)
-//			strncpy(file->title, filename, 30);
 		
 		file->artist = (char *)calloc(1, 31);
 		strncpy(file->artist, tmp.artist, 30);

@@ -75,7 +75,7 @@ do_search(Input* input)
 		sigaction(SIGCHLD, &handler, NULL);
 		free_list(mp3list->head);
 		memset(mp3list, 0, sizeof(wlist));		
-		mp3list->head = read_mp3_list_file(mp3list, conf->resultsfile);
+		mp3list = read_mp3_list_file(mp3list, conf->resultsfile);
 		if (mp3list->head)
 			sort_search(mp3list);
 		files->update(files);
@@ -244,7 +244,7 @@ main(int argc, char *argv[])
 				check_player_output(&fds);
 		}
 	}
-	bailout(0);
+	bailout(-1);
 }
 
 void
@@ -254,6 +254,18 @@ bailout(int sig)
 	wclear(stdscr);
 	refresh();
 	endwin();
+	
+	switch (sig) {
+		case 0: break;
+		case 1: fprintf(stderr, "\n\nmjs:error: in and/or outpipe not available OR cannot start mpg123 \n\n\n");
+			break;
+		case 2: fprintf(stderr, "\n\nmjs:error: starting mpg123 failed !\n\n\n");
+			break;
+		case 3: fprintf(stderr, "\n\nmjs:error: Forking of mpg123 child proces failed !n\n\n");
+			break;
+		default: fprintf(stderr, "\n\nmjs:error: unknown\n\n\n");
+			break;
+		}	
 	fprintf(stdout, "\n\n MP3 Jukebox System (mjs) v%s\n",VERSION);
 	fprintf(stdout, " Based on mms written by Wesley Morgan. (morganw@engr.sc.edu)\n");
 	fprintf(stdout, " Changed by Marijn van Galen. (M.P.vanGalen@ITS.TUDelft.nl)\n\n");
@@ -447,7 +459,7 @@ read_key(Window *window)
 		case KEY_F(4):
 			free_list(mp3list->head);
 			memset(mp3list, 0, sizeof(wlist));
-			mp3list->head = read_mp3_list_file(mp3list,conf->resultsfile);
+			mp3list = read_mp3_list_file(mp3list,conf->resultsfile);
 			if (mp3list->head)
 				sort_search(mp3list);
 			menubar->activate(menubar);
@@ -638,13 +650,13 @@ process_return(wlist *mp3list, int c, int alt)
 				char *filename=strdup(mp3list->selected->fullpath);
 // add mp3's in file to playlist
 				if (conf->c_flags & C_P_TO_F) {
-					play->contents.list->head = play->contents.list->top = play->contents.list->selected = read_mp3_list_file(play->contents.list,filename);
-					play->contents.list->selected->flags |= F_SELECTED;
-				} else {
 					free_list(mp3list->head);
 					memset(mp3list, 0, sizeof(wlist));
-					mp3list->head = mp3list->top = mp3list->selected = read_mp3_list_file(mp3list,filename);
+					mp3list = read_mp3_list_file(mp3list,filename);
 					mp3list->selected->flags |= F_SELECTED;
+				} else {
+					play->contents.list = read_mp3_list_file(play->contents.list,filename);
+					play->contents.list->selected->flags |= F_SELECTED;
 				}
 				menubar->activate(menubar);
 				info->update(files);

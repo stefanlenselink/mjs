@@ -127,6 +127,7 @@ typedef struct _config {
 #define	C_P_SAVE_EXIT	0x0100
 #define C_USE_GENRE	0x0200
 #define C_SCREENSAVER	0x0400
+#define C_RM_AFTER_PLAY 0x0800
 	int buffer;
 	int jump;
 	int pathlen;
@@ -134,10 +135,10 @@ typedef struct _config {
 } Config;
 
 typedef struct {
-	int played;
-	int left;
-	double elapsed;
-	double remaining;
+	int played;			// frames played
+	int left;			// frames left in song
+	double elapsed;			// time elapsed
+	double remaining;		// time remaining in song
 } mpgreturn;
 
 /* this struct holds all the info to construct a question/answer input dialog */

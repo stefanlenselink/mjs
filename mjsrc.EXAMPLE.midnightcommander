@@ -68,6 +68,9 @@ set keep_playlist_at_exit	true
 # Use directory based genre system 
 set use_genre			false
 
+# Remove a song from the playlist once it has been played
+set delete_played_songs		false
+
 
 #
 # Colors

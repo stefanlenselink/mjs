@@ -171,8 +171,17 @@ static mpgreturn *read_cmd(int fd, mpgreturn *status)
 			return status;
 		case 'P':
 			tmpstatus = strtoul(++p, &s, 10);
-			if (tmpstatus == 0)
-				p_status = 0;
+			switch (tmpstatus) {
+				case 0 :
+					p_status = STOPPED;
+					break;
+				case 1 :
+					p_status = PAUSED;
+					break;
+				case 2 :
+					p_status = PLAYING;
+					break;
+			}
 			break;
 		case 's':
 			exit(0);

@@ -858,32 +858,41 @@ update_menu (Input * inputline)
 void
 update_status (void)
 {
-	FILE *logfile;
-	time_t timevalue;
 	wlist *list = play->contents.list;
+	static int retries = 0;
 	
 	
 	
 	if (!list)
 		return;
 
-	logfile = fopen(conf->logfile,"a");
-
 	if (p_status == STOPPED) {
 		clear_play_info ();
 		if (list->playing!=NULL) {
-			if (logfile!=NULL) {
-				timevalue = time(NULL);
-				fprintf(logfile,"%.24s\t%s\n",ctime(&timevalue), list->playing->fullpath);
-				fclose(logfile);
-			}
-			if (list->playing->flags & F_HTTP)
+			flist *prev = list->playing;
+			if ((list->playing->flags & F_HTTP) && (retries < 7)) {
 				jump_to_song(list, list->playing);
-			else {
+				retries++;
+			} else {
+				FILE *logfile;
+				time_t timevalue;
+
+				retries = 0;
 				if (list->playing->next)
 					play_next_song (list);
 				else
 					stop_player(list);
+
+				logfile = fopen(conf->logfile,"a");	
+				if (logfile!=NULL) {
+					timevalue = time(NULL);	
+					fprintf(logfile,"%.24s\t%s\n",ctime(&timevalue), prev->fullpath);
+					fclose(logfile);
+				}
+				if (conf->c_flags & C_RM_AFTER_PLAY) {
+					wlist_del(list, prev);
+					play->update (play);
+				}
 			}
 		}
 		doupdate ();

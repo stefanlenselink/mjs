@@ -140,6 +140,8 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_USE_GENRE;
 	else if (!strcasecmp (option, "screensaver"))
 		conf->c_flags |= YESNO (value) * C_SCREENSAVER;
+	else if (!strcasecmp (option, "delete_played_songs"))
+		conf->c_flags |= YESNO (value) * C_RM_AFTER_PLAY;
 	else if (!strcasecmp (option, "fix_window_borders"))
 	{
 		switch (value[0]) {

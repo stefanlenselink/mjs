@@ -14,13 +14,11 @@
 typedef struct _flist {
 	unsigned short flags;
 #define F_DIR      	0x01
-#define F_PLAY     	0x02
-#define F_SELECTED 	0x04
-#define F_PAUSED   	0x08
-#define F_SEARCHDIR	0x10	
-#define F_PLAYLIST	0x20
+#define F_PLAYLIST	0x02
+#define F_PLAY     	0x10
+#define F_SELECTED 	0x20
+#define F_PAUSED   	0x40
 	int where;
-//	time_t length;
 	char *album;
 	char *filename;
 	char *path;
@@ -37,6 +35,8 @@ typedef struct {
 	flist *selected;                   /* currently selected file              */
 	flist *playing;                    /* currently PLAYING file               */
 	int length;                        /* length of the list we are tracking   */
+	unsigned short flags;
+#define F_VIRTUAL      	0x01
 	int where;			   /* what position in the list are we?    */
 	int wheretop;			   /* at what position is the top */
 	time_t duration;

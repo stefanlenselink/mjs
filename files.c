@@ -23,6 +23,7 @@ read_mp3_list(wlist *list)
 
 	list->where = 1;
 	list->wheretop = 1;
+	list->flags &= ~F_VIRTUAL;
 	dir = getcwd(NULL, 0);
 	errno = 0;
 	if (errno) {
@@ -167,6 +168,7 @@ read_mp3_list_file(wlist *list, char *filename)
 	int playlist = 0;
 	
 	list->where = 1;
+	list->flags |= F_VIRTUAL;
 	errno=0;
 	if (!(fp = fopen(filename,"r")))
 		return list;
@@ -183,25 +185,31 @@ read_mp3_list_file(wlist *list, char *filename)
 			free(buf);
 			return list;
 		}
-	if (!(conf->c_flags & C_P_TO_F) && (playlist)) {
-		if (list->tail)
-			tail = list->tail;
-	}
-	else {
-		ftmp = calloc(1, sizeof(flist));
-		ftmp->flags |= F_SEARCHDIR | F_DIR;
-		ftmp->filename = strdup("../");
-		ftmp->fullpath = getcwd(NULL,0);
-		ftmp->path = strdup(ftmp->fullpath);
-		list->head = ftmp;
-		tail = ftmp;
-	}
 
 	if (playlist){
 		lengte = strrchr(filename,'/')-filename;
 		playlistname = malloc(strlen(filename)-lengte-4);
 		strncpy(playlistname, filename+lengte+1,strlen(filename)-lengte-5);
 		playlistname[strlen(filename)-lengte-5]='\0';
+	}
+
+	if (!(conf->c_flags & C_P_TO_F) && (playlist)) {
+		if (list->tail)
+			tail = list->tail;
+	}
+	else {
+		ftmp = calloc(1, sizeof(flist));
+		ftmp->flags |= F_DIR;
+		ftmp->filename = strdup("../");
+		ftmp->fullpath = getcwd(NULL,0);
+		if (playlist) {
+			ftmp->path = malloc(strlen(playlistname)+9);
+			strcpy (ftmp->path, "         \0");
+			strcat (ftmp->path, playlistname);
+		} else
+			ftmp->path = strdup("         Search Results");
+		list->head = ftmp;
+		tail = ftmp;
 	}
 			
 	while (!feof(fp)) {
@@ -241,7 +249,7 @@ read_mp3_list_file(wlist *list, char *filename)
 				strcat(ftmp->filename, ":");
 				ftmp->fullpath = strdup(buf);
 				ftmp->path = strdup(buf);
-				ftmp->flags |= F_SEARCHDIR | F_DIR;
+				ftmp->flags |= F_DIR;
 				tail->next = ftmp;
 				ftmp->prev = tail;
 			

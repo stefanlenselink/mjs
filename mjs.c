@@ -33,7 +33,7 @@ do_save(Input* input)
 {
 	char *s = malloc(strlen(input->buf)+26);
 	active=old_active;
-        sprintf(s,"%s/%s.mms", conf->playlistpath, input->buf);
+        sprintf(s,"%s/%s.mjs", conf->playlistpath, input->buf);
 	write_mp3_list_file(play->contents.list,s);
 	free(input);
 	menubar->activate(menubar);
@@ -372,8 +372,6 @@ read_key(Window *window)
 
 // File selection / directory navigation		
 		case KEY_ENTER:
-		case KEY_RIGHT:
-		case KEY_LEFT:
 		case '\n':
 		case '\r':
 		case KEY_IC:
@@ -381,6 +379,49 @@ read_key(Window *window)
 				process_return(window->contents.list, c, alt);
 			break;
 
+		case KEY_LEFT: {
+			char *prevpwd = NULL;
+			if (!(mp3list->flags & F_VIRTUAL)) {
+				prevpwd = getcwd(NULL, 0);
+				if (!strncmp (prevpwd, conf->mp3path, strlen(prevpwd))) {
+					free(prevpwd);
+					break;
+				}
+				chdir("../");
+			}
+			free_list(mp3list->head);
+			memset(mp3list, 0, sizeof(wlist));
+			mp3list->head = read_mp3_list(mp3list);
+			if (mp3list->head)
+				sort_songs(mp3list);
+			if (prevpwd) {
+				while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) 
+					move_selector( files, KEY_DOWN );
+				free(prevpwd);
+			}
+			files->update(files);
+			play->update(play);
+			doupdate();
+			}
+			break;
+
+		case KEY_RIGHT:
+			if (!(mp3list->selected->flags & F_DIR )) 
+				break;
+			chdir(mp3list->selected->fullpath);
+			free_list(mp3list->head);
+			memset(mp3list, 0, sizeof(wlist));
+			mp3list->head = read_mp3_list(mp3list);
+			if (mp3list->head) {
+				sort_songs(mp3list);
+				move_selector( files, KEY_DOWN );
+			}
+			files->update(files);
+			play->update(play);
+			doupdate();
+			break;
+
+			
 // remove selected from playlist		
 		case KEY_DC:
 			if (active == play){
@@ -624,67 +665,60 @@ read_key(Window *window)
 
 void
 process_return(wlist *mp3list, int c, int alt)
-
 {
 	if (!mp3list)
 		return;
-	if ((mp3list->selected->flags & F_DIR) | (c == KEY_LEFT)) {
-// change to another directory
+	if ((mp3list->selected->flags & F_DIR)) {
+		// change to another directory
 		char *prevpwd = NULL;
 		
-		if (c == KEY_LEFT) {
-			if (!strcmp(mp3list->head->filename,"../")) 
-				move_selector(files, KEY_HOME);
-			else
-				return;
-		}
-		
-		if (!(mp3list->selected->flags & F_SEARCHDIR)) 
-			if (!strcmp("../", mp3list->selected->fullpath))
-               			prevpwd = getcwd(NULL, 0);
-			chdir(mp3list->selected->fullpath);
+		if ((!(mp3list->flags & F_VIRTUAL)) & (!strcmp("../", mp3list->selected->fullpath)))
+			prevpwd = getcwd(NULL, 0);
+
+		chdir(mp3list->selected->fullpath);
 		free_list(mp3list->head);
 		memset(mp3list, 0, sizeof(wlist));
 		mp3list->head = read_mp3_list(mp3list);
-			if (mp3list->head)
+		if (mp3list->head)
 			sort_songs(mp3list);
-			if (prevpwd) {
-			while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) {
+		if (prevpwd) {
+			while ( strcmp( mp3list->selected->fullpath, prevpwd ) ) 
 				move_selector( files, KEY_DOWN );
-			}
 			free(prevpwd);
 		}
 		files->update(files);
-	} else 	{
-		if (mp3list->selected->flags & F_PLAYLIST){
-			char *filename=strdup( mp3list->selected->fullpath );
-// add mp3's in file to playlist
-			if (conf->c_flags & C_P_TO_F) {
-				free_list(mp3list->head);
-				memset(mp3list, 0, sizeof(wlist));
-				mp3list = read_mp3_list_file(mp3list, filename);
-				mp3list->selected->flags |= F_SELECTED;
-			} else {
-				play->contents.list = read_mp3_list_file(play->contents.list, filename);
-				play->contents.list->selected->flags |= F_SELECTED;
-			}
-			menubar->activate(menubar);
-			info->update(files);
-			files->update(files);		
-		} else	
-			if (strcmp(previous_selected, mp3list->selected->fullpath) & (c != KEY_RIGHT)){ /* we dont want to add the last file multiple times */
-				if (previous_selected)
-					free (previous_selected);
-				previous_selected = strdup(mp3list->selected->fullpath);
-				if ((alt) || (c == KEY_IC))
-					add_to_playlist(play->contents.list, play->contents.list->selected, mp3list->selected);
-				else
-					add_to_playlist(play->contents.list, play->contents.list->tail, mp3list->selected);
-				if (conf->c_flags & C_FADVANCE)
-					if (info->update(move_selector(files, KEY_DOWN)))
-						files->update(files);
-		} 
-	}
+		
+	} else if (mp3list->selected->flags & F_PLAYLIST){
+		char *filename = strdup( mp3list->selected->fullpath );
+		// add mp3's in file to playlist
+		if (conf->c_flags & C_P_TO_F) {
+			free_list(mp3list->head);
+			memset(mp3list, 0, sizeof(wlist));
+			mp3list = read_mp3_list_file(mp3list, filename);
+			mp3list->selected->flags |= F_SELECTED;
+		} else {
+			play->contents.list = read_mp3_list_file(play->contents.list, filename);
+			play->contents.list->selected->flags |= F_SELECTED;
+		}
+	
+		menubar->activate(menubar);
+		info->update(files);
+		files->update(files);		
+
+	} else if (strcmp(previous_selected, mp3list->selected->fullpath)){ /* we dont want to add the last file multiple times */
+		if (previous_selected)
+			free (previous_selected);
+		previous_selected = strdup(mp3list->selected->fullpath);
+		
+		if ((alt) || (c == KEY_IC))
+			add_to_playlist(play->contents.list, play->contents.list->selected, mp3list->selected);
+		else
+			add_to_playlist(play->contents.list, play->contents.list->tail, mp3list->selected);
+
+		if (conf->c_flags & C_FADVANCE)
+			if (info->update(move_selector(files, KEY_DOWN)))
+				files->update(files);
+	} 
 	play->update(play);
 	doupdate();
 }

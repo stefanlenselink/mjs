@@ -51,8 +51,7 @@ show_list(Window *window)
 			if (window->format) {
 				memset(buf, 0, sizeof(buf));
 				line = parse_tokens(window,ftmp, buf, BUFFER_SIZE, window->format);
-				} 
-			else 	
+			} else 	
 				line = ftmp->filename;
 			if ((window->flags & W_ACTIVE) && (ftmp->flags & F_PAUSED))
 				my_mvwnaddstr(win, i, 2, colors[UNSEL_PLAYING] | A_BLINK, x, line);
@@ -69,7 +68,7 @@ show_list(Window *window)
 						else
 							color = colors[PLAYLIST];
 				else	// window==files
-					if (ftmp->flags & (F_SEARCHDIR | F_DIR))
+					if (ftmp->flags & F_DIR)
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
 							color = colors[SELECTED];
 						else
@@ -80,10 +79,9 @@ show_list(Window *window)
 						else 	
 							color = colors[UNSELECTED];
 				my_mvwnaddstr(win, i, 2, color, x, line);
-				}
+			}
 			ftmp = ftmp->next;
-			} 
-		else /* blank the line */
+		} else /* blank the line */
 			my_mvwnaddstr(win, i, 2, colors[FILE_BACK], x, "");
 	if (active->flags & W_LIST)
 		do_scrollbar(active);

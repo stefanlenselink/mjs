@@ -3,6 +3,8 @@ mjs 3.0-rc2
    to it.
  * Fixed algorithm which makes sure a song is not added twice to the
    playlist.
+ * Fixed playlist saving (now uses the correct .mjs extension)
+ * More code cleanups
 mjs 3.0-rc1
  * Code cleanups
  * Minor change to config-file format (background colors)

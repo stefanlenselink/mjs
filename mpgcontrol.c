@@ -122,31 +122,42 @@ int send_cmd(int type, ...)
 			
 			timevalue = time(NULL);
 						
-			log = fopen(conf->logfile,"a");
 			active = fopen(conf->statefile,"w");
-			fprintf(log,"%.24s",ctime(&timevalue));
-			fprintf(log," %s\n",filename);
-			fprintf(active,"%s\n",filename);
-			fclose(log);
-			fclose(active);
+			if (active) {
+				fprintf(active,"%s\n",filename);
+				fclose(active);
+			}
+			log = fopen(conf->logfile,"a");
+			if (active) {
+				fprintf(log,"%.24s",ctime(&timevalue));
+				fprintf(log," %s\n",filename);
+				fclose(log);
+			}
 			
 			break;
 		case STOP:
 			write(fd, "STOP\n", 5);
 			timevalue = time(NULL);
 						
-			log = fopen(conf->logfile,"a");
-			fprintf(log," STOP\n");
-			fclose(log);
+/*			log = fopen(conf->logfile,"a");
+			if (log) {
+				fprintf(log," STOP\n");
+				fclose(log);
+				}
+*/
 			active = fopen(conf->statefile,"w");
-			fprintf(active,"%s","         \n");
-			fclose(active);
+			if (active) {
+				fprintf(active,"%s","                      \n");
+				fclose(active);
+				}
 			break;
 		case PAUSE:
 			write(fd, "PAUSE\n", 6);
 			active = fopen(conf->statefile,"w");
-			fprintf(active,"%s","         * Pause *    \n");
-			fclose(active);
+			if (active) {
+				fprintf(active,"%s","         * Pause *    \n");
+				fclose(active);
+				}
 			break;
 		case JUMP:
 			va_start(args, type);

@@ -1,61 +1,65 @@
-# Configuration file for Matt's MP3 Selector
+# Configuration file for the MP3 Jukebox System
 
-#
 # mpgpath: path to mpg123
+set mpgpath			/usr/local/bin/mpg123
 
 # mp3dir: path to the base mp3 directory
+set mp3dir			/pub/mp3
 
 # logfile: path to the file in which to save played mp3 titles
+set logfile			/var/log/mp3log
 
 # statefile: path to the file in which to save te playing mp3 title
+set statefile			/var/state/mp3active
 
 # resultsfile: path to the file we grab our searchresults from
+set resultsfile			/tmp/findresults
 
 # playlistpath: path to the directory where we save our playlists
+set playlistpath		/pub/mp3/- Playlists
 
 # output_device: desired output device e.g. /dev/dsp or /dev/dsp1
-
-# playlist_advance: advance the playlist selection after adding a file?
-
-# file_advance: advance the file selection after selecting a file?
-
-# mono_output: Let mpg123 produce single channel (mono) output only.
-# show_playlist_length: Let mpg123 show not only the remaining time per
-# track but also to the end of the playlist (not really accurate yet)
-
-# alternative_scrolling: move the list instead of the selector
-
-# allow_playlist_saving: Allow saving of the playlist to a file
+set output_device		/dev/dsp
 
 # buffer: size of the buffer mpg123 uses (integer, in kb)
 # NOTE -- When using the buffer, mpg123 spawns a child process to buffer
 # itself. It seems to have some difficulties cleaning up this child when we
 # are trying to exit ourselves. Use at your own risk, and be sure to kill
 # off any orphan mpg123's because they go berserk on your cpu.
+set buffer			4000
 
 # jump: how many frames to jump with +/-
+set jump			100
+
+# playlist_advance: advance the playlist selection after adding a file?
+set playlist_advance		false
+
+# file_advance: advance the file selection after selecting a file?
+set file_advance		true
 
 # loop: loop over the playlist when we get to the end?
- 
-
-
-set mpgpath			/usr/local/bin/mpg123
-set mp3dir			/pub/mp3
-set logfile			/var/log/mp3log
-set statefile			/var/state/mp3active
-set resultsfile			/tmp/findresults
-set playlistpath		/pub/mp3/- Playlists
-set output_device		/dev/dsp
-set buffer			4000
-set jump			100
-set playlist_advance		false
-set file_advance		true
 set loop			false
+
+# playlist_to_files: Open playlists directly in the
+# playlist window, instead of browsing them as a directory
 set playlists_to_files		false
+
+# mono_output: Let mpg123 produce single channel (mono) output only.
+# show_playlist_length: Let mpg123 show not only the remaining time per
+# track but also to the end of the playlist (not really accurate yet)
 set mono_output			false
+
+# alternative_scrolling: move the list instead of the selector
 set alternative_scrolling	false
+
+# allow_playlist_saving: Allow saving of the playlist to a file
 set allow_playlist_saving	true
+
+# Show tracknumbers in the playlist window
 set show_track_numbers		false
+
+# Fix the ugly borders in xterm's (true/false/auto)
+set fix_window_borders		auto
 
 #
 # Colors
@@ -92,11 +96,7 @@ color menu_text		white:grey
 # %f - filename
 # %F - complete filename, incl path
 # %p - the path
-# %m - how many minutes?
-# %s - "remainder" seconds (fraction of minutes)
-# %S - total length in seconds
-# %T - time in format [%m:%s]
-# %g - genre
+# %P - the path without the mp3path part
 # %% - like with printf, insert a %
 #
 # + - * / operators are ok. Use 'w' and 'h' for screen width and height.
@@ -116,20 +116,24 @@ files y		0
 files x		0
 files format	%t
 files title.default MP3  Files
+files title.format %P
+
 # info window
 info height	5
 info width	0
 info y		3
 info x		w/2
 info title.default MP3 Info
+
 # playlist window
-play height	h-8
+play height	h-9
 play width	0
-play y		7
+play y		8
 play x		w/2
-play format	%t %T
+play format	%t 
 play title.default Playlist
 play title.format Playlist
+
 # the playback window
 playback height	3
 playback width	0
@@ -137,6 +141,7 @@ playback y	0
 playback x	w/2
 playback title.default Playback Info
 playback title.format %t
+
 # "menubar"
 menubar height	1
 menubar width	w

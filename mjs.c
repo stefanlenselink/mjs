@@ -709,14 +709,13 @@ show_playinfo(mpgreturn *message)
 	secleft = message->remaining - minleft*60;
 	minused = (int)message->elapsed / 60;
 	secused = message->elapsed - minused*60;
-	my_mvwnprintw2(playback->win, 1, 2, colors[UNSELECTED], 20,
-			"Time: %02d:%02.0f / %02d:%02.0f", minused, secused, minleft, secleft);
+	my_mvwnprintw2(playback->win, 1, 1, colors[UNSELECTED], 21,
+			" Time: %02d:%02.0f / %02d:%02.0f", minused, secused, minleft, secleft);
 			
 	if (active->inputline) {
 		Input *inputline = active->inputline;
 		wmove(inputline->win, inputline->y, inputline->fpos+inputline->plen);
 	}
-	top_panel(playback->panel);
 	update_panels();
 	doupdate();
 }
@@ -724,8 +723,9 @@ show_playinfo(mpgreturn *message)
 __inline__ void
 clear_play_info(void)
 {
-	my_mvwnclear(playback->win, 1, 2, playback->width-3);
+	my_mvwnclear(playback->win, 1, 1, playback->width-2);
 	update_panels();
+	doupdate();
 }
 
 int
@@ -742,5 +742,6 @@ static void init_info(void)
 	my_mvwaddstr(win, 2, 2, colors[UNSELECTED], "Artist:");
 	my_mvwaddstr(win, 3, 2, colors[UNSELECTED], "Album :");
 	update_panels();
+	doupdate();
 }
 

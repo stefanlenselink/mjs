@@ -44,15 +44,15 @@ start_mpg_child(void)
 				memset(buf, 0, sizeof(buf));
 				snprintf(buf, 127, "%d", conf->buffer);
 				if (conf->c_flags & C_MONO)
-					execlp(conf->mpgpath, "mpg123", "-m", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
+					execlp(conf->mpgpath, "mjs-output", "-m", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
 				else 
-					execlp(conf->mpgpath, "mpg123", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
+					execlp(conf->mpgpath, "mjs-output", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
 						
 			} else
 				if (conf->c_flags & C_MONO)
-					execlp(conf->mpgpath, "mpg123", "-m", "-a", conf->output, "-R", "-", (char *)NULL);
+					execlp(conf->mpgpath, "mjs-output", "-m", "-a", conf->output, "-R", "-", (char *)NULL);
 				else
-					execlp(conf->mpgpath, "mpg123", "-a", conf->output, "-R", "-", (char *)NULL);
+					execlp(conf->mpgpath, "mjs-output", "-a", conf->output, "-R", "-", (char *)NULL);
 		default:
 			handler.sa_handler = (SIGHANDLER) restart_mpg_child;
 			handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;

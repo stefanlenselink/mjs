@@ -175,8 +175,9 @@ __inline__ void
 my_mvwnclear(WINDOW *win, int y, int x, int n)
 {
 	wmove(win, y, x);
-	for (; n > 0; n--)
+	for (; n > 0; n--) {
 		waddch(win, ' ');
+	}
 	wmove(win, y, x);
 }
 

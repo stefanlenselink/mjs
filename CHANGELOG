@@ -1,4 +1,7 @@
 mjs 2.9.10
+ * Code cleanups
+ * Minor change to config-file format (background colors)
+ * Background color use fixed
  * Fixed color configuration (Bug has lived a long time unnoticed...)
 mjs 2.9.9
  * Code Cleanups

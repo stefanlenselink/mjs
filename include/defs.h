@@ -8,6 +8,8 @@
 #define BUFFER_SIZE	1024
 #define BIG_BUFFER_SIZE	4096
 
+#define SHUFFLE "Shuffle Playlist ? (y/n)"
+
 /* defines for the mpg123 controller */
 
 #define MPGPATH		"mpg123"

@@ -12,8 +12,9 @@ int	 update_title(Window *);
 void	 change_active(Window *);
 int	 active_win(Window *);
 int	 inactive_win(Window *);
-int	 std_bottom_line(Window *);
-int	 clear_bottom_line(Window *);
+int	 std_menubar(Window *);
+__inline__ void	 printf_menubar(Window *, char *);
+int	 clear_menubar(Window *);
 void	 do_scrollbar(Window *);
 
 #endif /* _window_h */

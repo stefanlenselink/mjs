@@ -106,7 +106,6 @@ typedef struct _config {
 #define C_LOOP     	0x0008
 #define C_P_TO_F 	0x0010
 #define C_MONO	   	0x0004
-#define C_SHOW_P_LENGTH	0x0020
 #define C_ALT_SCROLL	0x0040
 #define	C_ALLOW_P_SAVE	0x0080
 #define C_TRACK_NUMBERS 0x0100

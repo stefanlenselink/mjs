@@ -1,0 +1,40 @@
+Loosely pieced together... read_key() is where this stuff is from...
+
+********** NOTE ***********
+If you core due to some lame bug, you may need to kill the mpg123
+child process. It goes berzerk if you orphan it.
+********** NOTE ***********
+
+Customization:
+
+Edit colors.h and replace it with the colors you want. Of course if you
+don't love my default color scheme then you suck. Be careful though, you
+could start messing up the bit fields if you dont follow the instructions.
+Later on, this will be turned into a config file parsed at runtime (and
+checked for errors to avoid user screwups).
+
+Navigation:
+
+TAB cycles between active windows.
+ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
+Pressing 'q' will quit.
+F1 or 'l' will allow you to load a playlist. It overwrites the current playlist.
+F2 will save the current playlist to a file.
+ * in ALL windows:
+   * 'f' OR the right arrow key will advance one song
+   * 'b' OR the left arrow key will go back one song
+   * 's' will stop the player
+   * 'p' will pause the player
+   * '+' will jump forward 1000 frames
+   * '-' will jump backward 1000 frames
+ * in the files window:
+   * \r is your friend. it adds files to the playlist and changes directories.
+   * 'r' will rescan the current dir.
+ * in the info window:
+   * 'r' will randomize the playlist.
+ * in the playlist window is where the good stuff goes on:
+   * press enter on a song to play that one. when it finishes, the player
+     will advance to the next one until it comes to the end or encounters
+     an error in one of the mp3s (or mpg123 dies :)
+   * DEL will remove a song from the playlist (unless it is playing!)
+   * 'r' will randomize the playlist

@@ -1,0 +1,50 @@
+Matt's MP3 Selector (mms)
+
+Copyright (C) 1999 by Wesley Morgan.
+
+This program is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation; version 2 of the License.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+Place, Suite 330, Boston, MA 02111-1307 USA.
+
+-------------------------------
+
+I am entirely disappointed with most of the console mpg123 frontends I have
+seen, and because I already had my own weird format for indexing filename to
+artist/title instead of the lame space-padded ID3 tags. But being the Linux
+geek that I am, what is the only reasonable solution? Do it yourself! So
+after a bit of hacking around, here is v0.8 of Matt's MP3 Selector (mms).
+Feedback, bug reports, compaints etc to morganw@engr.sc.edu...
+
+Piss poor documentation is available in the INSTRUCTIONS file.
+
+PS - xmms is ripping off my name! I have witnesses!
+
+PPS - I'm lazy. I require constant badgering to get anything done.
+
+BUGS / ANNOYANCES:
+
+1. If a file is NOT an mp3 file and it has a .mp3 extension, we core.
+2. Doesn't remove non-existant files from the playlist/file list (doesnt even
+   notice). Trivial fix, just havent quite got around to it yet =)
+3. Screen flicker during scroll... Whats up wif dat!
+
+TODO:
+
+1. Support for editing and updating ID3 tags ?
+2. A better way for reading ID3 tags and determining song length?
+3. Make it work properly with stupid people's terminals (ie not 80x25)
+   (fixed?)
+4. Figure out why colors arent always the same on terminals (pana your term
+   is screwed).
+5. _maybe_ change everything to use ncurses panels so you can drag the
+   windows around and stuff.
+6. Add gpm support? (and moused?)

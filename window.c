@@ -221,8 +221,10 @@ active_win(Window *window)
 	PANEL *panel = window->panel;
 
 	int i, x, y;
-//	wborder(win, 'º', 'º', 'Í', 'Í', 'É', '»', 'È', '¼');
-	wborder(win, 0, 0, '=', '=', 0, 0, 0, 0);
+	if (conf->c_flags & C_FIX_BORDERS)
+		wborder(win, 0, 0, '=', '=', 0, 0, 0, 0);
+	else
+		wborder(win, 'º', 'º', 'Í', 'Í', 'É', '»', 'È', '¼');
 	getmaxyx(win, y, x);
 	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
 	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
@@ -294,9 +296,12 @@ update_title(Window *window)
 	u_int32_t color = colors[INACTIVE];
 	int i = 0, left, right, center, x = window->width-2;
 
-	if (window->flags & W_ACTIVE)
-//		horiz = 'Í', color = colors[ACTIVE];
-		horiz = '=', color = colors[ACTIVE];
+	if (window->flags & W_ACTIVE) {
+		if (conf->c_flags & C_FIX_BORDERS)
+			horiz = '=', color = colors[ACTIVE];
+		else
+			horiz = 'Í', color = colors[ACTIVE];
+	}
 
 	memset(title, 0, sizeof(title));
 	p = parse_title(window, title, BUFFER_SIZE);

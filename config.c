@@ -14,7 +14,7 @@
 #include "config.h"
 
 #define COMMENT '#'
-#define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1')
+#define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1' || s[0] == 'Y' || s[0] == 'T')
 
 static Config *set_option (Config *, char *, char *);
 static u_int32_t merge_colors (u_int32_t, u_int32_t);
@@ -103,6 +103,7 @@ read_config (Config * conf)
 static Config *
 set_option (Config * conf, char *option, char *value)
 {
+	char *p;
 	if (!strcasecmp (option, "mpgpath"))
 		strncpy (conf->mpgpath, value, sizeof (conf->mpgpath) - 1);
 	else if (!strcasecmp (option, "mp3dir")) {
@@ -135,6 +136,23 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_ALLOW_P_SAVE;
 	else if (!strcasecmp (option, "show_track_numbers"))
 		conf->c_flags |= YESNO (value) * C_TRACK_NUMBERS;
+	else if (!strcasecmp (option, "fix_window_borders"))
+	{
+		switch (value[0]) {
+			case 'A' :
+			case 'a' :
+				if ((p = getenv ("TERM")))
+					if (!strcasecmp(p,"xterm"))
+						conf->c_flags |= C_FIX_BORDERS;
+				break;
+			case 'Y' :
+			case 'y' :
+			case 'T' :
+			case 't' :
+				conf->c_flags |= C_FIX_BORDERS;
+				break;
+		}
+	}
 	else if (!strcasecmp (option, "buffer"))
 	{
 		errno = 0;

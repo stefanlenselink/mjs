@@ -4,17 +4,17 @@
 #include "proto.h"
 #include "info.h"
 
-static unsigned char _buffer[32];
+static u_char _buffer[32];
 static int _bptr = 0;
 
-static inline int _fillbfr (int, unsigned int);
+static inline int _fillbfr (int, u_int);
 static inline int gethdr (int, AUDIO_HEADER *);
 static inline int readsync (int);
-static inline unsigned int _getbits (int);
+static inline u_int _getbits (int);
 static inline void parse_header (AUDIO_HEADER *) ;
 
 static inline int
-_fillbfr(int file, unsigned int size)
+_fillbfr(int file, u_int size)
 {
 	_bptr=0;
 	if (read(file, _buffer, size) != size)
@@ -35,10 +35,10 @@ readsync(int file)
 }
 
 
-static inline unsigned int
+static inline u_int
 _getbits(int n)
 {
-	unsigned int pos,ret_value;
+	u_int pos,ret_value;
 
 	pos = _bptr >> 3;
 	ret_value = _buffer[pos] << 24 |
@@ -77,13 +77,16 @@ parse_header(AUDIO_HEADER *header)
 static inline int
 gethdr(int file, AUDIO_HEADER *header)
 {
-	int retval;
+	int retval, loop = 0;
 
 	if ((retval=_fillbfr(file, 4))!=0) return retval;
 
 	while (_getbits(11) != 0x7ff) {
 		if ((retval=readsync(file))!=0) 
 			return retval;
+		if (loop > 5000)
+			return -1;	
+		loop++;
 	}
 	parse_header(header);
 	return 1;
@@ -93,7 +96,7 @@ flist *
 mp3_info(char *filename, u_int32_t size)
 {
 	flist *file = NULL;
-	unsigned long framesize = 0;
+	u_int32_t framesize = 0;
 	double totalframes = 0;
 	short t_bitrate[2][3][15] = {{
 		{0,32,48,56,64,80,96,112,128,144,160,176,192,224,256},
@@ -115,7 +118,7 @@ mp3_info(char *filename, u_int32_t size)
 	};
 
 	AUDIO_HEADER header;
-	unsigned long btr = 0;
+	u_int32_t btr = 0;
 	int fd = -1;
 	ID3tag tmp;
 	char *s;
@@ -139,10 +142,10 @@ mp3_info(char *filename, u_int32_t size)
 	close(fd);
 	if (!strncmp("TAG", tmp.tag, 3)) {
 		s = tmp.title + 29;
-		while (isspace(*s))
+		while (!isalnum(*s))
 			*s-- = '\0';
 		s = tmp.artist + 29;
-		while (isspace(*s))
+		while (!isalnum(*s))
 			*s-- = '\0';
 		file->title = (char *)calloc(1, 31);
 		strncpy(file->title, tmp.title, 30);

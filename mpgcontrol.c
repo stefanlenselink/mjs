@@ -10,6 +10,8 @@ int send_cmd (int fd, int type, ...)
 	va_list args;
 	
 	memset(buf, 0, 512);
+	if (fd < 0)
+		return 0;
 	switch (type) {
 		case QUIT:
 			write(fd, "QUIT\n", 5);

@@ -37,6 +37,7 @@ typedef struct _flist {
 	time_t length;
 	char *filename;
 	char *path;
+	char *fullpath;
 	char *title;
 	char *artist;
 	struct _flist *next;
@@ -55,6 +56,7 @@ typedef struct {
 
 typedef struct _input {
 	WINDOW *win;                       /* What window is the inputline in?     */
+	PANEL *panel;                      /* The panel...                         */
 	int len;                           /* Length of input buffer               */
 	int plen;                          /* Length of the input prompt           */
 	int pos;                           /* Cursor position inside input buffer  */
@@ -71,13 +73,16 @@ typedef struct _input {
 
 typedef struct _win {
 	WINDOW *win;                       /* the actual ncurses window            */
+	PANEL *panel;                      /* the panel, duh                       */
+	int width;                         /* window/panel width                   */
+	int height;                        /* window/panel height                  */
+	int x;                             /* x-coord of upper-left corner         */
+	int y;                             /* y-coord of upper-left corner         */
 	Input *inputline;                  /* the input stuff                      */
 	int (*input) (struct _win *);      /* Function to parse input              */
 	int (*update) (struct _win *);     /* Updates the window                   */
-	void (*activate)
-		(WINDOW *, const u_char *);      /* activate this window                 */
- 	void (*deactivate)
- 		(WINDOW *, const u_char *);      /* deactivate the window                */
+	void (*activate) (struct _win *);  /* activate this window                 */
+ 	void (*deactivate) (struct _win *);/* deactivate the window                */
 	short int flags;                   /* various info about the window        */
 	union {
 		wlist *list;                     /* if the window has contents, use this */

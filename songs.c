@@ -48,9 +48,10 @@ wlist *
 read_playlist (wlist *plist, const char *file)
 {
 	FILE *fp;
-	flist *ftmp = NULL, *last = NULL;
+	flist *ftmp = NULL, *first = NULL, *last = NULL;
 	wlist *playlist = plist;
 	char buf[1025];
+	struct stat sb;
 
 	if (!plist)
 		return plist;
@@ -61,41 +62,38 @@ read_playlist (wlist *plist, const char *file)
 
 	if (playlist->head && pid)
 		stop_player(playlist);
-	memset(buf, 0, sizeof(buf));
-	if (!fgets(buf, 1025, fp)) {
-		fclose(fp);
-		free(plist);
-		return playlist;
-	}
-	last = (flist *)calloc(1, sizeof(flist));
-	if (!(plist->head = plist->top = plist->selected = parse_playlist_line(last, buf)))
-		free_flist(last);
-	else {
-		plist->length++;
-		last->flags |= F_SELECTED;
-	}
+
+	first = ftmp = (flist *)calloc(1, sizeof(flist));
+	
 	while (!feof(fp)) {
-		memset(buf, 0, sizeof(buf));
-		if (!fgets(buf, 1025, fp))
+		if (!fgets(buf, sizeof(buf), fp))
 			break;
-		ftmp = (flist *)calloc(1, sizeof(flist));
-		if (!(parse_playlist_line(ftmp, buf))) {
+		if (!ftmp)
+			ftmp = (flist *)calloc(1, sizeof(flist));
+		if (!(parse_playlist_line(ftmp, buf)) || (stat(ftmp->fullpath, &sb) != 0)) {
 			free_flist(ftmp);
 			continue;
 		}
 		ftmp->prev = last;
-		last->next = ftmp;
+		if (last)
+			last->next = ftmp;
 		last = ftmp;
 		plist->length++;
+		ftmp = NULL;
 	}
-	plist->tail = ftmp;
 	fclose(fp);
+	plist->tail = last;
+	if (first->filename) {
+		plist->head = plist->selected = plist->top = first;
+		first->flags |= F_SELECTED;
+	} else
+		free(first);
 	if (plist->length > 0) {
 		free_playlist(playlist);
 		playlist = plist;
+		playlist->where = 1;
 	} else
 		free(plist);
-	playlist->where = 1;
 	return playlist;
 }
 
@@ -112,6 +110,7 @@ parse_playlist_line (flist *file, char *line)
 	if (!(s = strchr(line, ':')))
 		return NULL;
 	*s++ = '\0';
+	file->fullpath = strdup(p);
 	if (!(p = strrchr(p, '/')))
 		return NULL;
 	*p++ = '\0';
@@ -166,23 +165,5 @@ free_flist (flist *file)
 	free(file->path);
 	free(file->title);
 	free(file->artist);
-	free(file);
-}
-
-int
-write_playlist (wlist *playlist, const char *file)
-{
-	FILE *fp;
-	flist *ftmp;
-	
-	if (!playlist || !playlist->head)
-		return 0;
-	if (!(fp = fopen(file, "w")))
-		return 0;
-	
-	for (ftmp = playlist->head; ftmp; ftmp = ftmp->next)
-		fprintf(fp, "%s/%s:%s:%s:%ld:%d:%d\n", ftmp->path, ftmp->filename,
-			ftmp->artist?:"", ftmp->title?:"", (long int)ftmp->length, ftmp->bitrate, ftmp->frequency);
-	fclose(fp);
-	return 1;
+	memset(file, 0, sizeof(flist));
 }

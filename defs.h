@@ -23,14 +23,19 @@
 
 /* defines for the mpg123 controller */
 
-/* Set this to the right path! */
-/* #define MPGPATH "/usr/local/bin/mpg123" */
+#define MPGPATH "mpg123"
 
-#define QUIT 1
-#define LOAD 2
-#define STOP 3
+#ifdef GPM_SUPPORT
+#define WGETCH Gpm_Wgetch
+#else
+#define WGETCH wgetch
+#endif
+
+#define QUIT  1
+#define LOAD  2
+#define STOP  3
 #define PAUSE 4
-#define JUMP 5
+#define JUMP  5
 
 #if defined __GLIBC__ && __GLIBC__ >= 2
 #define SIGHANDLER sighandler_t
@@ -38,6 +43,20 @@
 #define SIGHANDLER void *
 #endif
 
-#ifndef MPGPATH
-#error "define MPGPATH in defs.h!"
-#endif
+/* defines for the color array */
+
+#define ACTIVE      0
+#define INACTIVE    1
+#define SELECTED    2
+#define UNSELECTED  3
+#define TITLE       4
+#define SCROLL      5
+#define SCROLLBAR   6
+#define PLAYING     7
+#define SEL_PLAYING 8
+#define FILE_BACK   9
+#define INFO_BACK   10
+#define PLAY_BACK   11
+#define MENU_BACK   12
+#define MENU_TEXT   13
+#define ARROWS      14

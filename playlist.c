@@ -12,12 +12,87 @@ play_next_song (void)
 	if (!ftmp)
 		return;
 
-	if (!jump_to_song(ftmp->next)) {
+	ftmp->flags &= ~F_PLAY;
+	if (loop && !ftmp->next)
+		ftmp = play->contents.list->head;
+	else
+		ftmp = ftmp->next;
+	if (!jump_to_song(ftmp)) {
 		info->contents.play = NULL;
 		play->contents.list->playing = NULL;
-		ftmp->flags &= ~F_PLAY;
+		play->update(play);
+		doupdate();
+	}
+}
+
+wlist *
+jump_forward (wlist *playlist)
+{
+	flist *ftmp = info->contents.play;
+
+	if (!ftmp)
+		return playlist;
+	ftmp->flags &= ~F_PLAY;
+	if (loop && !ftmp->next)
+		ftmp = play->contents.list->head;
+	else
+		ftmp = ftmp->next;
+	if (!jump_to_song(ftmp)) {
+		stop_player(playlist);
+    info->contents.play = NULL;
+		play->contents.list->playing = NULL;
 		play->update(play);
 	}
+	return playlist;
+}
+
+wlist *
+jump_backward (wlist *playlist)
+{
+	flist *ftmp = info->contents.play;
+
+	if (!ftmp)
+		return playlist;
+	ftmp->flags &= ~F_PLAY;
+	if (loop && !ftmp->prev)
+		ftmp = play->contents.list->tail;
+	else
+		ftmp = ftmp->prev;
+	if (!jump_to_song(ftmp)) {
+		stop_player(playlist);
+		info->contents.play = NULL;
+		play->contents.list->playing = NULL;
+		show_list(play);
+	}
+	return playlist;
+}
+
+int
+jump_to_song(flist *selected)
+{
+	char buf[BIG_BUFFER_SIZE+1];
+	wlist *playlist = play->contents.list;
+	
+	if (!playlist || !selected)
+		return 0;
+	
+	if (info->contents.play)
+		info->contents.play->flags &= ~F_PLAY;
+
+	memset(buf, 0, sizeof(buf));
+	snprintf(buf, BIG_BUFFER_SIZE, "%s/%s", selected->path, selected->filename);
+	send_cmd(inpipe[1], LOAD, buf);
+	clear_play_info(info->win);
+	p_status = 1;
+	selected->flags |= F_PLAY;
+	playlist->playing = selected;
+	info->contents.play = selected;
+	if (active == info)
+		info->update(info);
+	play->update(play);
+	
+	doupdate();
+	return 1;
 }
 
 wlist *
@@ -47,48 +122,13 @@ pause_player (wlist *playlist)
 	return playlist;
 }
 
-wlist *
-jump_forward (wlist *playlist)
-{
-	flist *ftmp = info->contents.play;
-
-	if (!ftmp)
-		return playlist;
-	if (!jump_to_song(ftmp->next)) {
-		stop_player(playlist);
-		ftmp->flags &= ~F_PLAY;
-    info->contents.play = NULL;
-		play->contents.list->playing = NULL;
-		play->update(play);
-	}
-	return playlist;
-}
-
-wlist *
-jump_backward (wlist *playlist)
-{
-	flist *ftmp = info->contents.play;
-
-	if (!ftmp)
-		return playlist;
-	if (!jump_to_song(ftmp->prev)) {
-		stop_player(playlist);
-		ftmp->flags &= ~F_PLAY;
-		info->contents.play = NULL;
-		play->contents.list->playing = NULL;
-		show_list(play);
-	}
-	return playlist;
-}
-
 flist *
-delete_selected (wlist *playlist)
+delete_selected (wlist *playlist, flist *selected)
 {
-	flist *fnext, *fprev, *selected, *ftmp;
+	flist *fnext, *fprev, *ftmp;
 	int i, maxx, maxy;
 	if (!playlist)
 		return NULL;
-	selected = playlist->selected;
 	getmaxyx(play->win, maxy, maxx);
 	maxy -= 3;
 	if (!selected)
@@ -195,9 +235,6 @@ add_to_playlist (wlist *playlist, flist *file)
 	newfile = calloc(1, sizeof(flist));
 	if (!ftmp)
 		playlist->head = playlist->top = newfile;
-	else
-		playlist->selected->flags &= ~F_SELECTED;
-	playlist->selected = newfile;
 	newfile->filename = strdup(file->filename);
 	newfile->path = strdup(file->path);
 	newfile->length = file->length;
@@ -207,21 +244,92 @@ add_to_playlist (wlist *playlist, flist *file)
 		newfile->title = strdup(file->title);
 	if (file->artist)
 		newfile->artist = strdup(file->artist);
-	if (ftmp)
+	if (ftmp) {
 		ftmp->next = newfile;
-	playlist->where = ++playlist->length;
-	newfile->flags |= F_SELECTED;
-	newfile->prev = ftmp;
-	newfile->next = NULL;
-	newfile->flags &= ~F_PLAY;
+		newfile->prev = ftmp;
+	}
 	playlist->tail = newfile;
-	if (playlist->length < maxx)
-		return playlist;
-	/* this is inefficient, we could "store" more data about the list, but
-	 * who really cares. :) */
-	for (ftmp = newfile; ftmp && i < maxy; i++, ftmp = ftmp->prev)
-		if (ftmp == playlist->top)
+	if (!playlist->selected) {
+		playlist->selected = newfile;
+		newfile->flags |= F_SELECTED;
+		playlist->where = 1;
+	}
+	if (sel_advance) {
+		playlist->selected->flags &= ~F_SELECTED; /* could be a wasted dupe */
+		playlist->selected = newfile;
+		playlist->where = ++playlist->length;
+		newfile->flags |= F_SELECTED;
+		if (playlist->length < maxx)
 			return playlist;
-	playlist->top = ftmp;
+		/* this is inefficient, we could "store" more data about the list, but
+		 * who really cares. :) */
+		for (ftmp = newfile; ftmp && i < maxy; i++, ftmp = ftmp->prev)
+			if (ftmp == playlist->top)
+				return playlist;
+		playlist->top = ftmp;
+	} else
+		++playlist->length;
 	return playlist;
+}
+
+int
+do_read_playlist(Input *input)
+{
+	extern Input *inputline;
+	wmove(menubar->win, 0, 0);
+	wbkgd(menubar->win, colors[MENU_BACK]);
+	wclrtoeol(menubar->win);
+	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
+	play->contents.list = read_playlist(play->contents.list, inputline->buf);
+	if (play->contents.list->head) {
+		info->contents.play = play->contents.list->selected;
+		active->deactivate(active);
+		active->flags &= ~W_ACTIVE;
+		active->update(active);
+		play->activate((active = play));
+		active->flags |= W_ACTIVE;
+		play->update(play);
+		info->update(info);
+	}
+	free(inputline);
+	inputline = NULL;
+	curs_set(0);
+	update_panels();
+	doupdate();
+	return 1;
+}
+
+int
+do_save_playlist(Input *input)
+{
+	extern Input *inputline;
+	wmove(menubar->win, 0, 0);
+	wbkgd(menubar->win, colors[MENU_BACK]);
+	wclrtoeol(menubar->win);
+	my_mvwaddstr(menubar->win, 0, 28, colors[MENU_TEXT], version_str);
+	write_playlist(play->contents.list, inputline->buf);
+	free(inputline);
+	inputline = NULL;
+	curs_set(0);
+	update_panels();
+	doupdate();
+	return 1;
+}
+
+int
+write_playlist (wlist *playlist, const char *file)
+{
+	FILE *fp;
+	flist *ftmp;
+	
+	if (!playlist || !playlist->head)
+		return 0;
+	if (!(fp = fopen(file, "w")))
+		return 0;
+	
+	for (ftmp = playlist->head; ftmp; ftmp = ftmp->next)
+		fprintf(fp, "%s/%s:%s:%s:%ld:%d:%d\n", ftmp->path, ftmp->filename,
+			ftmp->artist?:"", ftmp->title?:"", (long int)ftmp->length, ftmp->bitrate, ftmp->frequency);
+	fclose(fp);
+	return 1;
 }

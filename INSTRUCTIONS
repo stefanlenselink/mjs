@@ -7,11 +7,15 @@ child process. It goes berzerk if you orphan it.
 
 Customization:
 
-Edit colors.h and replace it with the colors you want. Of course if you
-don't love my default color scheme then you suck. Be careful though, you
-could start messing up the bit fields if you dont follow the instructions.
-Later on, this will be turned into a config file parsed at runtime (and
-checked for errors to avoid user screwups).
+Thanks to Trent Gamblin, you now have the option of an MMS rc file. Either
+create your own .mmsrc or set the env variable MMSRC. An example
+configuration file is provided, see "mmsrc".
+
+Mouse Support (Linux only):
+
+Also contributed by Trent Gamblin, support for GPM. I assume it works, I
+haven't checked it out in Linux yet. I'll work in mouse support for FreeBSD
+soon.
 
 Navigation:
 
@@ -27,6 +31,8 @@ F2 will save the current playlist to a file.
    * 'p' will pause the player
    * '+' will jump forward 1000 frames
    * '-' will jump backward 1000 frames
+ * in the files window or playlist window:
+   * 'e' will edit the ID3 tag of the selected mp3
  * in the files window:
    * \r is your friend. it adds files to the playlist and changes directories.
    * 'r' will rescan the current dir.
@@ -38,3 +44,11 @@ F2 will save the current playlist to a file.
      an error in one of the mp3s (or mpg123 dies :)
    * DEL will remove a song from the playlist (unless it is playing!)
    * 'r' will randomize the playlist
+
+Mouse:
+ * left clicking on an mp3 in the files or playlist window will select it.
+   if in the files window, left clicking again will add it to the playlist.
+   if in the playlist window, left clicking again will play it.
+ * left clicking the '<' and '>' arrows will move the selection bar up and
+   down.
+ * right clicking an mp3 in the playlist deletes it from the playlist.

@@ -12,3 +12,8 @@
 #include <errno.h>
 #include <ctype.h>
 #include <ncurses.h>
+#include <panel.h>
+
+#ifdef GPM_SUPPORT
+#include <gpm.h>
+#endif

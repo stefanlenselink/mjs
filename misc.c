@@ -3,6 +3,7 @@
 #include "colors.h"
 #include "struct.h"
 #include "proto.h"
+#include "extern.h"
 
 /*
  * There are 64 possible color_pairs, 0-63. This is 6 bits worth of colors,
@@ -27,11 +28,11 @@ init_ansi_pair (void)
 }	
 
 int
-my_mvwprintw (WINDOW *win, int y, int x, u_int32_t attribs, const unsigned char *format, ...)
+my_mvwprintw (WINDOW *win, int y, int x, u_int32_t attribs, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
-	unsigned char buf[BUFFER_SIZE+1], *p;
+	u_char buf[BUFFER_SIZE+1], *p;
 	memset(buf, 0, BUFFER_SIZE+1);
 	va_start(args, format);
 	i = vsnprintf(buf, BUFFER_SIZE, format, args);
@@ -44,11 +45,11 @@ my_mvwprintw (WINDOW *win, int y, int x, u_int32_t attribs, const unsigned char 
 }
 
 int
-my_wprintw (WINDOW *win, u_int32_t attribs, const unsigned char *format, ...)
+my_wprintw (WINDOW *win, u_int32_t attribs, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
-	unsigned char buf[BUFFER_SIZE+1], *p;
+	u_char buf[BUFFER_SIZE+1], *p;
 	memset(buf, 0, BUFFER_SIZE+1);
 	va_start(args, format);
 	i = vsnprintf(buf, BUFFER_SIZE, format, args);
@@ -60,11 +61,11 @@ my_wprintw (WINDOW *win, u_int32_t attribs, const unsigned char *format, ...)
 }
 
 int
-my_mvwnprintw (WINDOW *win, int y, int x, u_int32_t attribs, int n, const unsigned char *format, ...)
+my_mvwnprintw (WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
-	unsigned char buf[n+1], *p;
+	u_char buf[n+1], *p;
 	memset(buf, 0, n+1);
 	va_start(args, format);
 	i = vsnprintf(buf, n, format, args);
@@ -77,11 +78,11 @@ my_mvwnprintw (WINDOW *win, int y, int x, u_int32_t attribs, int n, const unsign
 }
 
 int
-my_mvwnprintw2 (WINDOW *win, int y, int x, u_int32_t attribs, int n, const unsigned char *format, ...)
+my_mvwnprintw2 (WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
-	unsigned char buf[n+1], *p;
+	u_char buf[n+1], *p;
 	memset(buf, 0, n+1);
 	va_start(args, format);
 	i = vsnprintf(buf, n, format, args);
@@ -100,11 +101,11 @@ my_mvwnprintw2 (WINDOW *win, int y, int x, u_int32_t attribs, int n, const unsig
 }
 
 int
-my_wnprintw (WINDOW *win, u_int32_t attribs, int n, const unsigned char *format, ...)
+my_wnprintw (WINDOW *win, u_int32_t attribs, int n, const u_char *format, ...)
 {
 	u_int16_t i;
 	va_list args;
-	unsigned char buf[n+1], *p;
+	u_char buf[n+1], *p;
 	memset(buf, 0, n+1);
 	va_start(args, format);
 	i = vsnprintf(buf, n, format, args);
@@ -116,9 +117,9 @@ my_wnprintw (WINDOW *win, u_int32_t attribs, int n, const unsigned char *format,
 }
 
 int
-my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const unsigned char *str)
+my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_char *str)
 {
-	unsigned char *s = NULL;
+	u_char *s = NULL;
 
 	wmove(win, y, x);
 	if (str && *str)
@@ -130,9 +131,9 @@ my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const unsi
 }
 
 int
-my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const unsigned char *str)
+my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
 {
-	unsigned char *s = NULL;
+	u_char *s = NULL;
 
 	if (str && *str)
 		for (s = (char *)str; *s && n; n--)
@@ -143,55 +144,61 @@ my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const unsigned char *str)
 }
 
 int
-my_waddstr(WINDOW *win, u_int32_t attribs, const unsigned char *str)
+my_waddstr(WINDOW *win, u_int32_t attribs, const u_char *str)
 {
-	unsigned char *s = NULL;
+	u_char *s = NULL;
 	
 	if (!str || !*str)
 		return OK;
-	for (s = (unsigned char *)str; *s; waddch(win, *s++ | attribs));
+	for (s = (u_char *)str; *s; waddch(win, *s++ | attribs));
 	return OK;
 }
 
 int
-my_mvwaddstr(WINDOW *win, int y, int x, u_int32_t attribs, const unsigned char *str)
+my_mvwaddstr(WINDOW *win, int y, int x, u_int32_t attribs, const u_char *str)
 {
 	wmove(win, y, x);
 	return my_waddstr(win, attribs, str);
 }
 
 void
-active_win (WINDOW *win, const u_char *title)
+active_win (Window *window)
 {
+	WINDOW *win = window->win;
+	PANEL *panel = window->panel;
+	const u_char *title = window->title;
 	int i, x, y;
 	wborder(win, 'º', 'º', 'Í', 'Í', 'É', '»', 'È', '¼');
 	getmaxyx(win, y, x);
-	mvwchgat(win, 0, 0, x, A_ALTCHARSET | ACTIVE, 0, NULL);
-	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | ACTIVE, 0, NULL);
+	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
+	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
 	for (i = 0; i < y; i++) {
-		mvwchgat(win, i, 0, 1, A_ALTCHARSET | ACTIVE, 0, NULL);
-		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | ACTIVE, 0, NULL);
+		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
+		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[ACTIVE], 0, NULL);
 	}	
 	if (title && ((i = strlen(title)+4) < x))
-		my_mvwprintw(win, 0, x-i-(x-i)/2, TITLE, "[ %s ]", title);
-	wnoutrefresh(win);
+		my_mvwprintw(win, 0, x-i-(x-i)/2, colors[TITLE], "[ %s ]", title);
+	top_panel(panel);
+	update_panels();
 }
 
 void
-inactive_win (WINDOW *win, const u_char *title)
+inactive_win (Window *window)
 {
+	WINDOW *win = window->win;
+	const u_char *title = window->title;
 	int i, x, y;
 	wborder(win, 0, 0, 0, 0, 0, 0, 0, 0);
 	getmaxyx(win, y, x);
-	mvwchgat(win, 0, 0, x, A_ALTCHARSET | INACTIVE, 0, NULL);
-	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | INACTIVE, 0, NULL);
+	mvwchgat(win, 0, 0, x, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
+	mvwchgat(win, y-1, 0, x, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
 	for (i = 0; i < y; i++) {
-		mvwchgat(win, i, 0, 1, A_ALTCHARSET | INACTIVE, 0, NULL);
-		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | INACTIVE, 0, NULL);
+		mvwchgat(win, i, 0, 1, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
+		mvwchgat(win, i, x-1, 1, A_ALTCHARSET | colors[INACTIVE], 0, NULL);
 	}	
 	if (title && ((i = strlen(title)+4) < x))
-		my_mvwprintw(win, 0, x-i-(x-i)/2, TITLE, "[ %s ]", title);
-	wnoutrefresh(win);
+		my_mvwprintw(win, 0, x-i-(x-i)/2, colors[TITLE], "[ %s ]", title);
+	update_panels();
 }
 
 void do_scrollbar (Window *window)
@@ -219,26 +226,26 @@ void do_scrollbar (Window *window)
 		bar = y;
 		bottom = 0;
 	} else {
+		/* drago's code */
 		double toptmp;
 		toptmp=offscreen / value;
 		top= (int) (double)(int)toptmp/1 == toptmp ? toptmp : (double)(int)toptmp+(double)1;
 		bar=(int)((y / value)+(double).5);
 		bottom = y - top - bar;
+		/* end drago's code =) */
 	}
 	/* because of rounding we may end up with too much, correct for that */
 	if (bottom < 0)
 		top += bottom;
-	mvwvline(win, 1, x, ACS_CKBOARD, top);
-	mvwvline(win, 1+top, x, ACS_BLOCK, bar);
+	mvwvline(win, 1, x, ACS_CKBOARD | A_ALTCHARSET | colors[SCROLL], top);
+	mvwvline(win, 1+top, x, ACS_BLOCK | A_ALTCHARSET | colors[SCROLLBAR], bar);
 	if (bottom > 0)
-		mvwvline(win, 1+top+bar, x, ACS_CKBOARD, bottom);
-	for (i = 1, top++; i < top; i++)
-		mvwchgat(win, i, x, 1, A_ALTCHARSET | SCROLL, 0, NULL);
-	for (top += bar; i < top; i++)
-		mvwchgat(win, i, x, 1, A_ALTCHARSET | SCROLL_BAR, 0, NULL);
-	for (top += bottom; i < top; i++)
-		mvwchgat(win, i, x, 1, A_ALTCHARSET | SCROLL, 0, NULL);
-	wnoutrefresh(win);
+		mvwvline(win, 1+top+bar, x, ACS_CKBOARD | A_ALTCHARSET | colors[SCROLL], bottom);
+#ifdef GPM_SUPPORT
+	mvwaddch(win, 0, x, ACS_UARROW | A_ALTCHARSET | colors[ARROWS]);
+	mvwaddch(win, y+1, x, ACS_DARROW | A_ALTCHARSET | colors[ARROWS]);
+#endif
+	update_panels();
 }
 
 void

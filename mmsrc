@@ -1,0 +1,68 @@
+# Configuration file for Matt's MP3 Selector
+
+#
+# mpgpath: path to mpg123
+# playlist: default playlist to load
+# sel_advance: advance selection bar after selecting a file?
+# skip_info_box: skip the info box when tabbing through windows?
+#
+set mpgpath        /usr/local/bin/mpg123
+set sel_advance    true
+set skip_info_box  true
+set loop           true
+
+#
+# Colors
+# 
+# Background colors can be:
+#     black, red, green, brown, blue, magenta, cyan, grey
+# Foreground colors can, in addition to above, be:
+#     b_black, b_red, b_green, yellow, b_blue, b_magenta, b_cyan, white
+#
+
+color active       white:blue
+color inactive     grey:blue
+color selected     black:cyan
+color unselected   grey:blue
+color title        yellow:blue
+color scroll       yellow:black
+color scroll_bar   yellow:blue
+color playing      b_green:blue
+color sel_playing  b_green:cyan
+color file_back    black:blue
+color info_back    black:blue
+color play_back    black:blue
+color menu_back    black:blue
+color menu_text    grey:blue
+color arrows       yellow:blue
+
+#
+# Window positions and sizes
+#
+# + - * / operators are ok. Use 'w' and 'h' for screen width and height.
+# A 0 for width/height will go from x/y to the max.
+#
+# Be careful here. Don't put spaces in expressions. Borders will take up
+# two spaces. If you screw up things can overlap and look ugly.
+#
+
+# file selection window
+window files_height    h-1
+window files_width     w/4
+window files_y         0
+window files_x         0
+# info window
+window info_height     8
+window info_width      0
+window info_y          0
+window info_x          w/4
+# playlist window
+window play_height     h-9
+window play_width      0
+window play_y          8
+window play_x          w/4
+# "menubar"
+window menubar_height  1
+window menubar_width   w
+window menubar_y       h-1
+window menubar_x       0

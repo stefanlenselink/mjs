@@ -38,21 +38,4 @@
 #define B_CYAN    (A_BOLD>>11|6UL)
 #define WHITE     (A_BOLD>>11|7UL)
 
-#define COLOR(fore, back)  (fore<<11|back<<8)
-
-/* These are the colors that you can set */
-
-#define ACTIVE      COLOR(B_GREEN, BLUE)
-#define INACTIVE    COLOR(YELLOW, BLUE)
-#define SELECTED    COLOR(YELLOW, RED)
-#define UNSELECTED  COLOR(WHITE, BLUE)
-#define TITLE       COLOR(WHITE, GREEN)
-#define SCROLL      COLOR(YELLOW, BLUE)
-#define SCROLL_BAR  COLOR(YELLOW, BLUE)
-#define PLAYING     COLOR(B_CYAN, BLUE)
-#define SEL_PLAYING COLOR(B_CYAN, RED)
-#define FILE_BACK   COLOR(BLACK, BLUE)
-#define INFO_BACK   COLOR(BLACK, BLUE)
-#define PLAY_BACK   COLOR(BLACK, BLUE)
-#define MENU_BACK   COLOR(BLACK, BLUE)
-#define MENU_TEXT   COLOR(B_RED, BLUE)
+#define COLOR(fore, back) (fore<<11 | back<<8)

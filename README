@@ -17,14 +17,15 @@ Place, Suite 330, Boston, MA 02111-1307 USA.
 
 -------------------------------
 
-I am entirely disappointed with most of the console mpg123 frontends I have
-seen, and because I already had my own weird format for indexing filename to
-artist/title instead of the lame space-padded ID3 tags. But being the Linux
-geek that I am, what is the only reasonable solution? Do it yourself! So
-after a bit of hacking around, here is v0.8 of Matt's MP3 Selector (mms).
-Feedback, bug reports, compaints etc to morganw@engr.sc.edu...
+Why? Because I was entirely disappointed with most of the console mpg123
+frontends I have seen, and because I already had my own weird format for
+indexing filename to artist/title instead of the lame space-padded ID3 tags.
+But being the geek that I am, what is the only reasonable solution? Do it
+yourself! So after a bit of hacking around, here is v0.84 of Matt's MP3
+Selector (mms). Feedback, bug reports, compaints etc to morganw@engr.sc.edu...
 
-Piss poor documentation is available in the INSTRUCTIONS file.
+Piss poor documentation is available in the INSTRUCTIONS file. Also see 
+INSTALL.
 
 PS - xmms is ripping off my name! I have witnesses!
 
@@ -32,19 +33,21 @@ PPS - I'm lazy. I require constant badgering to get anything done.
 
 BUGS / ANNOYANCES:
 
-1. If a file is NOT an mp3 file and it has a .mp3 extension, we core.
-2. Doesn't remove non-existant files from the playlist/file list (doesnt even
+1. Doesn't remove non-existant files from the playlist/file list (doesnt even
    notice). Trivial fix, just havent quite got around to it yet =)
-3. Screen flicker during scroll... Whats up wif dat!
+2. Screen flicker during scroll... Whats up wif dat!
 
 TODO:
 
-1. Support for editing and updating ID3 tags ?
-2. A better way for reading ID3 tags and determining song length?
-3. Make it work properly with stupid people's terminals (ie not 80x25)
-   (fixed?)
-4. Figure out why colors arent always the same on terminals (pana your term
-   is screwed).
-5. _maybe_ change everything to use ncurses panels so you can drag the
-   windows around and stuff.
-6. Add gpm support? (and moused?)
+1.  A better way for reading ID3 tags and determining song length?
+2.  Make it work properly with stupid people's terminals (ie not 80x25)
+    (fixed?)
+3.  Figure out why colors arent always the same on terminals (pana your term
+    is screwed).
+4.  ncurses panels are being used, now just need to add code to drag/expand
+    with the mouse (hide too)
+5.  Add sysmouse support under FreeBSD.
+6.  Add a configuration panel, with save support.
+7.  File browser for playlists?
+8.  Configurable info window with printf style conversion formats.
+9.  Configuration of file list / playlist with same system.

@@ -53,7 +53,7 @@ install: all
 release: dist
 
 dist: clean
-	cd ..; tar cvzf mjs-$(VERSION).tar.gz mjs
+	cd ..; tar cvzf mjs-$(VERSION).tar.gz --exclude mjs/CVS --exclude mjs/include/CVS mjs
 
 mostlyclean:
 	rm -f *~ core *.core *.o

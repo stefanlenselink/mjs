@@ -333,7 +333,6 @@ read_key(Window *window)
 			break;
 
 // Move selected forward in playlist			
-		case KEY_SLEFT:
 		case '-':
 			if ((active == play) && (!(play->contents.list->selected==play->contents.list->head))) {
 				move_backward(play->contents.list);
@@ -351,6 +350,8 @@ read_key(Window *window)
 				doupdate();
 			}
 			break;
+
+			
 		case KEY_DOWN:
 		case KEY_UP:
 		case KEY_HOME:
@@ -580,7 +581,8 @@ read_key(Window *window)
 
 // Jump to directory with matching first letter
 		case 'a'...'z':
-		case 'A'...'Z': {
+		case 'A'...'Z':
+		case '0'...'9': {
 			if (strlen(typedletters) < 10)
 				strcat(typedletters, (char *)&c);
 			if (!strncasecmp(mp3list->selected->filename, (char *)&typedletters, strlen(typedletters))) {	// At least one dirname starting with c	

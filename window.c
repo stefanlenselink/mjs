@@ -70,7 +70,7 @@ show_list(Window *window)
 				else	// window==files
 					if (ftmp->flags & F_DIR)
 						if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
-							color = colors[SELECTED];
+							color = colors[SEL_DIRECTORY];
 						else
 							color = colors[DIRECTORY];
 					else
@@ -199,11 +199,11 @@ update_info(Window *window)
 	clear_info();
 
 	if (file) {
-		my_mvwnprintw(win, 1, 9, colors[UNSELECTED], i-10, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
+		my_mvwnprintw(win, 1, 9, colors[INFO], i-10, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
 		if (file->artist)
-			my_mvwnprintw(win, 2, 9, colors[UNSELECTED], i-10, "%s", file->artist);
+			my_mvwnprintw(win, 2, 9, colors[INFO], i-10, "%s", file->artist);
 		if (file->album)
-			my_mvwnprintw(win, 3, 9, colors[UNSELECTED], i-10, "%s", file->album);
+			my_mvwnprintw(win, 3, 9, colors[INFO], i-10, "%s", file->album);
 	}
 	update_title(info);
 	update_panels();

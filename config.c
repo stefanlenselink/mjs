@@ -253,6 +253,9 @@ set_color (char *color, char *value)
 	else if (!strcasecmp (color, "directory"))
 		colors[DIRECTORY] =
 			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "sel_directory"))
+		colors[SEL_DIRECTORY] =
+			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "title"))
 		colors[TITLE] =
 			merge_colors (str2color (fore), str2color (back));
@@ -285,6 +288,12 @@ set_color (char *color, char *value)
 			merge_colors (BLACK, str2color (fore));
 	else if (!strcasecmp (color, "menu_text"))
 		colors[MENU_TEXT] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "info"))
+		colors[INFO] =
+			merge_colors (str2color (fore), str2color (back));
+	else if (!strcasecmp (color, "time"))
+		colors[TIME] =
 			merge_colors (str2color (fore), str2color (back));
 }
 
@@ -427,6 +436,7 @@ set_color_defaults (void)
 	colors[ACTIVE] = merge_colors (B_GREEN, BLUE);
 	colors[SELECTED] = merge_colors (YELLOW, RED);
 	colors[UNSELECTED] = merge_colors (WHITE, BLUE);
+	colors[SEL_DIRECTORY] = merge_colors (YELLOW, RED);
 	colors[DIRECTORY] = merge_colors (WHITE, BLUE);
 	colors[TITLE] = merge_colors (WHITE, GREEN);
 	colors[SCROLL] = merge_colors (YELLOW, BLUE);
@@ -440,6 +450,8 @@ set_color_defaults (void)
 	colors[MENU_BACK] = merge_colors (BLACK, BLUE);
 	colors[MENU_TEXT] = merge_colors (B_RED, BLUE);
 	colors[INACTIVE] = merge_colors (YELLOW, BLUE);
+	colors[INFO] = merge_colors (WHITE, BLUE);
+	colors[TIME] = merge_colors (WHITE, BLUE);
 }
 
 static int

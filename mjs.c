@@ -776,7 +776,7 @@ show_playinfo(mpgreturn *message)
 	secleft = message->remaining - minleft*60;
 	minused = (int)message->elapsed / 60;
 	secused = message->elapsed - minused*60;
-	my_mvwnprintw2(playback->win, 1, 1, colors[UNSELECTED], 21,
+	my_mvwnprintw2(playback->win, 1, 1, colors[TIME], 21,
 			" Time: %02d:%02.0f / %02d:%02.0f", minused, secused, minleft, secleft);
 			
 	if (active->inputline) {
@@ -805,9 +805,9 @@ static void init_info(void)
 {
 	WINDOW *win = info->win;
 
-	my_mvwaddstr(win, 1, 2, colors[UNSELECTED], "Title :");
-	my_mvwaddstr(win, 2, 2, colors[UNSELECTED], "Artist:");
-	my_mvwaddstr(win, 3, 2, colors[UNSELECTED], "Album :");
+	my_mvwaddstr(win, 1, 2, colors[INFO], "Title :");
+	my_mvwaddstr(win, 2, 2, colors[INFO], "Artist:");
+	my_mvwaddstr(win, 3, 2, colors[INFO], "Album :");
 	update_panels();
 	doupdate();
 }

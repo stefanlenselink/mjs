@@ -1,8 +1,6 @@
 #ifndef _defs_h
 #define _defs_h
 
-#define SONGFILE ".songs"
-
 /* Max length of any field */
 #define MAXLEN		500
 
@@ -13,12 +11,6 @@
 /* defines for the mpg123 controller */
 
 #define MPGPATH		"mpg123"
-
-#ifdef GPM_SUPPORT
-#define WGETCH 		Gpm_Wgetch
-#else
-#define WGETCH		wgetch
-#endif
 
 #define QUIT		1
 #define LOAD		2
@@ -52,12 +44,7 @@ enum ATTRIBS {
 	INFO_BACK,
 	PLAY_BACK,
 	MENU_BACK,
-	MENU_TEXT,
-	ARROWS,
-	EDIT_BACK,
-	EDIT_ACTIVE,
-	EDIT_INACTIVE,
-	EDIT_PROMPT
+	MENU_TEXT
 };
 
 #endif /* _defs_h */

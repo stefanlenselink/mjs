@@ -1,8 +1,3 @@
-/*
- * most of this code is NOT mine. I don't know where it came from, but it
- * sure as hell is ugly! It _really_ needs some cleanup. Someday...
- */
-
 #include "top.h"
 #include "defs.h"
 #include "struct.h"
@@ -34,7 +29,7 @@ mp3_info(char *dir, char *filename, flist *file, u_int32_t size)
 	else
 		file->album = strdup("Unknown");
 
-	file->length = 0;
+//	file->length = 0;
 	
 	return file;
 

@@ -11,58 +11,6 @@
 #define PLAYING 1
 #define PAUSED 2
 
-
-typedef struct {
-	char tag[3];
-	char title[30];
-	char artist[30];
-	char album[30];
-	char year[4];
-	char comment[30];
-	unsigned char genre;
-} ID3tag;
-
-typedef struct {
-	char tag[3];
-	u_int8_t major_version;
-	u_int8_t minor_version;
-	u_int8_t flags;
-#define UNSYNC 0x100
-#define EXTENDED_HEADER 0x80
-#define EXPERIMENTAL 0x40
-	int32_t	size;
-} ID3v2Header;
-
-typedef struct {
-	char title[31];
-	char artist[31];
-	char album[31];
-	char year[5];
-	char comment[31];
-	char genre[20];
-} my_tag;
-
-typedef struct {
-	int IDex;
-	int ID;
-	int layer;
-	int protection_bit;
-	int bitrate_index;
-	int sampling_frequency;
-	int padding_bit;
-	int private_bit;
-	int mode;
-	int mode_extension;
-	int copyright;
-	int original;
-	int emphasis;
-	int stereo;
-	int jsbound;
-	int sblimit;
-	int true_layer;
-	int framesize;
-} AUDIO_HEADER;
-
 typedef struct _flist {
 	unsigned short flags;
 #define F_DIR      	0x01
@@ -72,7 +20,7 @@ typedef struct _flist {
 #define F_SEARCHDIR	0x10	
 #define F_PLAYLIST	0x20
 	int where;
-	time_t length;
+//	time_t length;
 	char *album;
 	char *filename;
 	char *path;
@@ -180,10 +128,6 @@ typedef struct {
 	char **inputs;                  /* array of default values           */
 	int num_prompts;                /* total # of prompts/defaults       */
 	int (*finish) (char **, int);   /* function to parse the final input */
-	
-
-
-
 } Inputbox;
 
 #endif /* _struct_h */

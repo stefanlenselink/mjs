@@ -1,3 +1,6 @@
+mjs 2.9.9
+ * Code Cleanups
+ * Fixed artist field being 1 character to long (containing garbage)
 mjs 2.9.8 (cvs + release):
  * Artist and album info are extracted from the directory structure.
    Hopefully this will cause less problems than id3-tags.

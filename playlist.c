@@ -9,7 +9,7 @@
 #include "mjs.h"
 #include "extern.h"
 
-void
+/*void
 calculate_duration(flist *list)
 {
         flist *ftmp;
@@ -18,6 +18,7 @@ calculate_duration(flist *list)
 	play->contents.list->duration+=(ftmp->length);
         }
 }
+*/
 void
 play_next_song(void)
 {
@@ -64,8 +65,8 @@ wlist *
 jump_backward(wlist *playlist)
 {
 	flist *ftmp = playlist->playing;
-	int duration = playlist->duration; 
-	int length = playlist->playing->length;
+//	int duration = playlist->duration; 
+//	int length = playlist->playing->length;
 
 	if (!ftmp)
 		return playlist;
@@ -80,7 +81,7 @@ jump_backward(wlist *playlist)
 		play->contents.list->playing = NULL;
 		show_list(play);
 	}
-	playlist->duration=((length+duration));
+//	playlist->duration=((length+duration));
 	return playlist;
 }
 
@@ -163,7 +164,7 @@ jump_to_song(flist *selected)
 	selected->flags |= F_PLAY;
 	playlist->playing = selected;
 	info->contents.play = selected;
-	play->contents.list->duration -= selected->length;
+//	play->contents.list->duration -= selected->length;
 	if (active == info)
 		info->update(info);
 	play->update(play);
@@ -292,7 +293,7 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 		
 	newfile->path = strdup(file->path);
 	newfile->fullpath = strdup(file->fullpath);
-	newfile->length = file->length;
+//	newfile->length = file->length;
 	if (file->album)
 		newfile->album = strdup(file->album);
 	if (file->artist)
@@ -307,7 +308,7 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	}
 	else 
 		playlist->tail = newfile;
-	playlist->duration += file->length;
+//	playlist->duration += file->length;
 	if (!playlist->selected) {
 		playlist->selected = newfile;
 		newfile->flags |= F_SELECTED;

@@ -20,7 +20,7 @@ Config *conf;
 pid_t pid;
 static struct sigaction handler;
 int p_status = STOPPED;
-flist *prevsel = NULL;							// !!!!!!!!
+flist *prevsel = NULL;
 
 /* some internal functions */
 static int	read_key(Window *);
@@ -272,7 +272,7 @@ bailout(int sig)
 	fprintf(stdout, "\n\n MP3 Jukebox System (mjs) v%s\n",VERSION);
 	fprintf(stdout, " Based on mms written by Wesley Morgan. (morganw@engr.sc.edu)\n");
 	fprintf(stdout, " Changed by Marijn van Galen. (M.P.vanGalen@ITS.TUDelft.nl)\n\n");
-	fprintf(stdout, " Copyright (C) 2001 by Marijn van Galen\n");
+	fprintf(stdout, " Copyright (C) 2002 by Marijn van Galen\n");
 	fprintf(stdout, " This program is free software; you can redistribute it and/or modify it\n");
 	fprintf(stdout, " under the terms of the GNU General Public License as published by the Free\n");
 	fprintf(stdout, " Software Foundation; version 2 of the License.\n\n");
@@ -307,10 +307,10 @@ read_key(Window *window)
 	Input *inputline = window->inputline;
 	wlist *mp3list = files->contents.list;
 
-	c = WGETCH(window->win);
+	c = wgetch(window->win);
 	if (c == 27) {
 		alt = 1;
-		c = WGETCH(window->win);
+		c = wgetch(window->win);
 	}
 
 	if (inputline)
@@ -333,8 +333,8 @@ read_key(Window *window)
 		case '-':
 			if ((active == play) && (!(play->contents.list->selected==play->contents.list->head))) {
 				move_backward(play->contents.list);
-				if (p_status)
-					calculate_duration(play->contents.list->playing);
+//				if (p_status)
+//					calculate_duration(play->contents.list->playing);
 				play->update(play);
 				doupdate();
 			}
@@ -345,8 +345,8 @@ read_key(Window *window)
 		case '=':
 			if ((active == play) && !(play->contents.list->selected==play->contents.list->tail)) {
 				move_forward(play->contents.list);
-				if (p_status)
-					calculate_duration(play->contents.list->playing);
+//				if (p_status)
+//					calculate_duration(play->contents.list->playing);
 				play->update(play);
 				doupdate();
 			}
@@ -378,8 +378,8 @@ read_key(Window *window)
 			if (active == play){
 				wlist *playlist = play->contents.list;				
 				playlist->selected = delete_file(play, playlist->selected);
-				if (p_status)
-					calculate_duration(play->contents.list->playing);
+//				if (p_status)
+//					calculate_duration(play->contents.list->playing);
 				info->update(play);
 				play->update(play);
 				doupdate();
@@ -397,9 +397,9 @@ read_key(Window *window)
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Are you sure you want to reset this program ? (y/n)");
 			update_panels();
 			doupdate();
-			c = WGETCH(window->win);
+			c = wgetch(window->win);
 			if (c == 27) 
-				c = WGETCH(window->win);
+				c = wgetch(window->win);
 			if ((c == 'y')|(c == 'Y')) 
 				bailout(0);
 			menubar->activate(menubar);
@@ -414,9 +414,9 @@ read_key(Window *window)
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Are you sure you want to clear the playlist ? (y/n)");
 			update_panels();
 			doupdate();
-			c = WGETCH(window->win);
+			c = wgetch(window->win);
 			if (c == 27) 
-				c = WGETCH(window->win);
+				c = wgetch(window->win);
 			if ((c == 'y')|(c == 'Y')) {
 				if (p_status) {
 					stop_player(play->contents.list);
@@ -476,9 +476,9 @@ read_key(Window *window)
 			my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], "Shuffle Playlist ? (y/n)");
 			update_panels();
 			doupdate();
-			c = WGETCH(window->win);
+			c = wgetch(window->win);
 			if (c == 27) 
-				c = WGETCH(window->win);
+				c = wgetch(window->win);
 			if ((c == 'y')|(c == 'Y')) {
 				randomize_list(play->contents.list);
 				active->deactivate(active);
@@ -527,7 +527,7 @@ read_key(Window *window)
 				doupdate();
 				}
 			p_status=STOPPED;
-			calculate_duration(play->contents.list->head);
+//			calculate_duration(play->contents.list->head);
 			break;
 
 // Play / Pause key
@@ -537,7 +537,7 @@ read_key(Window *window)
 /* fix me */		
 					if (!play->contents.list->selected)
 						play->contents.list->selected=next_valid(play,play->contents.list->top,KEY_DOWN);
-					calculate_duration(play->contents.list->selected);
+//					calculate_duration(play->contents.list->selected);
 					jump_to_song(play->contents.list->selected); /* Play */
 					doupdate(); 
 					break;

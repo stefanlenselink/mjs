@@ -266,21 +266,6 @@ set_color (char *color, char *value)
 	else if (!strcasecmp (color, "menu_text"))
 		colors[MENU_TEXT] =
 			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "arrows"))
-		colors[ARROWS] =
-			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "edit_back"))
-		colors[EDIT_BACK] =
-			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "edit_active"))
-		colors[EDIT_ACTIVE] =
-			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "edit_inactive"))
-		colors[EDIT_INACTIVE] =
-			merge_colors (str2color (fore), str2color (back));
-	else if (!strcasecmp (color, "edit_prompt"))
-		colors[EDIT_PROMPT] =
-			merge_colors (str2color (fore), str2color (back));
 }
 
 /*
@@ -435,11 +420,6 @@ set_color_defaults (void)
 	colors[PLAY_BACK] = merge_colors (BLACK, BLUE);
 	colors[MENU_BACK] = merge_colors (BLACK, BLUE);
 	colors[MENU_TEXT] = merge_colors (B_RED, BLUE);
-	colors[ARROWS] = merge_colors (YELLOW, BLUE);
-	colors[EDIT_BACK] = merge_colors (B_GREEN, BLUE);
-	colors[EDIT_ACTIVE] = merge_colors (WHITE, BLACK);
-	colors[EDIT_INACTIVE] = merge_colors (YELLOW, BLUE);
-	colors[EDIT_PROMPT] = merge_colors (WHITE, BLUE);
 }
 
 static int

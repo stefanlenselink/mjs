@@ -82,12 +82,6 @@ color info_back  	black:black
 color play_back		black:black
 color menu_back         white:grey 
 color menu_text		white:grey
-color arrows            yellow:blue
-color edit_back         yellow:blue
-color edit_active       white:black
-color edit_inactive     yellow:blue
-# not used, yet
-color edit_prompt	white:blue
 
 #
 # Window positions and sizes and formats (only used for 'list' type windows)

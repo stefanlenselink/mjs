@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 2.9.8a
+VERSION = 2.9.9
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c
@@ -38,7 +38,7 @@ static : $(OBJS)
 	$(CC) -static $(PROFILE) $(ARCHFLAGS) -o $(PROGRAM) $(OBJS) $(LIBRARY) $(LIBS)
 
 clean:
-	rm -f *~ *.o $(PROGRAM) core *.core ktrace.out gmon.out DEADJOE 
+	rm -f *~ *.o $(PROGRAM) core *.core ktrace.out gmon.out DEADJOE include/*~
 
 install: all
 	install -c -o 0 -g 0 mjs /usr/local/bin
@@ -72,7 +72,7 @@ misc.o: include/top.h include/defs.h include/colors.h include/struct.h
 misc.o: include/misc.h include/window.h include/extern.h
 mjs.o: include/top.h include/defs.h include/colors.h include/struct.h
 mjs.o: include/mjs.h include/playlist.h include/window.h include/misc.h
-mjs.o: include/files.h include/mpgcontrol.h include/id3.h include/config.h
+mjs.o: include/files.h include/mpgcontrol.h include/config.h
 mjs.o: include/inputline.h include/extern.h
 mpgcontrol.o: include/top.h include/mpgcontrol.h include/misc.h
 mpgcontrol.o: include/window.h include/mjs.h include/playlist.h

@@ -1,1 +1,2 @@
-* Fix length calculation for vbr mp3's
+* Find a way to calculate the length of mp3s
+* Find a way to easily read Xing headers

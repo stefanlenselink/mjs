@@ -135,13 +135,7 @@ int send_cmd(int type, ...)
 		case STOP:
 			write(fd, "STOP\n", 5);
 			timevalue = time(NULL);
-						
-/*			log = fopen(conf->logfile,"a");
-			if (log) {
-				fprintf(log," STOP\n");
-				fclose(log);
-				}
-*/
+			
 			active = fopen(conf->statefile,"w");
 			if (active) {
 				fprintf(active,"%s","                      \n");

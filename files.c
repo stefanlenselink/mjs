@@ -226,10 +226,10 @@ read_mp3_list_file(wlist *list, char *filename)
 		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
 		if (buf=='\0')
 			goto endloop;
-		dir = malloc(lengte+2);
+		dir = malloc(lengte);
 		file = malloc(strlen(buf)-lengte);		
 		strncpy(dir, buf, lengte);
-		dir[lengte+1]='\0';
+		dir[lengte]='\0';
 		strcpy(file, buf+lengte+1);
 
 		if (stat(buf, &st))

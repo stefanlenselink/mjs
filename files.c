@@ -373,6 +373,7 @@ sort_mp3(const void *a, const void *b)
 {
 	const flist *first = *(const flist **) a;
 	const flist *second = *(const flist **) b;
+
 	if ((first->flags & F_DIR) && !(second->flags & F_DIR))
 		return 1;
 	else if (!(first->flags & F_DIR) && (second->flags & F_DIR))
@@ -388,7 +389,7 @@ sort_mp3_search(const void *a, const void *b)
 	const flist *second = *(const flist **) b;
 	int result;
 
-	if (first->filename[0]=='.')
+	if (first->filename[0] == '.')
 		return 1;
 	result = strcmp(second->path, first->path);
 	if (!result) {

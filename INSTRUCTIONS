@@ -24,7 +24,8 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * 'F5' will randomize the playlist
    * 'F6' will save your playlist (if enabled in .mjsrc)
    * 'F7' will stop the player
-   * 'F8' will pause the player
+   * 'F8' will start or pause the player (if previously stopped the
+          selected song will be started
    * 'F9' will go back one song
    * 'F10' will fast rewind
    * 'F11' will fast forward
@@ -34,12 +35,12 @@ ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
    * return adds files to the playlist and changes directory.
    * left-arrow goes back one directory
    * right-arrow enters directory
-   * alt-enter inserts selected file into playlist
+   * alt-enter or insert inserts selected file into playlist
    * Pressing a letter will take you to the first directory starting with
      that letter, pressing another one within 750ms will take you to the
      first directory starting with those two letters, etc.
 
-* in the playlist window is where the good stuff goes on:
+* in the playlist window: 
    * with + and - you can move mp3's forward or backward in the playlist 
    * DEL will remove a song from the playlist (unless it is playing!)
 

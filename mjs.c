@@ -117,7 +117,7 @@ main(int argc, char *argv[])
 	nonl();
 	init_ansi_pair();
 	if (argc>1)
-		bailout(0);
+		bailout(5);
 /* malloc() for the windows and set up our initial callbacks ... */
 
 	info = calloc(1, sizeof(Window));
@@ -271,6 +271,9 @@ bailout(int sig)
 			break;
 		case 3: fprintf(stderr, "\n\nmjs:error: Forking of mpg123 child proces failed !n\n\n");
 			break;
+		case 5: fprintf(stderr, "\n\nmjs:error: There are no command line switches !\n\n");
+			fprintf(stderr, " See the file ~/.mjsrc for configuration details.\n");
+			break;
 		default: fprintf(stderr, "\n\nmjs:error: unknown\n\n\n");
 			break;
 		}	
@@ -372,6 +375,7 @@ read_key(Window *window)
 		case KEY_LEFT:
 		case '\n':
 		case '\r':
+		case KEY_IC:
 			process_return(window->contents.list, c, alt);
 			break;
 
@@ -672,7 +676,7 @@ process_return(wlist *mp3list, int c, int alt)
 			} else	
 				if ((prevsel != mp3list->selected) & (c != KEY_RIGHT)){ /* we dont want to add the last file multiple times */
 					prevsel = mp3list->selected;
-					if (alt)
+					if ((alt) || (c == KEY_IC))
 						add_to_playlist(play->contents.list, play->contents.list->selected, mp3list->selected);
 					else
 						add_to_playlist(play->contents.list, play->contents.list->tail, mp3list->selected);

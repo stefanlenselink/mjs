@@ -53,7 +53,6 @@ set file_advance		true
 set loop			false
 set playlists_to_files		false
 set mono_output			false
-set show_playlist_length 	true
 set alternative_scrolling	false
 set allow_playlist_saving	true
 set show_track_numbers		false
@@ -77,10 +76,10 @@ color scroll_bar	grey:black
 color playlist		grey:black
 color playing           white:black
 color sel_playing	white:grey
-color file_back         black:black
-color info_back  	black:black
-color play_back		black:black
-color menu_back         white:grey 
+color file_back         black
+color info_back  	black
+color play_back		black
+color menu_back         grey
 color menu_text		white:grey
 
 #

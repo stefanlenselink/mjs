@@ -799,6 +799,11 @@ process_return (wlist * fileslist, int alt)
 				if ((!(fileslist->flags & F_VIRTUAL)) & (strcmp ("../", fileslist->selected->fullpath))) {
 					add_to_playlist_recursive (playlist, playlist->tail, fileslist->selected);
 					play->update(play);
+					if ((conf->c_flags & C_FADVANCE)
+						&& (move_selector (files, KEY_DOWN))){
+						info->update (info);
+						files->update (files);
+						}
 				}
 			}
 		}

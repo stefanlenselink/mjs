@@ -6,7 +6,7 @@
 #endif
 
 char	*chop_filename(char**);
-char	*strip_track_numbers(const char *);
+char	*strip_track_numbers(char *);
 flist 	*mp3_info(const char *, const char *, const char *, int, int);
 char 	*resolve_path (const char *);
 

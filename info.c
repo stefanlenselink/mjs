@@ -104,7 +104,7 @@ resolve_path (const char *path)
 
 
 char *
-strip_track_numbers (const char * filename) 
+strip_track_numbers (char * filename) 
 { /* Remove tracknumbers from filename */
 	char * p;
 	if ((filename[0]>='0') & (filename[0]<='9')) {

@@ -227,13 +227,19 @@ bailout(int sig)
 	gpm_close();
 #endif
 	if (pid > 0) {
+		pid_t pgrp = getpgid(pid);
 		fprintf(stdout, "Cleaning up ...\n");
+		fflush(stdout);
 		handler.sa_handler = SIG_DFL;
 		handler.sa_flags = 0;
 		sigaction(SIGCHLD, &handler, NULL);
 		send_cmd(QUIT);
 		/* kill the entire process group, for the buffering child */
-		kill(-pid, SIGTERM); 
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
+		killpg(pgrp, SIGTERM);
+#else
+		kill(-pgrp, SIGTERM); 
+#endif /* *BSD */
 		waitpid(pid, NULL, 0); /* be safe and avoid a zombie */
 	}
 	exit(0);

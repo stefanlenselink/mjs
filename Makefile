@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mms
-VERSION = 0.89
+VERSION = 0.89a
 
 SRCS =	mms.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	id3.c tokens.c window.c files.c

@@ -36,12 +36,20 @@ read_mp3_list(wlist *list)
 			ftmp = calloc(1, sizeof(flist));
 			ftmp->flags |= F_DIR;
 
-			ftmp->filename = malloc(dent->d_reclen+2);
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
+			ftmp->filename = malloc(dent->d_namlen+2);
+#else
+			ftmp->filename = malloc(strlen(dent->d_name)+2);
+#endif /* *BSD */
 			strcpy(ftmp->filename, dent->d_name);
 			strcat(ftmp->filename, "/");
 
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
+			ftmp->fullpath = calloc(1, strlen(dir)+dent->d_namlen+2);
+#else
 			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
-			sprintf(ftmp->fullpath, "%s/%s", dir, ftmp->filename);
+#endif /* *BSD */
+			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
 			ftmp->path = strdup(dir);
 			ftmp->colors = colors[UNSELECTED];
 
@@ -60,7 +68,11 @@ read_mp3_list(wlist *list)
 			ftmp->filename = strdup(dent->d_name);
 
 			ftmp->path = strdup(dir);
+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
+			ftmp->fullpath = calloc(1, strlen(dir)+dent->d_namlen+2);
+#else
 			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
+#endif /* *BSD */
 			sprintf(ftmp->fullpath, "%s/%s", dir, ftmp->filename);
 			ftmp->colors = colors[UNSELECTED];
 

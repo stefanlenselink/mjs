@@ -1,3 +1,5 @@
+mjs 3.1-rc1
+ * finally fixed linked-list handling, see list.c
 mjs 3.0-rc4
  * added add_to_playlist_recursive via <alt-enter>
  * Fixed window-refreshing

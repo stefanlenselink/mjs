@@ -62,7 +62,7 @@ set show_track_numbers		false
 # Fix the ugly borders in xterm's (true/false/auto)
 set fix_window_borders		auto
 
-set keep_playlist_at_exit	true
+set keep_playlist_at_exit	false
 
 #
 # Colors

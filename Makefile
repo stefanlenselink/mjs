@@ -2,7 +2,7 @@ CC = gcc
 prefix = /usr/local/bin
 
 PROGRAM = mjs
-VERSION = 3.1-rc1
+VERSION = 3.1-rc2
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c list.c
@@ -16,10 +16,7 @@ LIBS = -lncurses -lpanel
 WARNINGS = -Wall -Wbad-function-cast -Wcast-align
 OPTFLAGS = -O2
 # Comment this out for debugging
-DEBUG = 0
-#ifdef DEBUG
-OPTFLAGS += -g3
-#endif
+#OPTFLAGS += -g3
 
 CFLAGS = $(OPTFLAGS) $(PROFILE) $(WARNINGS) $(ARCHFLAGS) -DVERSION=\"$(VERSION)\"
 

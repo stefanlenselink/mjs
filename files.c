@@ -316,7 +316,6 @@ sort_songs(wlist *sort)
 	free(fsort);
 	newlist->prev = NULL;
 	sort->head = sort->top = sort->selected = newlist;
-	newlist->flags |= F_SELECTED;
 	return sort;
 }
 
@@ -345,7 +344,6 @@ sort_search(wlist *sort)
 	free(fsort);
 	newlist->prev = NULL;
 	sort->head = sort->top = sort->selected = newlist;
-	newlist->flags |= F_SELECTED;
 	return sort;
 }
 

@@ -9,7 +9,6 @@
 #include "window.h"
 #include "mjs.h"
 #include "extern.h"
-//#include <time.h>
 
 void
 play_next_song(void)
@@ -19,7 +18,6 @@ play_next_song(void)
 	if (!ftmp)
 		return;
 
-	ftmp->flags &= ~F_PLAY;
 	if ((conf->c_flags & C_LOOP) && !ftmp->next)
 		ftmp = play->contents.list->head;
 	else
@@ -39,7 +37,6 @@ jump_forward(wlist *playlist)
 
 	if (!ftmp)
 		return playlist;
-	ftmp->flags &= ~F_PLAY;
 	if ((conf->c_flags & C_LOOP) && !ftmp->next)
 		ftmp = play->contents.list->head;
 	else
@@ -60,7 +57,6 @@ jump_backward(wlist *playlist)
 
 	if (!ftmp)
 		return playlist;
-	ftmp->flags &= ~F_PLAY;
 	if ((conf->c_flags & C_LOOP) && !ftmp->prev)
 		ftmp = play->contents.list->tail;
 	else
@@ -90,9 +86,6 @@ jump_to_song(flist *selected)
 	if (!playlist || !selected)
 		return 0;
 	
-	if (info->contents.play) 
-		info->contents.play->flags &= ~F_PLAY;
-		
 	memset(buf, 0, sizeof(buf));
 	snprintf(buf, BIG_BUFFER_SIZE, "%s", selected->fullpath);
 	send_cmd(LOAD, buf);
@@ -112,7 +105,6 @@ jump_to_song(flist *selected)
 	
 	clear_play_info();
 	p_status = PLAYING;
-	selected->flags |= F_PLAY;
 	playlist->playing = selected;
 	info->contents.play = selected;
 	if (active == info)
@@ -133,7 +125,6 @@ stop_player(wlist *playlist)
 	if (ftmp) {
 		info->contents.play = NULL;
 		play->contents.list->playing = NULL;
-		ftmp->flags &= ~F_PLAY;
 		ftmp->flags &= ~F_PAUSED;
 		play->update(play);
 	}
@@ -205,9 +196,9 @@ randomize_list(wlist *playlist)
 	for (ftmp = playlist->head, j = 0; ftmp; ftmp = ftmp->next, j++) {
 		if (ftmp == playlist->top)
 			top = j;
-		if (ftmp->flags & F_SELECTED) {
+		if (ftmp == playlist->selected) {
 			selected = j;
-			ftmp->flags &= ~F_SELECTED;
+			playlist->selected = NULL;
 		}
 		farray[j] = ftmp;
 	}
@@ -232,7 +223,6 @@ randomize_list(wlist *playlist)
 	for (ftmp = playlist->head, i = 0; i < top; ftmp = ftmp->next, i++);
 	playlist->top = ftmp;
 	for (; i < selected; ftmp = ftmp->next, i++);
-	ftmp->flags |= F_SELECTED;
 	playlist->selected = ftmp;
 	playlist->tail = newlist;
 	newlist->next = NULL;
@@ -305,10 +295,8 @@ add_to_playlist(wlist *playlist, flist *position, flist *file)
 	wlist_add(playlist, position, newfile); 
 
 	if (conf->c_flags & C_PADVANCE) {
-		playlist->selected->flags &= ~F_SELECTED; /* could be a wasted dupe */
 		playlist->selected = newfile;
 		playlist->where = playlist->length;
-		newfile->flags |= F_SELECTED;
 	} 
 	play->update(play);
 	return;

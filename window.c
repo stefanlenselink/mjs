@@ -55,25 +55,25 @@ show_list(Window *window)
 				line = parse_tokens(window,ftmp, buf, BUFFER_SIZE, window->format);
 			} else 	
 				line = ftmp->filename;
-			if (window==play) {
-				if (ftmp->flags & F_PLAY)
-					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+			if (window == play) {
+				if (ftmp == list->playing)
+					if ((ftmp == list->selected) && (window->flags & W_ACTIVE))
 						color = colors[PLAY_SELECTED_PLAYING];
 					else
 						color = colors[PLAY_UNSELECTED_PLAYING];
 				else			
-					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+					if ((ftmp == list->selected) && (window->flags & W_ACTIVE))
 						color = colors[PLAY_SELECTED];
 					else
 						color = colors[PLAY_UNSELECTED];
 			} else	// window==files
 				if (ftmp->flags & F_DIR)
-					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+					if ((ftmp == list->selected) && (window->flags & W_ACTIVE))
 						color = colors[FILE_SELECTED_DIRECTORY];
 					else
 						color = colors[FILE_UNSELECTED_DIRECTORY];
 				else
-					if ((ftmp->flags & F_SELECTED) && (window->flags & W_ACTIVE))
+					if ((ftmp == list->selected) && (window->flags & W_ACTIVE))
 						color = colors[FILE_SELECTED];
 					else 	
 						color = colors[FILE_UNSELECTED];
@@ -116,7 +116,6 @@ move_selector(Window *window, int c)
 		case '\n':
 		case '\r':
 			if (active == play) {
-				list->selected->flags &= ~F_SELECTED;
 				list->selected = next_valid(list, list->head, KEY_HOME);
 				list->where = 0;
 				list->wheretop = 0;
@@ -125,27 +124,20 @@ move_selector(Window *window, int c)
 					list->selected = next_valid(list, list->selected->next, KEY_DOWN);
 					list->where++;
 				}
-				list->selected->flags |= F_SELECTED;
 				return window;
 			}
 			break;				
 		case KEY_HOME: 
-			list->selected->flags &= ~F_SELECTED;
 			list->selected = next_valid(list, list->head, c);
-			list->selected->flags |= F_SELECTED;
 			list->where = 0;
 			list->wheretop = 0;
 			return window;
 		case KEY_END: 
-			list->selected->flags &= ~F_SELECTED;
 			list->selected = next_valid(list, list->tail, c);
-			list->selected->flags |= F_SELECTED;
 			list->where = list->length;
 			return window;
 		case KEY_DOWN:
 			if ((file = next_valid(list, list->selected->next, c))) {
-				list->selected->flags &= ~F_SELECTED;
-				file->flags |= F_SELECTED;
 				list->selected = file;
 				list->where++;
 				return window;
@@ -153,30 +145,24 @@ move_selector(Window *window, int c)
 			break;
 		case KEY_UP:
 			if ((file = next_valid(list, list->selected->prev, c))) {
-				list->selected->flags &= ~F_SELECTED;
-				file->flags |= F_SELECTED;
 				list->selected = file;
 				list->where--;
 				return window;
 			}
 			break;
 		case KEY_NPAGE:
-			list->selected->flags &= ~F_SELECTED;
 			for (j = 0; list->selected->next && j < length-1; j++) {
 				list->selected = next_valid(list, list->selected->next, KEY_DOWN);
 				list->where++;
 				}
 			list->selected = next_valid(list, list->selected, c);
-			list->selected->flags |= F_SELECTED;
 			return window;
 		case KEY_PPAGE:
-			list->selected->flags &= ~F_SELECTED;
 			for (j = 0; list->selected->prev && j < length-1; j++) {
 				list->selected = next_valid(list, list->selected->prev, KEY_UP);
 				list->where--;
 				}
 			list->selected = next_valid(list, list->selected, c);
-			list->selected->flags |= F_SELECTED;
 			return window;
 		default:
 			break;

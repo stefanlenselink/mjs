@@ -32,18 +32,14 @@ wlist_add(wlist *list, flist *position, flist *new) {
 		position->next = new;
 	}
 
-	if (list->selected == NULL) { //list was empty
+	if (list->selected == NULL) //list was empty
 		list->head = list->tail = list->selected = new;
-		list->selected->flags |= F_SELECTED;
-	}
 	list->length++;
 }
 
 void 
 wlist_del(wlist *list, flist *position) {
 	flist *before = position->prev, *after = position->next;
-	if (!list)
-		abort();
 	if (!list->head)
 		return;
 	// list is not empty;
@@ -53,11 +49,8 @@ wlist_del(wlist *list, flist *position) {
 	//fixup deleted selected
 	if (position == list->selected) {
 		if (after) {
-			after->flags |= F_SELECTED;
 			list->selected = after;
 		} else { 
-			if (before) 
-				before->flags |= F_SELECTED;
 			list->selected = before;
 		}
 	}

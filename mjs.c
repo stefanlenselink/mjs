@@ -245,11 +245,8 @@ main (int argc, char *argv[])
 	info->contents.play = NULL;
 	play->contents.list = (wlist *) calloc (1, sizeof (wlist));
 
-	if (conf->c_flags & C_P_SAVE_EXIT){
+	if (conf->c_flags & C_P_SAVE_EXIT)
 		read_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs", 1);
-		if (play->contents.list->selected)
-			play->contents.list->selected->flags |= F_SELECTED;
-	}
 
 	menubar->activate (menubar);
 	init_info ();
@@ -435,8 +432,10 @@ read_key (Window * window)
 		// File selection / directory navigation                
 		if (active == files)
 			process_return (window->contents.list, c, alt);
-		else
+		else {
 			move_selector (window, c);
+			play->update(play);
+		}
 		break;
 
 	case KEY_IC:
@@ -768,7 +767,6 @@ process_return (wlist * mp3list, int c, int alt)
 			files->update (files);
 		} else {
 			read_mp3_list_file (play->contents.list, filename, 1);
-			play->contents.list->selected->flags |= F_SELECTED;
 			play->update (play);
 		}
 		free (filename);
@@ -844,10 +842,10 @@ show_playinfo (mpgreturn * message)
 	secused = message->elapsed - minused * 60;
 	my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 23, " Time  : %02d:%02.0f / %02d:%02.0f", minused, secused, minleft, secleft);
 
-	if (active->inputline) {
-		Input *inputline = active->inputline;
-		wmove (inputline->win, inputline->y, inputline->fpos + inputline->plen);
-	}
+//	if (active->inputline) {
+//		Input *inputline = active->inputline;
+//		wmove (inputline->win, inputline->y, inputline->fpos + inputline->plen);
+//	}
 	update_panels ();
 	doupdate ();
 }

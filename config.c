@@ -235,8 +235,9 @@ set_color (char *color, char *value)
 	char *back = strchr (value, ':');
 
 	if (back == NULL)
-		return;
-	*back++ = '\0';
+		back = "black\0";
+	else 
+		back++;
 
 	/* IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT 
 	* check

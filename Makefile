@@ -16,7 +16,7 @@ LIBS = -lncurses -lpanel
 WARNINGS = -Wall -Wbad-function-cast -Wcast-align
 OPTFLAGS = -O2
 # Comment this out for debugging
-DEBUG = 1 
+DEBUG = 0
 #ifdef DEBUG
 OPTFLAGS += -g3
 #endif

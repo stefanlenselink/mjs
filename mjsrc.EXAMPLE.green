@@ -16,7 +16,7 @@ set statefile			/var/state/mp3active
 set resultsfile			/tmp/findresults
 
 # playlistpath: path to the directory where we save our playlists
-set playlistpath		/pub/mp3/- Playlists
+set playlistpath		/pub/mp3/# Playlists
 
 # output_device: desired output device e.g. /dev/dsp or /dev/dsp1
 set output_device		/dev/dsp
@@ -40,9 +40,10 @@ set file_advance		true
 # loop: loop over the playlist when we get to the end?
 set loop			false
 
-# playlist_to_files: Open playlists directly in the
-# playlist window, instead of browsing them as a directory
-set playlists_to_files		false
+# playlist_to_files: Open playlists in the files window
+# browsing them as a directory, instead of adding the playlist directly to 
+# the playlist
+set playlists_to_files		true
 
 # mono_output: Let mpg123 produce single channel (mono) output only.
 # show_playlist_length: Let mpg123 show not only the remaining time per
@@ -61,6 +62,8 @@ set show_track_numbers		false
 # Fix the ugly borders in xterm's (true/false/auto)
 set fix_window_borders		auto
 
+set keep_playlist_at_exit	true
+
 #
 # Colors
 # 
@@ -69,23 +72,35 @@ set fix_window_borders		auto
 # Foreground colors can, in addition to above, be:
 #     b_black, b_red, b_green, yellow, b_blue, b_magenta, b_cyan, white
 #
+color window_active			b_green:black
+color window_inactive			green:black
+color window_inactive_title		green:black
+color window_inactive_scroll		green:black
+color window_inactive_scroll_bar	b_green:black
+color window_active_title		b_green:black
+color window_active_scroll		green:black
+color window_active_scroll_bar		b_green:black
 
-color active   		b_green:black
-color inactive 		green:black
-color selected   	b_green:green
-color unselected 	b_green:black
-color directory         green:black
-color title             b_green:black
-color scroll            green:black
-color scroll_bar        b_green:black
-color playlist          green:black
-color playing           b_green:black
-color sel_playing       b_green:green
-color file_back         black
-color info_back         black
-color play_back         black
-color menu_back         black
-color menu_text         b_green:black
+color files_unselected_file		b_green:black
+color files_selected_file		b_green:green
+color files_unselected_directory	green:black
+color files_selected_directory		black:green
+color files_background			black
+
+color playlist_unselected		green:black
+color playlist_selected			green:green
+color playlist_unselected_playing	b_green:black
+color playlist_selected_playing		b_green:green
+color playlist_background	 	black
+
+color info_text				b_green:black
+color info_background			black
+
+color menu_text				b_green:black
+color menu_background	 		black
+
+color playback_text	 		b_green:black
+color playback_background		black
 
 #
 # Window positions and sizes and formats (only used for 'list' type windows)
@@ -131,7 +146,7 @@ play height	h-9
 play width	0
 play y		8
 play x		w/2
-play format	%t %T
+play format	%t 
 play title.default Playlist
 play title.format Playlist
 

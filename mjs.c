@@ -505,13 +505,12 @@ read_key (Window * window)
 
 	case KEY_DC:
 		// remove selected from playlist                
-		if (active == play) {
+		if ((active == play) && (play->contents.list->selected)) {
 			wlist *playlist = play->contents.list;
 			if ((p_status == PLAYING) & (play->contents.list->playing == play->contents.list->selected)) {
 				jump_forward (play->contents.list);
 				play->update (play);
 			}
-			//playlist->selected = delete_file (playlist->selected);
 			wlist_del(playlist, playlist->selected);
 			info->update (play);
 			play->update (play);

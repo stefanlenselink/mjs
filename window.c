@@ -95,19 +95,6 @@ show_list(Window *window)
 		redrawwin(win);
 	return 1;
 }
-/*
-	if ((list->selected->next) && (list->selected->next->next) && (list->selected->next->next->next == list->bottom))
-		if (list->bottom->next) {
-			list->top = list->top->next;
-			list->bottom = list->bottom->next;
-		}
-
-	if ((list->selected->prev) && (list->selected->prev->prev) && (list->selected->prev->prev->prev == list->top)) 
-		if (list->top->prev) {
-			list->top = list->top->prev;
-			list->bottom = list->bottom->prev;
-		}
-*/
 
 Window *
 move_selector(Window *window, int c)
@@ -375,7 +362,7 @@ do_scrollbar(Window *window)
 	int x, y; /* window dimensions, etc */
 	int top, bar, bottom; /* scrollbar portions */
 	double value; /* how much each notch represents */
-	u_int32_t color;
+	u_int32_t color, barcolor;
 	wlist *list = window->contents.list;
 	WINDOW *win = window->win;
 
@@ -400,19 +387,17 @@ do_scrollbar(Window *window)
 	/* because of rounding we may end up with too much, correct for that */
 	if (bottom < 0)
 		top += bottom;
-	if (window->flags & W_ACTIVE)
+
+	if (window->flags & W_ACTIVE) {
 		color = colors[WIN_ACTIVE_SCROLL];
-	else
+		barcolor = colors[WIN_ACTIVE_SCROLLBAR];
+	} else {
 		color = colors[WIN_INACTIVE_SCROLL];
+		barcolor = colors[WIN_INACTIVE_SCROLLBAR];
+	}
 
 	mvwvline(win, 1, x, ACS_BOARD | A_ALTCHARSET | color, top);
-
-
-	if (window->flags & W_ACTIVE)
-		mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_ACTIVE_SCROLLBAR], bar);
-	else
-		mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | colors[WIN_INACTIVE_SCROLLBAR], bar);
-	
+	mvwvline(win, 1 + top, x, ACS_BLOCK | A_ALTCHARSET | barcolor, bar);
 	if (bottom > 0)
 		mvwvline(win, 1 + top + bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom);
 

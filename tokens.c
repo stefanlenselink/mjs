@@ -8,16 +8,12 @@ const char *
 parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 {
 	int len = 0;
-	char *title, *artist;
+	char *artist;
 	
 	if (!fmt || !file)
 		return (const char *)line;
 
 	/* check for existence of these, set default values if necessary */
-//	if (file->title)
-//		title = file->title;
-//	else
-		title = file->filename;
 	
 	if (file->artist)
 		artist = file->artist;
@@ -30,8 +26,8 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 			double sec;
 			switch(*++fmt) {
 				case 't':   /* the song title */
-					strncat(line, title, size-len);
-					len += strlen(title);
+					strncat(line, file->filename, size-len);
+					len += strlen(file->filename);
 					break;
 				case 'a':   /* the artist */
 					strncat(line, artist, size-len);

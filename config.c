@@ -125,6 +125,8 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_SHOW_P_LENGTH;
 	else if (!strcasecmp (option, "allow_playlist_saving"))
 		conf->c_flags |= YESNO (value) * C_ALLOW_P_SAVE;
+	else if (!strcasecmp (option, "show_track_numbers"))
+		conf->c_flags |= YESNO (value) * C_TRACK_NUMBERS;
 	else if (!strcasecmp (option, "buffer"))
 	{
 		errno = 0;

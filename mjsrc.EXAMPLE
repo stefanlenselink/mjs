@@ -56,6 +56,7 @@ set mono_output			false
 set show_playlist_length 	true
 set alternative_scrolling	false
 set allow_playlist_saving	true
+set show_track_numbers		true
 
 #
 # Colors

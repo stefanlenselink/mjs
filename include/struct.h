@@ -69,8 +69,6 @@ typedef struct _flist {
 #define F_PAUSED   	0x08
 #define F_SEARCHDIR	0x10	
 #define F_PLAYLIST	0x20
-	short bitrate;
-	int frequency;
 	int where;
 	u_int32_t colors;
 	time_t length;
@@ -78,7 +76,6 @@ typedef struct _flist {
 	char *filename;
 	char *path;
 	char *fullpath;
-//	char *title;
 	char *artist;
 	struct _flist *next;
 	struct _flist *prev;
@@ -154,14 +151,15 @@ typedef struct _config {
 	char playlistpath[256];
 	char bottomtext[256];
 	u_int16_t c_flags;
-#define C_PADVANCE 	0x01
-#define C_FADVANCE 	0x02
-#define C_LOOP     	0x08
-#define C_P_TO_F 	0x10
-#define C_MONO	   	0x04
-#define C_SHOW_P_LENGTH	0x20
-#define C_ALT_SCROLL	0x40
-#define	C_ALLOW_P_SAVE	0x80
+#define C_PADVANCE 	0x0001
+#define C_FADVANCE 	0x0002
+#define C_LOOP     	0x0008
+#define C_P_TO_F 	0x0010
+#define C_MONO	   	0x0004
+#define C_SHOW_P_LENGTH	0x0020
+#define C_ALT_SCROLL	0x0040
+#define	C_ALLOW_P_SAVE	0x0080
+#define C_TRACK_NUMBERS 0x0100
 	int buffer;
 	int jump;
 } Config;

@@ -182,10 +182,7 @@ update_info(Window *window)
 	clear_info();
 
 	if (file) {
-//		if (file->title)
-//			my_mvwnprintw(win, 1, 9, colors[UNSELECTED], i-10, "%s", file->title);
-//		else
-			my_mvwnprintw(win, 1, 9, colors[UNSELECTED], i-10, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
+		my_mvwnprintw(win, 1, 9, colors[UNSELECTED], i-10, "%s", (file->flags & F_DIR) ? "(Directory)" : file->filename);
 		if (file->artist)
 			my_mvwnprintw(win, 2, 9, colors[UNSELECTED], i-10, "%s", file->artist);
 		if (file->album)

@@ -143,9 +143,9 @@ mp3_info(char *filename, flist *file, u_int32_t size)
 	if (!file)
 		file = calloc(1, sizeof(flist));
 
-	file->bitrate = btr=t_bitrate[header.ID][3-header.layer][header.bitrate_index];
+	btr=t_bitrate[header.ID][3-header.layer][header.bitrate_index];
 
-	framesize = (header.ID ? 144000 : 72000) * btr / (file->frequency = t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency]);
+	framesize = (header.ID ? 144000 : 72000) * btr / (t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency]);
 	totalframes = (double)size / (double)framesize;
 	file->length = (time_t)(totalframes * (header.ID==0?576.0:1152.0)/(float)t_sampling_frequency[header.IDex][header.ID][header.sampling_frequency]);
 

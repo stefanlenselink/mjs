@@ -8,302 +8,305 @@
 #include "extern.h"
 #include "list.h"
 
-static int	sort_mp3(const void *, const void *);
-static int	sort_mp3_search(const void *, const void *);
-static int	check_file(flist *);
+static int sort_mp3 (const void *, const void *);
+static int sort_mp3_search (const void *, const void *);
+
 
 void
-read_mp3_list(wlist *list)
+leave_directory (Window * window) {
+	char * filename = strdup(dirstack_filename());
+	char * fullpath = strdup(dirstack_fullpath());
+	wlist * list = window->contents.list;
+	
+	if ((dirstack_listcache())&&((dirstack_listcache())->head))
+		wlist_move(list, dirstack_listcache());
+	else {
+		read_mp3_list (list, fullpath, L_NEW);
+		while (strcmp (list->selected->filename, filename))
+			move_selector (window, KEY_DOWN);
+	}
+	dirstack_pop();
+	window->update (window);
+	info->update (info);
+	free(filename);
+	free(fullpath);
+}
+
+void
+enter_directory (Window * window, const char * fullpath){
+	char *newdir = strdup(fullpath);
+	wlist * list = window->contents.list;
+	
+	if (!(list->flags & F_VIRTUAL)) 
+		dirstack_push(list->from, list->selected->filename, list);
+	read_mp3_list (list, newdir, L_NEW);
+	free(newdir);
+}
+
+void
+read_mp3_list (wlist * list, const char * from, int append)
+{
+	struct stat st;
+	if (!lstat (from, &st)) {
+
+		if (S_ISLNK (st.st_mode)) {
+			char tempdir[256];
+			int n;
+			n = readlink(from, tempdir, sizeof(tempdir));
+			tempdir[n]='\0';
+			list->from = strdup(tempdir);
+			stat(list->from, &st);
+		} else
+			list->from = strdup(from);
+
+	
+		if (S_ISDIR (st.st_mode)) {
+			read_mp3_list_dir (list, list->from, append);
+			switch (append) {
+				case L_NEW:
+					if (list->head)
+						sort_songs (list);
+					break;
+				case L_SEARCH:
+					if (list->head)
+						sort_search (list);
+					break;
+			}
+		} else {
+			switch (append) {
+				case L_SEARCH:
+					menubar->deactivate (menubar);
+					printf_menubar (menubar, SEARCHING);
+					break;
+				default:
+					menubar->deactivate (menubar);
+					printf_menubar (menubar, READING);
+			}
+			read_mp3_list_file (list, list->from, append);
+			if ((append & L_SEARCH) && (list->head))
+				sort_search (list);
+			menubar->activate (menubar);
+		}
+	}
+	return;
+}
+
+
+void
+read_mp3_list_dir (wlist * list, const char * directory, int append)
 {
 	char *dir = NULL;
 	DIR *dptr = NULL;
 	struct dirent *dent;
-	struct stat st;
 	flist *ftmp = NULL;
-
-	wlist_clear(list);
-
-	list->flags &= ~F_VIRTUAL;
-	dir = getcwd(NULL, 0);
+	
+	
+	
+	dir = strdup(directory);
+	wlist_clear (list);
+	chdir(dir);
+	
 	errno = 0;
 	if (errno) {
-		my_mvwprintw(menubar->win, 0, 0, colors[MENU_TEXT], "Error with opendir(): %s", strerror(errno)); 
+		my_mvwprintw (menubar->win, 0, 0, colors[MENU_TEXT], "Error with opendir(): %s", strerror (errno));
 		return;
-		}
-
-	if ((strncmp(dir,conf->mp3path,strlen(conf->mp3path))) && (strcmp(dir,conf->playlistpath))){
-		chdir(conf->mp3path);
-		dir = getcwd(NULL, 0);
-	} else 	if (strcmp(dir,conf->mp3path)) {
-		ftmp = calloc(1, sizeof(flist));
-		ftmp->flags |= F_DIR;
-		ftmp->filename = strdup("../");
-		if (strcmp(dir,conf->playlistpath))
-			ftmp->fullpath = strdup("../");
-		else
-			ftmp->fullpath = strdup(conf->mp3path);
-		ftmp->path = strdup(dir);
-
-		wlist_add(list, list->tail, ftmp);
 	}
-		
-	dptr = opendir(dir);
-		
-	while ((dent = readdir(dptr))) {
+
+	if ((strncmp (dir, conf->mp3path, strlen (conf->mp3path)-1)) && (strcmp (dir, conf->playlistpath))) {
+		chdir (conf->mp3path);
+		dir = strdup(conf->mp3path);
+	} else if (!dirstack_empty()) {
+		ftmp = mp3_info (dir, "../", NULL, 0, append);
+		wlist_add (list, list->tail, ftmp);
+	}
+
+
+	dptr = opendir (dir);
+	while ((dent = readdir (dptr))) {
 		if (*dent->d_name == '.')
 			continue;
-		stat(dent->d_name, &st);
-		if (S_ISDIR(st.st_mode)) {
-			ftmp = calloc(1, sizeof(flist));
-			ftmp->flags |= F_DIR;
 
-			
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-			ftmp->filename = malloc(dent->d_namlen+2);
-#else
-			ftmp->filename = malloc(strlen(dent->d_name)+2);
-#endif /* *BSD */
-
-			
-			strcpy(ftmp->filename, dent->d_name);
-			strcat(ftmp->filename, "/");
-
-
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-			ftmp->fullpath = calloc(1, strlen(dir)+dent->d_namlen+2);
-#else
-			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
-#endif /* *BSD */
-
-			
-			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
-			ftmp->path = strdup(dir);
-
-		} else if (S_ISREG(st.st_mode)) {
-
-			if ((strncasecmp(".mp3", strchr(dent->d_name, '\0')-4, 4)) && (strncasecmp(".mjs", strchr(dent->d_name, '\0')-4, 4)))
-				continue;
-			if (strncasecmp(".mp3", strchr(dent->d_name, '\0')-4, 4)){
-				ftmp = calloc(1, sizeof(flist));
-				ftmp->flags |= F_PLAYLIST;
-
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-				ftmp->filename = malloc(dent->d_namlen-1);
-#else
-				ftmp->filename = malloc(strlen(dent->d_name)-1);
-#endif /* *BSD */
-				ftmp->filename[0]='<';
-				strncpy(ftmp->filename+1, dent->d_name, strlen(dent->d_name)-4);
-				ftmp->filename[strlen(dent->d_name)-3]='\0';
-				strcat(ftmp->filename,">\0");
-			}
-			else {
-				ftmp = NULL;
-				if (!(ftmp = mp3_info(dir, dent->d_name, ftmp, st.st_size)))
-					continue;	
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-				ftmp->filename = malloc(dent->d_namlen-3);
-#else
-				ftmp->filename = malloc(strlen(dent->d_name)-3);
-#endif /* *BSD */
-				strncpy(ftmp->filename, dent->d_name, strlen(dent->d_name)-4);
-				ftmp->filename[strlen(dent->d_name)-4]='\0';
-
-
-			}
-			ftmp->path = strdup(dir);
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-			ftmp->fullpath = calloc(1, strlen(dir)+dent->d_namlen+2);
-#else
-			ftmp->fullpath = calloc(1, strlen(dir)+strlen(dent->d_name)+2);
-#endif /* *BSD */
-			sprintf(ftmp->fullpath, "%s/%s", dir, dent->d_name);
-
-		}
-		wlist_add(list, list->tail, ftmp);
+		if ((ftmp = mp3_info (dir, dent->d_name, NULL, 0, append))) 
+			wlist_add (list, list->tail, ftmp);
 	}
-	closedir(dptr);
+	closedir (dptr);
 	free(dir);
 	return;
 }
 
 int
-write_mp3_list_file(wlist *list, char *filename)
+write_mp3_list_file (wlist * list, char *filename)
 {
 	FILE *fp;
 	flist *ftmp;
+
 	
-	if (!(fp = fopen(filename,"w")))
+	
+	if (!(fp = fopen (filename, "w")))
 		return 1;
-	fprintf(fp,"Playlist for mjs\n");
-	for (ftmp = list->head; ftmp; ftmp=ftmp->next)
-		fprintf(fp,"%s\n",ftmp->fullpath);
-	fclose(fp);
+	fprintf (fp, "Playlist for mjs\n");
+	for (ftmp = list->head; ftmp; ftmp = ftmp->next)
+		fprintf (fp, "%s\n", ftmp->fullpath);
+	fclose (fp);
 	return 0;
 }
 
 
 void
-read_mp3_list_file(wlist *list, char *filename, int append)
+read_mp3_list_file (wlist * list, const char *filename, int append)
 {
 	char *buf = NULL;
 	char *file = NULL;
 	FILE *fp;
 	char *dir = NULL;
-	char * playlistname = NULL;
-	struct stat st;
+	char *playlistname = NULL;
 	flist *ftmp = NULL;
-	int length = 0, n = 0;
+	int length = 0, n = 0, lines = 0;
 	int playlist = 0;
-	
-	errno=0;
-	if (!(fp = fopen(filename,"r")))
+
+	errno = 0;
+	if (!(fp = fopen (filename, "r")))
 		return;
 
-	buf = calloc(256, sizeof(char));
+	buf = calloc (256, sizeof (char));
+	while (!feof (fp)) {
+		lines++;
+		fgets (buf, 255, fp);
+	}
+	fclose (fp);
+	errno = 0;
+	if (!(fp = fopen (filename, "r")))
+		return;
 
-	fgets(buf, 255, fp);
-	if (!strncmp("Playlist for mjs",buf,16))
+	fgets (buf, 255, fp);
+	if (!strncmp ("Playlist for mjs", buf, 16))
 		playlist = 1;
 
-	if (playlist){
-		length = strrchr(filename,'/')-filename;
-		playlistname = malloc(strlen(filename)-length-4);
-		strncpy(playlistname, filename+length+1,strlen(filename)-length-5);
-		playlistname[strlen(filename)-length-5]='\0';
-	}
+	if (playlist) {
+		length = strrchr (filename, '/') - filename;
+		playlistname = malloc (strlen (filename) - length - 4);
+		strncpy (playlistname, filename + length + 1, strlen (filename) - length - 5);
+		playlistname[strlen (filename) - length - 5] = '\0';
+	} 
 
-	if (!append | !list->head) 
-		wlist_clear(list);
+	if (append | !list->head)
+		wlist_clear (list);
 
-	if (!append) {
-		list->flags |= F_VIRTUAL;
-		ftmp = calloc(1, sizeof(flist));
+	if (append) {
+		ftmp = calloc (1, sizeof (flist));
 		ftmp->flags |= F_DIR;
-		ftmp->filename = strdup("../");
-		ftmp->fullpath = getcwd(NULL,0);
-		if (playlist) 
-			ftmp->path = strdup(playlistname);
-		else
-			ftmp->path = strdup("Search Results");
-		wlist_add(list, list->tail, ftmp);
-	}
-			
-	while (!feof(fp)) {
+		ftmp->filename = strdup ("../");
+		ftmp->fullpath = getcwd (NULL, 0);
+		if (playlist)
+			ftmp->path = strdup (playlistname);
+		else {
+			char buf[21];
+			snprintf((buf),20,"%d searchresults",(lines-2));
+			ftmp->path = strdup (buf);
+			list->flags |= F_VIRTUAL;
+		}
+		ftmp->relpath = strdup(ftmp->path);
+		wlist_add (list, list->tail, ftmp);
+	} else
+		list->flags |= F_VIRTUAL;
+
+
+	while (!feof (fp)) {
 		n++;
-		if (n & 0x03){
-			my_mvwaddstr(menubar->win, 0, (26+(n/4)), colors[MENU_TEXT], "*");
-			update_panels();
-			doupdate();
-			}
-		if (!fgets(buf, 255, fp)){
+		my_mvwaddstr (menubar->win, 0, (26 + (n * (50 / (float)lines))), colors[MENU_TEXT], "*");
+		if ((n & 0x030)==0x000) {
+			my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "|");
+		} else
+		if ((n & 0x030)==0x010) {
+			my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "/");
+		} else
+		if ((n & 0x030)==0x020) {
+			my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "-");
+		} else
+			my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "\\");
+		update_panels ();
+		doupdate ();
+		
+		if (!fgets (buf, 255, fp)) {
 			// end-of-file reached or got zero characters
-			fclose(fp);
-			free(buf);	
-			free(playlistname);
+			fclose (fp);
+			free (buf);
+			if (playlistname)
+				free (playlistname);
 			return;
 		}
-		length=strrchr(buf,'/')-buf;
-		buf[strlen(buf)-1]='\0';		// Get rid off trailing newline
-		dir = malloc(length+1);
-		file = malloc(strlen(buf)-length);		
-		strncpy(dir, buf, length);
-		dir[length]='\0';
-		strcpy(file, buf+length+1);
-		ftmp = NULL;
-		if (!stat(buf, &st)) {
-			if (S_ISDIR(st.st_mode)) {
-// directory	
-				ftmp = calloc(1, sizeof(flist));
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)         
-				ftmp->filename = malloc(file+3);
-#else
-				ftmp->filename = malloc(strlen(file)+3);
-#endif /* *BSD */
-				strcpy(ftmp->filename, file);
-				strcat(ftmp->filename, ":");
-				ftmp->fullpath = strdup(buf);
-				ftmp->path = strdup(buf);
-				ftmp->flags |= F_DIR;
-				ftmp->album = NULL;
-				ftmp->artist = NULL;
-			} else {
-				if ((S_ISREG(st.st_mode)) & ((!strncasecmp(".mp3", strchr(file, '\0')-4, 4)) && ((ftmp = mp3_info(dir, file, ftmp, st.st_size))))) {
-					if (playlist) {
-// playlist
-						if (ftmp->album)
-							free(ftmp->album);
-						ftmp->album = strdup(playlistname);
-						if ((file[0]>='0') & (file[0]<='9')) {
-							// get rid of old tracknumber add new tracknumber
-							ftmp->filename = malloc(strlen(file)-3);
-							snprintf(ftmp->filename, 3, "%02.0f", (float)n);
-							ftmp->filename[2]=' ';
-							strncpy(ftmp->filename+3, file+3, strlen(file)-7);
-							ftmp->filename[strlen(file)-4]='\0';
-	
-						} else {
-							// get rid of .mp3 add tracknumber
-							ftmp->filename = malloc(strlen(file));
-							snprintf(ftmp->filename, 3, "%02.0f", (float)n);
-							ftmp->filename[2]=' ';
-							strncpy(ftmp->filename+3, file, strlen(file)-4);
-							ftmp->filename[strlen(file)-1]='\0';
-						}
-	
-					} else { // get rid of .mp3
-// mp3-file
-						ftmp->filename = malloc(strlen(file)-3);
-						strncpy(ftmp->filename, file, strlen(file)-4);
-						ftmp->filename[strlen(file)-4]='\0';
-					
-					}
+		length = strrchr (buf, '/') - buf;
+		buf[strlen (buf) - 1] = '\0';	// Get rid off trailing newline
+		dir = malloc (length + 1);
+		file = malloc (strlen (buf) - length);
+		strncpy (dir, buf, length);
+		dir[length] = '\0';
+		strcpy (file, buf + length + 1);
+//		if (*filename == '.')
+//			continue;
 
-					ftmp->path = strdup(dir);
-					ftmp->fullpath = strdup(buf);
-				}
-			}
-		} else {
-			if (!strncasecmp(buf, "http", 4)) {
-				// web-cast http adres
-				ftmp = calloc(1, sizeof(flist));
-				ftmp->filename = calloc(strlen(playlistname)+11, sizeof(char));
-				strcpy(ftmp->filename, "WebRadio: \0");
-				strcat(ftmp->filename, playlistname);
-				ftmp->album = strdup(buf);
-				ftmp->artist = strdup("http-stream");
-				ftmp->fullpath = strdup(buf);
-				ftmp->path = strdup("http-stream");
-			}
-		}
+		if ((ftmp = mp3_info (dir, file, playlistname, n, append)))
+			wlist_add (list, list->tail, ftmp);
 
-		if (ftmp) 
-			wlist_add(list, list->tail, ftmp);
-		free(file);
-		free(dir);
+		free (file);
+		free (dir);
 	}
-	fclose(fp);
-	if (buf)
-		free(buf);
+	fclose (fp);
+	free (buf);
 	if (playlistname)
-		free(playlistname);
+		free (playlistname);
 	return;
 }
 
+void
+read_mp3_list_array (wlist * list, int argc, char *argv[])
+{
+	int n;
+	flist *ftmp = NULL;
+	wlist_clear(list);
+	for (n = 1;n < argc ;n++) {
+		char *dir, *file, *l;
+		int length;
+		
+		if (l = strrchr (argv[n], '/')) {
+			length = l - argv[n];
+			dir = malloc (length + 1);
+			strncpy (dir, argv[n], length);
+			dir[length] = '\0';
+
+			file = malloc (strlen (argv[n]) - length);
+			strcpy (file, argv[n] + length + 1);
+
+		} else {	/* no path given, so must be current working dir */
+			char buf[256];
+			getcwd(buf, 255);
+			dir = strdup (buf);
+			file = strdup (argv[n]);
+			printf("%s %s\n", dir, file);
+		}
+
+		if ((ftmp = mp3_info (dir, file, NULL, n, L_NEW)))
+			if (!(ftmp->flags & F_DIR))
+				wlist_add (list, list->tail, ftmp);
+		free(file);
+		free(dir);
+		}
+	return;
+}
 /* sort directories first, then files. alphabetically of course. */
 wlist *
-sort_songs(wlist *sort)
+sort_songs (wlist * sort)
 {
 	int i = 0, j;
 	flist *ftmp = NULL, *newlist = NULL, **fsort;
-	
+
 	for (ftmp = sort->head; ftmp; ftmp = ftmp->next)
-		i++; 
-	fsort = (flist **) calloc(i, sizeof(flist *));
+		i++;
+	fsort = (flist **) calloc (i, sizeof (flist *));
 	for (ftmp = sort->head, j = 0; ftmp; ftmp = ftmp->next, j++)
 		fsort[j] = ftmp;
 
-	qsort((void *)fsort, i, sizeof(flist *), sort_mp3);
+	qsort ((void *) fsort, i, sizeof (flist *), sort_mp3);
 	sort->tail = newlist = fsort[0];
 	newlist->next = NULL;
 
@@ -313,25 +316,27 @@ sort_songs(wlist *sort)
 		newlist->prev = ftmp;
 		newlist = ftmp;
 	}
-	free(fsort);
+	free (fsort);
 	newlist->prev = NULL;
 	sort->head = sort->top = sort->selected = newlist;
 	return sort;
 }
 
 wlist *
-sort_search(wlist *sort)
+sort_search (wlist * sort)
 {
 	int i = 0, j;
 	flist *ftmp = NULL, *newlist = NULL, **fsort;
+
+	
 	
 	for (ftmp = sort->head; ftmp; ftmp = ftmp->next)
-		i++; 
-	fsort = (flist **) calloc(i, sizeof(flist *));
+		i++;
+	fsort = (flist **) calloc (i, sizeof (flist *));
 	for (ftmp = sort->head, j = 0; ftmp; ftmp = ftmp->next, j++)
 		fsort[j] = ftmp;
 
-	qsort((void *)fsort, i, sizeof(flist *), sort_mp3_search);
+	qsort ((void *) fsort, i, sizeof (flist *), sort_mp3_search);
 	sort->tail = newlist = fsort[0];
 	newlist->next = NULL;
 
@@ -341,55 +346,60 @@ sort_search(wlist *sort)
 		newlist->prev = ftmp;
 		newlist = ftmp;
 	}
-	free(fsort);
+	free (fsort);
 	newlist->prev = NULL;
 	sort->head = sort->top = sort->selected = newlist;
 	return sort;
 }
 
 static int
-sort_mp3(const void *a, const void *b)
+sort_mp3 (const void *a, const void *b)
 {
 	const flist *first = *(const flist **) a;
 	const flist *second = *(const flist **) b;
 
+	
+	
 	if (first->filename[0] == '.')
 		return 1;
-	if ((first->flags & F_DIR) && !(second->flags & F_DIR))
+	if ((first->flags & (F_DIR|F_PLAYLIST)) && !(second->flags & (F_DIR|F_PLAYLIST)))
 		return 1;
-	else if (!(first->flags & F_DIR) && (second->flags & F_DIR))
+	else if (!(first->flags & (F_DIR|F_PLAYLIST)) && (second->flags & (F_DIR|F_PLAYLIST)))
 		return -1;
 	else
-		return strcmp(second->filename, first->filename);
+		return strcmp (second->filename, first->filename);
 }
 
 static int
-sort_mp3_search(const void *a, const void *b)
+sort_mp3_search (const void *a, const void *b)
 {
 	const flist *first = *(const flist **) a;
 	const flist *second = *(const flist **) b;
 	int result;
 
+	
+	
 	if (first->filename[0] == '.')
 		return 1;
-	if (!(result = strcmp(second->path, first->path))) {
+	if (!(result = strcmp (second->path, first->path))) {
 		if ((first->flags & F_DIR) && !(second->flags & F_DIR))
 			return 1;
-		else 
-			if (!(first->flags & F_DIR) && (second->flags & F_DIR))
-				return -1;
-			else 
-				return strcmp(second->filename, first->filename);
-		}
+		else if (!(first->flags & F_DIR) && (second->flags & F_DIR))
+			return -1;
+		else
+			return strcmp (second->filename, first->filename);
+	}
 	return result;
 }
 
-static int
-check_file(flist *file)
+__inline__ int
+check_file (flist * file)
 {
 	struct stat sb;
-
-	if (stat(file->fullpath, &sb) == -1)
+	
+	if (!strncasecmp (file->fullpath, "http", 4))
+		return 1;
+	if (stat (file->fullpath, &sb) == -1)
 		return 0;
 	else
 		return 1;
@@ -398,32 +408,33 @@ check_file(flist *file)
 /* find the next valid entry in the search direction */
 
 flist *
-next_valid(wlist *list, flist *file, int c)
+next_valid (wlist * list, flist * file, int c)
 {
 	flist *ftmp = NULL;
+	
+	
+	
 	if (!file)
 		return NULL;
-	if (!strncasecmp(file->fullpath, "http", 4))
-		return file;
 	switch (c) {
-		case KEY_HOME:
-		case KEY_DOWN:
-		case KEY_NPAGE:
-			while (!check_file(file)) {
-				ftmp = file->next;
-				wlist_del(list, file);
-				file = next_valid(list, ftmp, c);
-			}
-			break;
-		case KEY_END:
-		case KEY_UP:
-		case KEY_PPAGE:
-			while (!check_file(file)) {
-				ftmp = file->prev;
-				wlist_del(list, file);
-				file = next_valid(list, ftmp, c);
-			}
-			break;
+	case KEY_HOME:
+	case KEY_DOWN:
+	case KEY_NPAGE:
+		while (!check_file (file)) {
+			ftmp = file->next;
+			wlist_del (list, file);
+			file = next_valid (list, ftmp, c);
+		}
+		break;
+	case KEY_END:
+	case KEY_UP:
+	case KEY_PPAGE:
+		while (!check_file (file)) {
+			ftmp = file->prev;
+			wlist_del (list, file);
+			file = next_valid (list, ftmp, c);
+		}
+		break;
 	}
 	return file;
 

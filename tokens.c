@@ -10,6 +10,8 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 	int len = 0;
 	char *artist;
 	
+	
+	
 	if (!(fmt) || !(file))
 		return (const char *)line;
 
@@ -39,20 +41,20 @@ parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)
 					len += strlen(file->fullpath);
 					break;
 				case 'p':   /* the path */
-					strncat(line, file->path, size-len);
-					len += strlen(file->path);
+					strncat(line, file->fullpath, size-len);
+					len += strlen(file->fullpath);
 					break;
-				case 'P':   /* the path without the conf->mp3path part*/
-					if (file->path[0] == '/') {
-						strncat(line, file->path+strlen(conf->mp3path), size-len);
-						len += strlen(file->path)-strlen(conf->mp3path);
+				case 'l':   /* the actual place and length of the platlist. */
+					len += snprintf (line+len, size-len, "(%d/", window->contents.list->where);
+					len += snprintf (line+len, size-len, "%d)", window->contents.list->length);
+					break;
+				case 'P':   /* the path without the conf->mp3path part */
+					if (file->flags & F_DIR) {
+						strncat(line, file->relpath, size-len);
+						len += strlen(file->relpath);
 					} else {
 						strncat(line, file->path, size-len);
 						len += strlen(file->path);
-					}
-					if (len<1) {
-						line = (u_char *)window->title_dfl;
-						len= strlen(window->title_dfl);
 					}
 					break;
 				case '%':

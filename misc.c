@@ -22,6 +22,9 @@ void
 init_ansi_pair(void)
 {
 	u_int8_t fore, back;
+	
+	
+	
 	for (fore = 0; fore < COLORS; fore++)
 		for (back = 0; back < COLORS; back++)
 			init_pair(fore<<3 | back, fore, back);
@@ -33,6 +36,9 @@ my_mvwprintw(WINDOW *win, int y, int x, u_int32_t attribs, const u_char *format,
 	u_int16_t i;
 	va_list args;
 	u_char buf[BUFFER_SIZE+1], *p;
+	
+	
+	
 	memset(buf, 0, BUFFER_SIZE+1);
 	va_start(args, format);
 	i = vsnprintf(buf, BUFFER_SIZE, format, args);
@@ -50,6 +56,9 @@ my_wprintw(WINDOW *win, u_int32_t attribs, const u_char *format, ...)
 	u_int16_t i;
 	va_list args;
 	u_char buf[BUFFER_SIZE+1], *p;
+	
+	
+	
 	memset(buf, 0, BUFFER_SIZE+1);
 	va_start(args, format);
 	i = vsnprintf(buf, BUFFER_SIZE, format, args);
@@ -66,6 +75,9 @@ my_mvwnprintw(WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char 
 	u_int16_t i;
 	va_list args;
 	u_char buf[n+1], *p;
+	
+	
+	
 	memset(buf, 0, n+1);
 	va_start(args, format);
 	i = vsnprintf(buf, n, format, args);
@@ -83,6 +95,9 @@ my_mvwnprintw2(WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char
 	u_int16_t i;
 	va_list args;
 	u_char buf[n+1], *p;
+	
+	
+	
 	memset(buf, 0, n+1);
 	va_start(args, format);
 	i = vsnprintf(buf, n, format, args);
@@ -106,6 +121,9 @@ my_wnprintw(WINDOW *win, u_int32_t attribs, int n, const u_char *format, ...)
 	u_int16_t i;
 	va_list args;
 	u_char buf[n+1], *p;
+	
+	
+	
 	memset(buf, 0, n+1);
 	va_start(args, format);
 	i = vsnprintf(buf, n, format, args);
@@ -121,10 +139,14 @@ my_mvwnaddstr(WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_ch
 {
 	u_char *s = NULL;
 
+	
+	
 	wmove(win, y, x);
 	if (str && *str)
-		for (s = (u_char *)str; *s && n; n--)
-			waddch(win, *s++ | attribs);
+		for (s = (u_char *)str; (*s) && (n); n--){
+			waddch(win, *s | attribs);
+			*s++;
+		}
 	for (; n; n--)
 		waddch(win, ' ' | attribs);
 	return OK;
@@ -135,6 +157,8 @@ my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
 {
 	u_char *s = NULL;
 
+	
+	
 	if (str && *str)
 		for (s = (u_char *)str; *s && n; n--)
 			waddch(win, *s++ | attribs);
@@ -147,6 +171,8 @@ int
 my_waddstr(WINDOW *win, u_int32_t attribs, const u_char *str)
 {
 	u_char *s = NULL;
+	
+	
 	
 	if (!str || !*str)
 		return OK;
@@ -165,6 +191,9 @@ __inline__ void
 my_wnclear(WINDOW *win, int n)
 {
 	int x, y;
+	
+	
+	
 	getyx(win, y, x);
 	for (; n > 0; n--)
 		waddch(win, ' ');

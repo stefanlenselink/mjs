@@ -33,6 +33,9 @@ static int
 del_char(Input *input, int backspace)
 {
 	int len = input->len, pos = input->pos;
+	
+	
+	
 	if (len > 0) {
 		if (backspace) {
 			if (pos > 1) {
@@ -109,6 +112,9 @@ Input *
 update_anchor(Input *inputline)
 {
 	int i, j, k;
+	
+	
+	
 	j = inputline->pos-5;
 	i = j / (inputline->flen-10);
 	k = j % (inputline->flen-10);
@@ -134,6 +140,8 @@ is_dir(char *name)
 {
 	struct stat s;
 
+	
+	
 	if (stat(name, &s) == -1)
 		return 0;
 	return S_ISDIR(s.st_mode);
@@ -147,6 +155,8 @@ filename_complete(Input *input)
 	char dir[256], file[256], *p;
 	int retval, i, num_files, num_matches, *matches;
 
+	
+	
 	strncpy(dir, input->buf, sizeof(dir)-1);
 	if ((p = strrchr(dir, '/')) == NULL) {
 		dir[0] = '.', dir[1] = '\0'; /* current directory if none specified */

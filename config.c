@@ -136,13 +136,17 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_P_SAVE_EXIT;
 	else if (!strcasecmp (option, "show_track_numbers"))
 		conf->c_flags |= YESNO (value) * C_TRACK_NUMBERS;
+	else if (!strcasecmp (option, "use_genre"))
+		conf->c_flags |= YESNO (value) * C_USE_GENRE;
+	else if (!strcasecmp (option, "screensaver"))
+		conf->c_flags |= YESNO (value) * C_SCREENSAVER;
 	else if (!strcasecmp (option, "fix_window_borders"))
 	{
 		switch (value[0]) {
 			case 'A' :
 			case 'a' :
 				if ((p = getenv ("TERM")))
-					if (!strcasecmp(p,"xterm"))
+					if (!strncasecmp(p,"xterm",5))
 						conf->c_flags |= C_FIX_BORDERS;
 				break;
 			case 'Y' :
@@ -167,6 +171,15 @@ set_option (Config * conf, char *option, char *value)
 		if (errno)
 			conf->jump = 1000;
 	}
+	
+	conf->pathlen = strlen (conf->mp3path);
+	if (conf->c_flags & C_USE_GENRE) {
+		char *t = strdup (conf->mp3path);
+		*strrchr(t,'/')='\0';
+		*strrchr(t,'/')='\0';
+		conf->basepathlen = strlen(t);
+	}
+
 	return conf;
 }
 
@@ -287,7 +300,7 @@ set_color (char *color, char *value)
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "files_background"))
 		colors[FILE_WINDOW] =
-			merge_colors (BLACK, str2color (fore));
+			merge_colors (str2color (fore), str2color (fore));
 
 	else if (!strcasecmp (color, "playlist_unselected"))
 		colors[PLAY_UNSELECTED] =
@@ -303,18 +316,18 @@ set_color (char *color, char *value)
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "playlist_background"))
 		colors[PLAY_WINDOW] =
-			merge_colors (BLACK, str2color (fore));
+			merge_colors (str2color (fore), str2color (fore));
 
 	else if (!strcasecmp (color, "info_text"))
 		colors[INFO_TEXT] =
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "info_background"))
 		colors[INFO_WINDOW] =
-			merge_colors (BLACK, str2color (fore));
+			merge_colors (str2color (fore), str2color (fore));
 
 	else if (!strcasecmp (color, "menu_background"))
 		colors[MENU_WINDOW] =
-			merge_colors (BLACK, str2color (fore));
+			merge_colors (str2color (fore), str2color (fore));
 	else if (!strcasecmp (color, "menu_text"))
 		colors[MENU_TEXT] =
 			merge_colors (str2color (fore), str2color (back));
@@ -324,7 +337,10 @@ set_color (char *color, char *value)
 			merge_colors (str2color (fore), str2color (back));
 	else if (!strcasecmp (color, "playback_background"))
 		colors[PLAYBACK_WINDOW] =
-			merge_colors (BLACK, str2color (fore));
+			merge_colors (str2color (fore), str2color (fore));
+	else if (!strcasecmp (color, "background"))
+		colors[BACKGROUND] =
+			merge_colors (str2color (fore), str2color (fore));
 }
 
 /*

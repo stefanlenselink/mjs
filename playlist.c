@@ -15,13 +15,17 @@ play_next_song(wlist *list)
 {
 	flist *ftmp = list->playing;
 
+	
+	
+	
 	if (!ftmp)
 		return;
 
 	if ((conf->c_flags & C_LOOP) && !ftmp->next)
 		ftmp = list->head;
-	else
-		ftmp = ftmp->next;
+	else if (!ftmp->next)
+		return;
+	ftmp = ftmp->next;
 	if (!jump_to_song(list, ftmp)) 
 		stop_player(list);
 }
@@ -31,12 +35,16 @@ play_prev_song(wlist *list)
 {
 	flist *ftmp = list->playing;
 
+	
+	
+	
 	if (!ftmp)
 		return;
 	if ((conf->c_flags & C_LOOP) && !ftmp->prev)
 		ftmp = list->tail;
-	else
+	else if (ftmp->prev)
 		ftmp = ftmp->prev;
+	
 	if (!jump_to_song(list, ftmp)) 
 		stop_player(list);
 }
@@ -47,12 +55,18 @@ jump_to_song(wlist *list, flist *next)
 {
 	char buf[BIG_BUFFER_SIZE+1];
 	FILE *activefile;
+	flist *ftmp;
 
-	next = next_valid(list, next, KEY_DOWN);
+	
+	
+	
+//	next = next_valid(list, next, KEY_DOWN);
+// it is in the playlist so it should be valid anyway and to check it slows things way down
 	
 	if (!next)
 		return 0;
 	
+		
 	list->playing = next;
 	memset(buf, 0, sizeof(buf));
 	snprintf(buf, BIG_BUFFER_SIZE, "%s", list->playing->fullpath);
@@ -66,9 +80,13 @@ jump_to_song(wlist *list, flist *next)
 	update_title(playback);
 	doupdate();
 
+	for (ftmp = list->head, list->whereplaying=0; ftmp!=list->playing; ftmp=ftmp->next)
+		list->whereplaying++;
+
 	activefile = fopen(conf->statefile,"w");
 	if (activefile) {
-		fprintf(activefile,"         Now playing:  %s  (by)  %s  (from)  %s    \n", list->playing->filename, list->playing->artist, list->playing->album);
+		fprintf(activefile,"         Now playing:  %s  (by)  %s  (from)  %s    \n", list->playing->filename, 
+		(list->playing->artist ? list->playing->artist : "Unknown"), (list->playing->album ? list->playing->album : "Unknown"));
 		fclose(activefile);
 	}
 	return 1;
@@ -78,7 +96,9 @@ void
 stop_player(wlist *list)
 {
 	FILE *activefile;
-		
+	
+
+	
 	if (list->playing) {
 		list->playing->flags &= ~F_PAUSED;
 		list->playing = NULL;
@@ -107,6 +127,9 @@ void
 pause_player(wlist *list)
 {
 	FILE *activefile;
+
+
+
 	list->playing->flags |= F_PAUSED;
 	play->update(play);
 	p_status = PAUSED;
@@ -124,6 +147,9 @@ void
 resume_player(wlist *list)
 {
 	FILE *active;
+
+
+
 	list->playing->flags &= ~F_PAUSED;
 	play->update(play);
 	p_status = PLAYING;
@@ -141,6 +167,9 @@ randomize_list(wlist *list)
 {
 	int i = list->length, j, k;
 	flist *ftmp = NULL, *newlist = NULL, **farray = NULL;
+
+
+
 	
 	if (i < 2)
 		return list;
@@ -167,7 +196,8 @@ randomize_list(wlist *list)
 		}
 	}
 	list->selected = list->head;
-	list->where = list->wheretop = 0;
+	list->where = 1;
+	list->wheretop = 0;
 	list->tail = newlist;
 	newlist->next = NULL;
 	free(farray);
@@ -180,17 +210,16 @@ add_to_playlist_recursive(wlist *list, flist *position, flist *file)
 {
 	char *prevpwd = NULL;
 	wlist *templist = NULL;
+
 	if (!(file->flags & F_DIR))
 		return;
 
 	templist = calloc(1, sizeof(wlist));
 	prevpwd = getcwd(NULL, 0);
-	chdir(file->fullpath);
 
-	read_mp3_list(templist);
-	if (templist->head)
-		sort_songs(templist);
-	templist->selected = templist->head->next; // skip ../ entry
+	read_mp3_list(templist, file->fullpath, L_NEW);
+	if (!strncmp(templist->selected->filename, "../", 3))
+		templist->selected = templist->head->next; // skip ../ entry
 	
 	while (templist->selected) {
 		if (templist->selected->flags & F_DIR)
@@ -207,6 +236,9 @@ add_to_playlist_recursive(wlist *list, flist *position, flist *file)
 	free(prevpwd);
 }
 
+
+
+
 void
 add_to_playlist(wlist *list, flist *position, flist *file)
 {
@@ -215,18 +247,12 @@ add_to_playlist(wlist *list, flist *position, flist *file)
 	newfile = calloc(1, sizeof(flist));
 	
 	/* remove tracknumber if it exists and user wants it*/
-	if (!(conf->c_flags & C_TRACK_NUMBERS)) {
-		if ((file->filename[0]>='0') & (file->filename[0]<='9')) {
-			if ((file->filename[1]>='0') & (file->filename[1]<='9'))
-				newfile->filename = strdup(file->filename+3);	
-			else
-				newfile->filename = strdup(file->filename+2);
-		} else if (!strncasecmp(file->filename,"cd",2))
-			newfile->filename = strdup(file->filename+7);	
-	}
-
-	if (!newfile->filename)
+	if (!(conf->c_flags & C_TRACK_NUMBERS)){
+		char *p = strip_track_numbers(file->filename);
+		newfile->filename = strdup(p);
+	} else
 		newfile->filename = strdup(file->filename);
+	
 	if (strlen(newfile->filename) == 0) {
 		free(newfile->filename);
 		newfile->filename = strdup("...");
@@ -236,6 +262,9 @@ add_to_playlist(wlist *list, flist *position, flist *file)
 	
 	newfile->fullpath = strdup(file->fullpath);
 	
+	if (file->genre)
+		newfile->genre = strdup(file->genre);
+
 	if (file->album)
 		newfile->album = strdup(file->album);
 	

@@ -11,34 +11,51 @@
 #define PLAYING 1
 #define PAUSED 2
 
+#define L_APPEND      	0
+#define L_NEW		1
+#define L_SEARCH	2
+
+
 typedef struct _flist {
 	unsigned short flags;
 #define F_DIR      	0x01
 #define F_PLAYLIST	0x02
+#define F_HTTP		0x04
 #define F_PAUSED   	0x40
-	int length;
 	char *album;
-	char *filename;
-	char *path;
-	char *fullpath;
+	char *filename;		// filename without path
+	char *path;		// path without filename without mp3path
+	char *fullpath;		// the fullpath
+	char *relpath;
 	char *artist;
+	char *genre;
 	struct _flist *next;
 	struct _flist *prev;
 } flist;
 
 typedef struct {
+	char *from;
 	flist *head;                       /* ptr to the HEAD of the linked list   */
 	flist *tail;                       /* ptr to the TAIL of the linked list   */
 	flist *top;                        /* ptr to the element at the window top */
 	flist *bottom;                        /* ptr to the element at the window bottom */
 	flist *selected;                   /* currently selected file              */
+	flist *lastadded;	           /* The previously added file         */
 	flist *playing;                    /* currently PLAYING file               */
-	int length;                        /* length of the list we are tracking   */
-	int where;			   /* what position in the list are we?    */
+	int length;                        /* length of the list we are tracking   [0..n]*/
+	int where;			   /* what position in the list are we?    if length=0 [0] else [1..length]*/
 	int wheretop;			   /* at what position is the top */
+	int whereplaying;
 	unsigned short flags;
 #define F_VIRTUAL      	0x01
 } wlist;
+
+typedef struct _dirstack {
+	struct _dirstack *prev;
+	char *fullpath;
+	char *filename;
+	wlist *list;
+} dirstack;
 
 typedef struct _input {
 	WINDOW *win;                       /* The window where we are              */
@@ -108,8 +125,12 @@ typedef struct _config {
 #define	C_ALLOW_P_SAVE	0x0040
 #define C_TRACK_NUMBERS 0x0080
 #define	C_P_SAVE_EXIT	0x0100
+#define C_USE_GENRE	0x0200
+#define C_SCREENSAVER	0x0400
 	int buffer;
 	int jump;
+	int pathlen;
+	int basepathlen;		/* only used in genre mode */
 } Config;
 
 typedef struct {

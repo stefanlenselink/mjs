@@ -1,9 +1,9 @@
 CC = gcc
 prefix = /usr/local/bin
 
-VERSION = 3.1-rc3
+VERSION = 3.3-rc2
 
-OBJS = mjscount.o config_stripped.o
+OBJS = mjscount.o config_stripped.o ../info.o
 
 INCLUDES = -I../include -Iinclude
 LIBRARY = -L/usr/local/lib
@@ -47,4 +47,4 @@ mostlyclean:
 
 config_stripped.o: ../include/top.h ../include/defs.h ../include/struct.h
 config_stripped.o: ../include/config.h 
-mjscount.o: ../include/top.h ../include/struct.h ../include/config.h
+mjscount.o: ../include/top.h ../include/struct.h ../include/config.h ../include/info.h

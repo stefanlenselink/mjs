@@ -5,6 +5,9 @@
 #include "struct.h"
 #endif
 
-flist	*mp3_info(char *, char *, flist *, u_int32_t);
+char	*chop_filename(char**);
+char	*strip_track_numbers(const char *);
+flist 	*mp3_info(const char *, const char *, const char *, int, int);
+char 	*resolve_path (const char *);
 
 #endif /* _info_h */

@@ -34,9 +34,10 @@
 
 /* enumeration for the color array */
 
-#define NUM_COLORS 24
+#define NUM_COLORS 25
 
 enum ATTRIBS {
+	BACKGROUND,
 	WIN_ACTIVE,
 	WIN_ACTIVE_TITLE,
 	WIN_ACTIVE_SCROLL,

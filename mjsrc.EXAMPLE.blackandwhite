@@ -46,8 +46,6 @@ set loop			false
 set playlists_to_files		true
 
 # mono_output: Let mpg123 produce single channel (mono) output only.
-# show_playlist_length: Let mpg123 show not only the remaining time per
-# track but also to the end of the playlist (not really accurate yet)
 set mono_output			false
 
 # alternative_scrolling: move the list instead of the selector
@@ -62,7 +60,14 @@ set show_track_numbers		false
 # Fix the ugly borders in xterm's (true/false/auto)
 set fix_window_borders		auto
 
-set keep_playlist_at_exit	false
+# Enable kind of screensaver function
+set screensaver			true
+
+# Reload the last playlist at startup 
+set keep_playlist_at_exit	true
+
+# Use directory based genre system
+set use_genre			false
 
 #
 # Colors

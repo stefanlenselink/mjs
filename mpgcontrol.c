@@ -20,6 +20,8 @@ start_mpg_child(void)
 {
 	int i;
 
+	
+	
 	if (pipe(inpipe) || pipe(outpipe))
 		bailout(1);
 	fcntl(outpipe[1], F_SETFD, O_NONBLOCK);
@@ -45,7 +47,7 @@ start_mpg_child(void)
 				if (conf->c_flags & C_MONO)
 					execlp(conf->mpgpath, "mjs-output", "-m", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
 				else 
-					execlp(conf->mpgpath, "mjs-output", "-b", buf, "-a", conf->output, "-R", "-", (char *)NULL);
+					execlp(conf->mpgpath, "mjs-output", "-b", buf,"-a", conf->output, "-R", "-", (char *)NULL);
 						
 			} else
 				if (conf->c_flags & C_MONO)
@@ -80,6 +82,8 @@ restart_mpg_child(void)
 {
 	wlist *win;
 
+	
+	
 	/* we will use this to clean up on a SIGCHLD */
 	if (pid)
 		waitpid(pid, NULL, 0);
@@ -101,6 +105,8 @@ int send_cmd(int type, ...)
 	int fd = inpipe[1];
 	long int skip;
 	va_list args;
+	
+	
 	
 	memset(buf, 0, 512);
 	if (fd < 0)
@@ -141,6 +147,8 @@ static mpgreturn *read_cmd(int fd, mpgreturn *status)
 	extern int p_status;
 	int n = 0, tmpstatus;
 
+	
+	
 	memset(buf, 0, 512);
 	memset(status, 0, sizeof(mpgreturn));
 	/* this seems inefficient but 1) i dont want to use FILE * and 2) we only
@@ -178,6 +186,8 @@ static int
 mpg_output(int fd)
 {
 	mpgreturn message;
+	
+	
 	
 	memset(&message, 0, sizeof(mpgreturn));
 	if (read_cmd(fd, &message)) {

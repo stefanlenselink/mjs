@@ -1,7 +1,7 @@
 CC = gcc
 prefix = /usr/local/bin
 
-VERSION = 3.1-rc3
+VERSION = 3.3-rc4
 
 SRCS =	mjs.c misc.c info.c config.c playlist.c inputline.c mpgcontrol.c \
 	tokens.c window.c files.c list.c
@@ -11,8 +11,10 @@ INCLUDES = -Iinclude
 LIBRARY = -L/usr/local/lib
 PROFILE = #-pg
 LIBS = -lncurses -lpanel 
-#ARCHFLAGS = -mcpu=pentium
-WARNINGS = -Wall -Wbad-function-cast -Wcast-align -Wshadow -W
+ARCHFLAGS = -mcpu=pentium
+#ARCHFLAGS = -march=pentium2
+WARNINGS = -Wbad-function-cast -Wcast-align 
+#WARNINGS = -Wall -Wbad-function-cast -Wcast-align -unreachable-code -W -Wshadow
 OPTFLAGS = -O2
 # Comment this out for debugging
 OPTFLAGS += -g3
@@ -45,20 +47,22 @@ clean:
 
 install: all
 	install -c -o 0 -g 0 mjs /usr/local/bin
-	install -c -o 0 -g 0 findmp3 /usr/local/bin
+	install -c -o 0 -g 0 tools/findmp3 /usr/local/bin
 	touch /var/log/mp3log
 	chmod a+rw /var/log/mp3log
 	mkdir -p /var/state
 	touch /var/state/mp3active
 	chmod a+rw /var/state/mp3active
+	touch /tmp/findresults
+	chmod a+rw /tmp/findresults
 
 	@echo -e "\nWarning: The config file format has been changed !!!"
 	@echo -e "\nDon't forget to cp mjsrc.EXAMPLE to ~/.mjsrc and change it as needed !!!\nYou may also read INSTALL for further instructions.\n"
-	@echo -e "(c) mvgalen 2001 mvgalen@users.sourceforge.net\n\n"
+	@echo -e "(c) mvgalen 2003 mvgalen@users.sourceforge.net\n\n"
 release: dist
 
 dist: clean
-	cd ..; tar cvzf mjs-$(VERSION).tar.gz --exclude mjs/CVS --exclude mjs/include/CVS mjs
+	cd ..; tar cvzf mjs-$(VERSION).tar.gz --exclude mjs/CVS --exclude tools/CVS --exclude mjs/include/CVS mjs
 
 mostlyclean:
 	rm -f *~ core *.core *.o
@@ -86,7 +90,7 @@ mpgcontrol.o: include/window.h include/mjs.h include/playlist.h
 mpgcontrol.o: include/extern.h
 playlist.o: include/top.h include/mpgcontrol.h include/misc.h
 playlist.o: include/window.h include/mjs.h include/extern.h
-playlist.o: include/list.h include/files.h
+playlist.o: include/list.h include/files.h include/struct.h
 tokens.o: include/top.h include/defs.h include/struct.h include/tokens.h
 tokens.o: include/extern.h
 window.o: include/top.h include/defs.h include/colors.h include/struct.h

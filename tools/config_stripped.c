@@ -105,6 +105,8 @@ set_option (Config * conf, char *option, char *value)
 		conf->c_flags |= YESNO (value) * C_P_SAVE_EXIT;
 	else if (!strcasecmp (option, "show_track_numbers"))
 		conf->c_flags |= YESNO (value) * C_TRACK_NUMBERS;
+	else if (!strcasecmp (option, "use_genre"))
+		conf->c_flags |= YESNO (value) * C_USE_GENRE;
 	else if (!strcasecmp (option, "fix_window_borders"))
 	{
 		switch (value[0]) {

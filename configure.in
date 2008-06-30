@@ -1,0 +1,15 @@
+AC_INIT(configure.in)
+
+AM_CONFIG_HEADER(config.h)
+AM_INIT_AUTOMAKE(mjs4, 4.0.0)
+
+AC_LANG_C
+AC_PROG_CC
+AM_PROG_LIBTOOL
+
+AC_CHECK_HEADER([xine.h], [], AC_MSG_ERROR([Couldn't find libxine headers.]))
+	
+	
+AC_CHECK_LIB(xine, xine_init, , AC_ERROR([Couldn't find xine library]), -lxine, )
+
+AC_OUTPUT(Makefile src/Makefile)

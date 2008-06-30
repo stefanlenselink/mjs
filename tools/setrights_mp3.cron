@@ -1,3 +1,0 @@
-chown -R jukebox:users /pub/mp3
-chmod -R ugo=rX /pub/mp3
-chmod -R u+w /pub/mp3

@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "engine.h"
+//#include "engine.h"
 
 int main(int argc, char *argv[])
 {
@@ -92,12 +92,12 @@ int main(int argc, char *argv[])
   ao_shutdown();
   
   mpg123_delete(ha);*/
-    engine_init();
+ /*   engine_init();
     
    engine_play();
    sleep(2);
    engine_ffwd(1000);
-  sleep(60);
+  sleep(60);*/
   printf("Hello, world!\n");
   
   return EXIT_SUCCESS;

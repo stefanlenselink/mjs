@@ -394,7 +394,7 @@ bailout (int sig)
 		fprintf (stderr, "\n\nmjs:error: unknown\n\n\n");
 		break;
 	}
-	fprintf (stdout, "\n\n MP3 Jukebox System (mjs) v%s\n", VERSION);
+	fprintf (stdout, "\n\n MP3 Jukebox System (mjs) v%s\n", "4.0"/* TODO VERSION*/);
 	fprintf (stdout, " By Marijn van Galen. (M.P.vanGalen@ITS.TUDelft.nl)\n\n");
 	fprintf (stdout, " Based on mms written by Wesley Morgan. (morganw@engr.sc.edu)\n\n\n");
 	fprintf (stdout, " Copyright (C) 2002 by Marijn van Galen\n");

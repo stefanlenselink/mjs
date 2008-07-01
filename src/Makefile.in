@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -34,7 +35,8 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = mjs4$(EXEEXT)
 subdir = src
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -46,10 +48,10 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_mjs4_OBJECTS = config.$(OBJEXT) engine.$(OBJEXT) files.$(OBJEXT) \
-	gui.$(OBJEXT) question.$(OBJEXT) window.$(OBJEXT) \
-	info.$(OBJEXT) inputline.$(OBJEXT) lastfm.$(OBJEXT) \
-	list.$(OBJEXT) misc.$(OBJEXT) mjs.$(OBJEXT) mjs_id3.$(OBJEXT) \
-	mpgcontrol.$(OBJEXT) playlist.$(OBJEXT) tokens.$(OBJEXT)
+	gui.$(OBJEXT) info.$(OBJEXT) inputline.$(OBJEXT) \
+	lastfm.$(OBJEXT) list.$(OBJEXT) misc.$(OBJEXT) mjs.$(OBJEXT) \
+	mjs_id3.$(OBJEXT) mpgcontrol.$(OBJEXT) playlist.$(OBJEXT) \
+	tokens.$(OBJEXT)
 mjs4_OBJECTS = $(am_mjs4_OBJECTS)
 mjs4_LDADD = $(LDADD)
 mjs4_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
@@ -76,6 +78,7 @@ RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	install-pdf-recursive install-ps-recursive install-recursive \
 	installcheck-recursive installdirs-recursive pdf-recursive \
 	ps-recursive uninstall-recursive
+HEADERS = $(noinst_HEADERS)
 RECURSIVE_CLEAN_TARGETS = mostlyclean-recursive clean-recursive	\
   distclean-recursive maintainer-clean-recursive
 ETAGS = etags
@@ -190,17 +193,18 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-mjs4_SOURCES = config.c engine.c files.c gui.c gui/question.c gui/window.c \
+mjs4_SOURCES = config.c engine.c files.c gui.c \
 	info.c inputline.c lastfm.c list.c misc.c mjs.c mjs_id3.c mpgcontrol.c \
 	playlist.c tokens.c
 
 
 # set the include path found by configure
-INCLUDES = -I$(top_srcdir)/src/gui $(all_includes)
+INCLUDES = $(all_includes)
 
 # the library search path.
 mjs4_LDFLAGS = $(all_libraries)
-SUBDIRS = gui
+SUBDIRS = engine gui
+noinst_HEADERS = engine.h
 all: all-recursive
 
 .SUFFIXES:
@@ -214,9 +218,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign  src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu  src/Makefile'; \
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign  src/Makefile
+	  $(AUTOMAKE) --gnu  src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -285,9 +289,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mjs_id3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpgcontrol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/playlist.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/question.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tokens.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -309,34 +311,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
-
-question.o: gui/question.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT question.o -MD -MP -MF $(DEPDIR)/question.Tpo -c -o question.o `test -f 'gui/question.c' || echo '$(srcdir)/'`gui/question.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/question.Tpo $(DEPDIR)/question.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gui/question.c' object='question.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o question.o `test -f 'gui/question.c' || echo '$(srcdir)/'`gui/question.c
-
-question.obj: gui/question.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT question.obj -MD -MP -MF $(DEPDIR)/question.Tpo -c -o question.obj `if test -f 'gui/question.c'; then $(CYGPATH_W) 'gui/question.c'; else $(CYGPATH_W) '$(srcdir)/gui/question.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/question.Tpo $(DEPDIR)/question.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gui/question.c' object='question.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o question.obj `if test -f 'gui/question.c'; then $(CYGPATH_W) 'gui/question.c'; else $(CYGPATH_W) '$(srcdir)/gui/question.c'; fi`
-
-window.o: gui/window.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT window.o -MD -MP -MF $(DEPDIR)/window.Tpo -c -o window.o `test -f 'gui/window.c' || echo '$(srcdir)/'`gui/window.c
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/window.Tpo $(DEPDIR)/window.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gui/window.c' object='window.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o window.o `test -f 'gui/window.c' || echo '$(srcdir)/'`gui/window.c
-
-window.obj: gui/window.c
-@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT window.obj -MD -MP -MF $(DEPDIR)/window.Tpo -c -o window.obj `if test -f 'gui/window.c'; then $(CYGPATH_W) 'gui/window.c'; else $(CYGPATH_W) '$(srcdir)/gui/window.c'; fi`
-@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/window.Tpo $(DEPDIR)/window.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gui/window.c' object='window.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o window.obj `if test -f 'gui/window.c'; then $(CYGPATH_W) 'gui/window.c'; else $(CYGPATH_W) '$(srcdir)/gui/window.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -519,7 +493,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(PROGRAMS)
+all-am: Makefile $(PROGRAMS) $(HEADERS)
 installdirs: installdirs-recursive
 installdirs-am:
 	for dir in "$(DESTDIR)$(bindir)"; do \

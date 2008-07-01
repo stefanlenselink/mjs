@@ -1,13 +1,18 @@
-#include "top.h"
 #include "defs.h"
-#include "struct.h"
 #include "mpgcontrol.h"
 #include "misc.h"
 #include "gui/window.h"
 #include "mjs.h"
-#include "playlist.h"
+#include "controller/playlist.h"
 #include "extern.h"
-#include "stdio.h"
+
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <errno.h>
+#include <string.h>
 
 static int inpipe[2], outpipe[2];
 static struct sigaction handler;

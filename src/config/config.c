@@ -6,12 +6,16 @@
  * colors, too. 
  */
 
-#include "top.h"
 #include "defs.h"
-#include "colors.h"
-#include "struct.h"
 #include "extern.h"
 #include "config.h"
+
+#include <ncurses.h>
+#include <string.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define COMMENT '#'
 #define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1' || s[0] == 'Y' || s[0] == 'T')

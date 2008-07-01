@@ -1,8 +1,10 @@
-#include "top.h"
 #include "defs.h"
-#include "struct.h"
 #include "inputline.h"
-
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
 /* hide these babies from everyone else */
 
 static int	del_char (Input *, int);

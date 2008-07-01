@@ -1,12 +1,16 @@
-#include "top.h"
 #include "defs.h"
-#include "colors.h"
-#include "struct.h"
 #include "files.h"
 #include "misc.h"
 #include "info.h"
 #include "extern.h"
 #include "list.h"
+
+#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#include <dirent.h>
 
 static int sort_mp3 (const void *, const void *);
 static int sort_mp3_search (const void *, const void *);

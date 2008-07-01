@@ -1,7 +1,8 @@
-#include "top.h"
-#include "defs.h"
-#include "struct.h"
+
 #include "list.h"
+
+#include <string.h>
+#include <stdlib.h>
 
 // these are NOT for external use, use wlist_clear instead
 static void	free_list(flist *);

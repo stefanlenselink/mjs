@@ -1,8 +1,8 @@
-#include "top.h"
 #include "defs.h"
-#include "struct.h"
 #include "tokens.h"
-#include "extern.h"
+
+
+#include <string.h>
 
 const char *
 parse_tokens(Window *window, flist *file, char *line, int size, const char *fmt)

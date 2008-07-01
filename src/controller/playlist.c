@@ -1,15 +1,14 @@
-#include "top.h"
 #include "defs.h"
-#include "struct.h"
 #include "playlist.h"
-#include "files.h"
-#include "mpgcontrol.h"
+#include "songdata/files.h"
+#include "engine/mpgcontrol.h"
 #include "misc.h"
-#include "list.h"
+#include "songdata/list.h"
 #include "gui/window.h"
 #include "mjs.h"
 #include "extern.h"
-#include "lastfm.h"
+
+#include <string.h>
 
 void
 play_next_song(wlist *list)

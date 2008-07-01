@@ -1,10 +1,8 @@
-#include "top.h"
 #include "defs.h"
-#include "colors.h"
-#include "struct.h"
 #include "misc.h"
 #include "gui/window.h"
-#include "extern.h"
+
+#include <string.h>
 
 /*
  * There are 64 possible color_pairs, 0-63. This is 6 bits worth of colors,

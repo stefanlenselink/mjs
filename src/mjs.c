@@ -1,19 +1,19 @@
-#include "top.h"
 #include "defs.h"
-#include "colors.h"
-#include "struct.h"
 #include "mjs.h"
-#include "playlist.h"
+#include "controller/playlist.h"
 #include "gui/window.h"
 #include "misc.h"
-#include "files.h"
-#include "mpgcontrol.h"
+#include "songdata/files.h"
+#include "engine/mpgcontrol.h"
 #include "config.h"
-#include "inputline.h"
+#include "gui/inputline.h"
 #include "extern.h"
-#include "list.h"
-#include "lastfm.h"
+#include "songdata/list.h"
 
+#include <string.h>
+#include <signal.h>
+#include <errno.h>
+#include <sys/time.h>
 /*
  * intialize the external variables 
  */

@@ -1,15 +1,14 @@
-#include "top.h"
 #include "defs.h"
-#include "colors.h"
-#include "struct.h"
 #include "gui/window.h"
 #include "misc.h"
 #include "tokens.h"
-#include "files.h"
+#include "songdata/files.h"
 #include "extern.h"
+
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
+#include <string.h>
 
 static u_char	*parse_title(Window *, u_char *, int);
 

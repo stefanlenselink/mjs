@@ -1,11 +1,15 @@
-#include "top.h"
+
 #include "defs.h"
-#include "struct.h"
 #include "info.h"
 #include "extern.h"
 #include "list.h"
 
 #include "mjs_id3.h"
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <string.h>
 
 /* 	path -> path including trailing slash
 	filename -> filename without any slashes

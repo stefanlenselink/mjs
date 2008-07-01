@@ -1,13 +1,12 @@
-#include "top.h"
 #include "defs.h"
-#include "colors.h"
-#include "struct.h"
 #include "mjs.h"
 #include "window.h"
 #include "misc.h"
 #include "config.h"
 #include "inputline.h"
 #include "extern.h"
+
+#include <string.h>
 
 void
 ask_question(char *title, char *prompt, char *initial, Window (*callback)(Window *))

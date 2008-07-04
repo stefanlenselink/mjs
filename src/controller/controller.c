@@ -1,13 +1,14 @@
 #include "defs.h"
-#include "playlist.h"
-#include "songdata/files.h"
-#include "engine/mpgcontrol.h"
-#include "songdata/list.h"
-#include "gui/window.h"
+#include "controller.h"
+#include "songdata/songdata.h"
+#include "engine/engine.h"
+#include "gui/gui.h"
 #include "mjs.h"
 #include "extern.h"
 
 #include <string.h>
+
+Config * conf;
 
 void
 play_next_song(wlist *list)
@@ -68,10 +69,11 @@ jump_to_song(wlist *list, flist *next)
 	list->playing = next;
 	memset(buf, 0, sizeof(buf));
 	snprintf(buf, BIG_BUFFER_SIZE, "%s", list->playing->fullpath);
-	send_cmd(LOAD, buf);
+    
+	engine_play();
 
 	clear_play_info();
-	p_status = PLAYING;
+	
 	
 	play->update(play);
 	info->update(info);
@@ -100,11 +102,8 @@ stop_player(wlist *list)
 		play->update(play);
 	}
 
-	if (p_status == PAUSED)
-		send_cmd(PAUSE);
 
-	p_status = STOPPED;
-	send_cmd(STOP);
+	engine_stop();
 
 	update_title(playback);
 	clear_play_info();
@@ -124,8 +123,7 @@ pause_player(wlist *list)
 	FILE *activefile;
 	list->playing->flags |= F_PAUSED;
 	play->update(play);
-	p_status = PAUSED;
-	send_cmd(PAUSE);
+	engine_play();
 	activefile = fopen(conf->statefile,"w");
 	if (activefile) {
 		fprintf(activefile,"         Now playing:  %s  (by)  %s  (from)  %s    \n", list->playing->filename, list->playing->artist, list->playing->album);
@@ -141,8 +139,7 @@ resume_player(wlist *list)
 	FILE *active;
 	list->playing->flags &= ~F_PAUSED;
 	play->update(play);
-	p_status = PLAYING;
-	send_cmd(PAUSE);
+	engine_play();
 	active = fopen(conf->statefile,"w");
 	if (active) {
 		fprintf(active,"%s","         * Pause *    \n");
@@ -274,6 +271,16 @@ add_to_playlist(wlist *list, flist *position, flist *file)
 		list->where = list->length;
 	} 
 	return;
+}
+
+void controller_init(Config * init_config)
+{
+  conf = init_config;
+}
+
+void controller_shutdown(void)
+{
+  //No function jet
 }
 
 

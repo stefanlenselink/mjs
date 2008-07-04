@@ -1,7 +1,7 @@
 #include "defs.h"
 #include "gui/window.h"
 #include "mjs.h"
-#include "controller/playlist.h"
+#include "controller/controller.h"
 #include "extern.h"
 
 #include <stdlib.h>

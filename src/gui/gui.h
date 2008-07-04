@@ -1,7 +1,10 @@
 #ifndef _window_h
 #define _window_h
 
-#include "songdata/list.h"
+#include "songdata/songdata.h"
+
+#include "config/config.h"
+
 #include <ncurses.h>
 #include <panel.h>
 #include <stdlib.h>
@@ -68,5 +71,8 @@ __inline__ void	 printf_menubar(Window *, char *);
 int	 clear_menubar(Window *);
 void	 do_scrollbar(Window *);
 __inline__ void clear_info();
+
+void gui_init(Config *);
+void gui_shutdown(void);
 
 #endif /* _window_h */

@@ -1,8 +1,8 @@
 #include "defs.h"
-#include "gui/window.h"
+#include "gui/gui.h"
 #include "misc.h"
 #include "tokens.h"
-#include "songdata/files.h"
+#include "songdata/songdata.h"
 #include "extern.h"
 
 #include <stdio.h>
@@ -11,6 +11,8 @@
 #include <string.h>
 
 static u_char	*parse_title(Window *, u_char *, int);
+
+Config * conf;
 
 int
 show_list(Window *window)
@@ -433,4 +435,14 @@ parse_title(Window *win, u_char *title, int len)
 	}
 
 	return p;
+}
+
+
+void gui_init(Config * init_conf)
+{
+  conf = init_conf;
+}
+void gui_shutdown(void)
+{
+  //nothing here now
 }

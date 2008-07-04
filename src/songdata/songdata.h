@@ -1,6 +1,8 @@
 #ifndef _list_h
 #define _list_h
 
+#include "config/config.h"
+
 typedef struct _dirstack {
   struct _dirstack *prev;
   char *fullpath;

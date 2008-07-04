@@ -1,6 +1,6 @@
 #include "defs.h"
 #include "misc.h"
-#include "window.h"
+#include "gui.h"
 
 #include <string.h>
 

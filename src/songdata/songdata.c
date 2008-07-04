@@ -1,6 +1,6 @@
 #include "defs.h"
 #include "extern.h"
-#include "list.h"
+#include "songdata.h"
 
 #include "mjs_id3.h"
 

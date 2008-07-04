@@ -1,12 +1,15 @@
 #ifndef _playlist_h
 #define _playlist_h
 
-#include "songdata/list.h"
-#include "gui/window.h"
+#include "songdata/songdata.h"
+#include "gui/gui.h"
+
+#include "config/config.h"
 
 #define STOPPED 0
 #define PLAYING 1
 #define PAUSED 2
+
 
 
 void	 play_next_song(wlist *);
@@ -22,5 +25,8 @@ void	pause_player(wlist *);
 void	resume_player(wlist *);
 wlist	*randomize_list(wlist *);
 wlist	*read_playlist(wlist *, const char *);
+
+void controller_init(Config *);
+void controller_shutdown(void);
 
 #endif /* _playlist_h */

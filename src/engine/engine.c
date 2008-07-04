@@ -17,8 +17,12 @@ xine_stream_t * stream; // Stream object
  
  int volume = 100;
 
-void engine_init(void)
+Config * conf;
+ 
+void engine_init(Config * init_conf)
 {
+  conf = init_conf;
+  
   // Create our libxine engine, and initialise it
   engine = xine_new();
   xine_init(engine);

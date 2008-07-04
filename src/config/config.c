@@ -32,18 +32,27 @@ static void parseConfig(Config * conf, char * fname);
 
 u_int32_t colors[NUM_COLORS];
 
+Config * conf;
+void config_shutdonw(Config * conf)
+{
+  free(conf);
+}
 Config *
-read_config (Config * conf)
+config_init (void)
 {
 	char fname[256], *p;
 	/*
 	 * make sure this is all null before we go open some unknown file 
 	 */
+    conf = malloc(sizeof (Config));
+    
+    strncpy (conf->mpgpath, MPGPATH, 255);
+    
 	memset (colors, 0, sizeof (colors));
 	set_window_defaults ();
 	set_color_defaults ();
 	memset (fname, 0, sizeof (fname));
-
+    
 	if ((p = getenv ("MJSRC"))){
 		strncpy (fname, p, sizeof (fname) - 1);
 		parseConfig(conf, fname);

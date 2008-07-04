@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
@@ -33,7 +34,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 subdir = src/controller
-DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -45,7 +47,7 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libcontroller_a_AR = $(AR) $(ARFLAGS)
 libcontroller_a_LIBADD =
-am_libcontroller_a_OBJECTS = playlist.$(OBJEXT)
+am_libcontroller_a_OBJECTS = controller.$(OBJEXT)
 libcontroller_a_OBJECTS = $(am_libcontroller_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -61,6 +63,7 @@ LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	$(LDFLAGS) -o $@
 SOURCES = $(libcontroller_a_SOURCES)
 DIST_SOURCES = $(libcontroller_a_SOURCES)
+HEADERS = $(noinst_HEADERS)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -175,7 +178,8 @@ top_srcdir = @top_srcdir@
 INCLUDES = -I$(top_srcdir)/src $(all_includes)
 METASOURCES = AUTO
 noinst_LIBRARIES = libcontroller.a
-libcontroller_a_SOURCES = playlist.c
+noinst_HEADERS = controller.h
+libcontroller_a_SOURCES = controller.c
 all: all-am
 
 .SUFFIXES:
@@ -223,7 +227,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/playlist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/controller.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -327,7 +331,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(LIBRARIES) $(HEADERS)
 installdirs:
 install: install-am
 install-exec: install-exec-am

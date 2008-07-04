@@ -1,6 +1,8 @@
 #ifndef _engine_h
 #define _engine_h
 
+#include "config/config.h"
+
 typedef struct {
   int eq_30;      /* equalizer gains -100..100   */
   int eq_60;      /* equalizer gains -100..100   */
@@ -14,7 +16,7 @@ typedef struct {
   int eq_16000;   /* equalizer gains -100..100   */
 } Equalizer;
     
-void engine_init(void);
+void engine_init(Config * conf);
 void engine_stop(void);
 void engine_play(void);
 void engine_next(void);

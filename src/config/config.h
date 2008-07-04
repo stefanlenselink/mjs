@@ -74,6 +74,7 @@ typedef struct _config {
   int refresh_interval;
 } Config;
 
-Config	*read_config(Config *);
+Config * config_init(void);
+void config_shutdown(Config *);
 
 #endif /* _config_h */

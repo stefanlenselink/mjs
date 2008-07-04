@@ -47,7 +47,7 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libengine_a_AR = $(AR) $(ARFLAGS)
 libengine_a_LIBADD =
-am_libengine_a_OBJECTS = engine.$(OBJEXT) mpgcontrol.$(OBJEXT)
+am_libengine_a_OBJECTS = engine.$(OBJEXT)
 libengine_a_OBJECTS = $(am_libengine_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -179,7 +179,7 @@ INCLUDES = -I$(top_srcdir)/src $(all_includes)
 METASOURCES = AUTO
 noinst_HEADERS = engine.h
 noinst_LIBRARIES = libengine.a
-libengine_a_SOURCES = engine.c mpgcontrol.c
+libengine_a_SOURCES = engine.c
 all: all-am
 
 .SUFFIXES:
@@ -228,7 +228,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/engine.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mpgcontrol.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

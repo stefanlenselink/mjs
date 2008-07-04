@@ -1,13 +1,12 @@
 #include "defs.h"
 #include "mjs.h"
-#include "controller/playlist.h"
-#include "gui/window.h"
-#include "songdata/files.h"
-#include "engine/mpgcontrol.h"
+#include "controller/controller.h"
+#include "gui/gui.h"
+#include "songdata/songdata.h"
+#include "engine/engine.h"
 #include "config.h"
 #include "gui/inputline.h"
 #include "extern.h"
-#include "songdata/list.h"
 
 #include <string.h>
 #include <signal.h>
@@ -19,10 +18,8 @@
 Window *files, *info, *play, *active, *menubar, *old_active;
 Window *playback, *question;
 Config *conf;
-pid_t pid;
 static struct sigaction handler;
 char *previous_selected;	// previous selected number
-int p_status = STOPPED;
 char typed_letters[10] = "\0";	// letters previously typed when jumping
 int typed_letters_timeout = 0;	// timeout for previously typed letters
 
@@ -89,9 +86,12 @@ do_search (Input * input)
 		handler.sa_handler = (SIGHANDLER) unsuspend;
 		handler.sa_flags = SA_RESTART;
 		sigaction (SIGCONT, &handler, NULL);
-		handler.sa_handler = (SIGHANDLER) restart_mpg_child;
+/*
+        obsolete by new engine system?
+        
+        handler.sa_handler = (SIGHANDLER) restart_mpg_child;
 		handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
-		sigaction (SIGCHLD, &handler, NULL);
+		sigaction (SIGCHLD, &handler, NULL);*/
 		if (!(mp3list->flags & F_VIRTUAL))
 			dirstack_push(mp3list->from, mp3list->selected->filename);
 		read_mp3_list (mp3list, conf->resultsfile, L_SEARCH);
@@ -130,9 +130,14 @@ main (int argc, char *argv[])
 	handler.sa_handler = (SIGHANDLER) unsuspend;
 	handler.sa_flags = SA_RESTART;
 	sigaction (SIGCONT, &handler, NULL);
+    
+    /*
+    
+    obsolete by new engine system?
+    
 	handler.sa_handler = (SIGHANDLER) restart_mpg_child;
 	handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
-	sigaction (SIGCHLD, &handler, NULL);
+	sigaction (SIGCHLD, &handler, NULL);*/
 	
     
     
@@ -216,14 +221,14 @@ main (int argc, char *argv[])
 	menubar->update = std_menubar;
 	menubar->deactivate = clear_menubar;
 
-	/*
-	 * now we have initialized most of the window stuff, read our config 
-	 */
-
-	conf = calloc (1, sizeof (Config));
-	strncpy (conf->mpgpath, MPGPATH, 255);
-	read_config (conf);
-
+    /**
+     * Do ALL the inits here 
+     */
+    conf = config_init();
+    controller_init(conf);
+    engine_init(conf);
+    songdata_init(conf);
+    
 	/*
 	 * check window settings for sanity -- not perfect yet :) 
 	 */
@@ -302,13 +307,9 @@ main (int argc, char *argv[])
 	play->update(play);
 	files->update (files);
 	info->update(info);
-	mpgreturn ret;
-	ret.elapsed = 0.0;
-	ret.remaining = 0.0;
-	show_playinfo(&ret);
+    show_playinfo();
 	doupdate ();
-	start_mpg_child ();
-	send_cmd (LOAD, "/usr/local/share/intro.mp3");
+
 /* TODO LastFM    lastFMHandshake = malloc(sizeof(LastFMHandshake));*/
 /* TODO LastFM   initLastFM(lastFMHandshake, "L-Tech", "xxx");*/
     
@@ -316,7 +317,6 @@ main (int argc, char *argv[])
 	for (;;) {
 		FD_ZERO (&fds);
 		FD_SET (0, &fds);
-		add_player_descriptor (&fds);
 		if (select (FD_SETSIZE, &fds, NULL, NULL, &wait1000) > 0) {
 			if (FD_ISSET (0, &fds)) {
 				if (active != menubar)
@@ -324,8 +324,7 @@ main (int argc, char *argv[])
 				info->update(info);
 				active->input (active);
 				timeout = 0;
-			} else 
-				check_player_output (&fds);
+			}
 		}
 		if (wait1000.tv_usec == 0) {
 			wait1000.tv_usec = 200000;
@@ -405,23 +404,7 @@ bailout (int sig)
 	fprintf (stdout, " FITNESS FOR A PARTICULAR PURPOSE. \n\n");
 	fprintf (stdout, " See the GNU GPL (see LICENSE file) for more details.\n");
 	fprintf (stdout, " \n");
-	if (pid > 0) {
-		pid_t pgrp = getpgid (pid);
-		fprintf (stdout, "Cleaning up ...\n\n\n");
-		fflush (stdout);
-		handler.sa_handler = SIG_DFL;
-		handler.sa_flags = 0;
-		sigaction (SIGCHLD, &handler, NULL);
-		send_cmd(QUIT);	
 
-		// kill the entire process group, for the buffering child 
-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-		killpg (pgrp, SIGTERM);
-#else
-		kill(-pgrp, SIGTERM);
-#endif // *BSD
-		waitpid (-pid, NULL, 0);	// be safe and avoid a zombie 
-	}
 	exit (sig);
 }
 
@@ -557,7 +540,7 @@ read_key (Window * window)
 		// remove selected from playlist                
 		if ((active == play) && (play->contents.list->selected)) {
 			wlist *playlist = play->contents.list;
-			if ((p_status == PLAYING) & (play->contents.list->playing == play->contents.list->selected)) {
+			if ( (play->contents.list->playing == play->contents.list->selected)) {
 				play_next_song (play->contents.list);
 				play->update (play);
 			}
@@ -595,10 +578,8 @@ read_key (Window * window)
 		if (c == 27)
 			c = wgetch (window->win);
 		if ((c == 'y') | (c == 'Y')) {
-			if (p_status) {
 				stop_player (play->contents.list);
 				clear_play_info ();
-			}
 
 			wlist_clear(play->contents.list);
 
@@ -682,51 +663,43 @@ read_key (Window * window)
 	case KEY_F (7):
 		// Stop the player              
 		stop_player (play->contents.list);
-		p_status = STOPPED;
 		break;
 
-	case KEY_F (8):
+	case KEY_F (8): /* TODO Big overhull*/
 		// Play / Pause key
-		switch (p_status) {
-		case STOPPED:
 			// fix me 
 			if (!play->contents.list->selected)
 				play->contents.list->selected = next_valid (play->contents.list, play->contents.list->top, KEY_DOWN);
 			jump_to_song (play->contents.list, play->contents.list->selected);	// Play 
 			break;
-		case PLAYING:
 			pause_player (play->contents.list);	// Pause / Verdergaan 
 			break;
-		case PAUSED:
 			resume_player (play->contents.list);	// Pause / Verdergaan 
 			break;
-		}
 		break;
 
 	case KEY_F (9):
 		// Skip to previous mp3 in playlist     
-		if (p_status == PLAYING) {
-			play_prev_song (play->contents.list);
-		}
+      			play_prev_song (play->contents.list);
+		
 		break;
 
 	case KEY_F (10):
 		// Skip JUMP frames backward
-		if (p_status)
-			send_cmd (JUMP, -conf->jump);
+
+			engine_frwd(conf->jump);
 		break;
 
 	case KEY_F (11):
-		// Skip JUMP frames forward
-		if (p_status)
-			send_cmd (JUMP, conf->jump);
+
+			engine_ffwd(conf->jump);
 		break;
 
 	case KEY_F (12):
 		// Skip to next mp3 in playlist                 
-		if (p_status == PLAYING) {
+
 			play_next_song (play->contents.list);
-		}
+		
 		break;
 
 	case 'a'...'z':
@@ -887,7 +860,7 @@ update_status (void)
 
 	logfile = fopen(conf->logfile,"a");
 
-	if (p_status == STOPPED) {
+	if (1 /*p_status == STOPPED*/) { //TODO nog aanpassen naar nieuwe engine
 		clear_play_info ();
 		if (list->playing!=NULL) {
 			if (logfile!=NULL) {
@@ -905,12 +878,14 @@ update_status (void)
 }
 
 void
-show_playinfo (mpgreturn * message)
+show_playinfo (void)
 {
 	playback->contents.show = &play->contents.list->playing;
 	playback->update(playback);
-	my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)", 
-		(int)message->elapsed / 60, ((int)message->elapsed) % 60, (int)message->remaining / 60, ((int)message->remaining) % 60, (int)(message->elapsed + message->remaining) / 60, (int)(message->elapsed + message->remaining) % 60);
+/*
+    	my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)", 
+		(int)message->elapsed / 60, ((int)message->elapsed) % 60, (int)message->remaining / 60, ((int)message->remaining) % 60, (int)(message->elapsed + message->remaining) / 60, (int)(message->elapsed + message->remaining) % 60);*/
+    //TODO uit engine halen???
  	update_panels();
 	doupdate ();
 }

@@ -1,6 +1,6 @@
 #include "defs.h"
 #include "mjs.h"
-#include "window.h"
+#include "gui.h"
 #include "misc.h"
 #include "config.h"
 #include "inputline.h"
@@ -8,6 +8,9 @@
 
 #include <string.h>
 
+/* TODO volgens mij word question nooit meer vrijgegeven */
+
+Window * question;
 void
 ask_question(char *title, char *prompt, char *initial, Window (*callback)(Window *))
 {

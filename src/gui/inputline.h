@@ -1,7 +1,7 @@
 #ifndef _inputline_h
 #define _inputline_h
 
-#include "gui/window.h"
+#include "gui/gui.h"
 
 int	 do_inputline (Input *, int, int);
 Input	*update_anchor (Input *);

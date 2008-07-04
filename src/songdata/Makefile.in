@@ -47,7 +47,7 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libsongdata_a_AR = $(AR) $(ARFLAGS)
 libsongdata_a_LIBADD =
-am_libsongdata_a_OBJECTS = mjs_id3.$(OBJEXT) sondata.$(OBJEXT)
+am_libsongdata_a_OBJECTS = mjs_id3.$(OBJEXT) songdata.$(OBJEXT)
 libsongdata_a_OBJECTS = $(am_libsongdata_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -178,8 +178,8 @@ top_srcdir = @top_srcdir@
 INCLUDES = -I$(top_srcdir)/src $(all_includes)
 METASOURCES = AUTO
 noinst_LIBRARIES = libsongdata.a
-libsongdata_a_SOURCES = mjs_id3.c sondata.c
-noinst_HEADERS = sondata.h
+libsongdata_a_SOURCES = mjs_id3.c songdata.c
+noinst_HEADERS = songdata.h
 all: all-am
 
 .SUFFIXES:
@@ -228,7 +228,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mjs_id3.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sondata.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/songdata.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

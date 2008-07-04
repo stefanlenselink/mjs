@@ -1,6 +1,5 @@
 #include "defs.h"
 #include "files.h"
-#include "misc.h"
 #include "info.h"
 #include "extern.h"
 #include "list.h"

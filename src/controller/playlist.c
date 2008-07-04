@@ -2,7 +2,6 @@
 #include "playlist.h"
 #include "songdata/files.h"
 #include "engine/mpgcontrol.h"
-#include "misc.h"
 #include "songdata/list.h"
 #include "gui/window.h"
 #include "mjs.h"

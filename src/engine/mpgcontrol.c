@@ -1,6 +1,4 @@
 #include "defs.h"
-#include "mpgcontrol.h"
-#include "misc.h"
 #include "gui/window.h"
 #include "mjs.h"
 #include "controller/playlist.h"

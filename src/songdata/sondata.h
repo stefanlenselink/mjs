@@ -73,4 +73,7 @@ char *	dirstack_fullpath (void);
 char *	dirstack_filename (void);
 int	dirstack_empty (void);
 
+void songdata_init(Config * conf);
+void songdata_shutdown(void);
+
 #endif

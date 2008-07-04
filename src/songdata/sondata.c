@@ -857,3 +857,12 @@ flist *
   return file;
 
 }
+
+void songdata_init(Config * init_conf)
+{
+  conf = init_conf;
+}
+void songdata_shutdown(void)
+{
+  //Not yet implemented
+}

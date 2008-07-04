@@ -45,6 +45,23 @@ typedef struct {
 #define F_VIRTUAL      	0x01
 } wlist;
 
+#define L_APPEND      	0
+#define L_NEW		1
+#define L_SEARCH	2
+
+//flist	*mp3_info(char *, char *, flist *, u_int32_t);
+flist 	*mp3_info(const char *, const char *, const char *, int);
+
+void	read_mp3_list(wlist *, const char *, int);
+void	read_mp3_list_dir(wlist *, const char *, int);
+void	read_mp3_list_file(wlist *, const char *, int);
+void 	read_mp3_list_array(wlist *, int, char * []);
+int	write_mp3_list_file(wlist *, char *);
+wlist	*sort_songs(wlist *);
+wlist	*sort_search(wlist *);
+__inline__ int check_file (flist *);
+flist	*next_valid(wlist *, flist *, int);
+
 void 	wlist_add(wlist *, flist *, flist *);
 void 	wlist_del(wlist *, flist *);
 void	move_backward(wlist *);

@@ -4,7 +4,6 @@
 #include "tokens.h"
 #include "songdata/songdata.h"
 #include "controller/controller.h"
-#include "extern.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -579,17 +578,55 @@ void gui_init(Config * init_conf,   u_int32_t init_colors[])
    * Config Kopieren
    */
   
-  //TODO
+  playback->x = conf->playback_window.x;
+  playback->y = conf->playback_window.y;
+  playback->height = conf->playback_window.height;
+  playback->width = conf->playback_window.width;
+  playback->title_dfl = conf->playback_window.title_dfl;
+  playback->title_fmt = conf->playback_window.title_fmt;
+  playback->format = conf->playback_window.format;
   
-  /* TODO kan pas na het laden van cfg gebeuren*/
-  /*wbkgd (stdscr, colors[FILE_WINDOW]);
+  menubar->x = conf->menubar_window.x;
+  menubar->y = conf->menubar_window.y;
+  menubar->height = conf->menubar_window.height;
+  menubar->width = conf->menubar_window.width;
+  menubar->title_dfl = conf->menubar_window.title_dfl;
+  menubar->title_fmt = conf->menubar_window.title_fmt;
+  menubar->format = conf->menubar_window.format;
+  
+  files->x = conf->files_window.x;
+  files->y = conf->files_window.y;
+  files->height = conf->files_window.height;
+  files->width = conf->files_window.width;
+  files->title_dfl = conf->files_window.title_dfl;
+  files->title_fmt = conf->files_window.title_fmt;
+  files->format = conf->files_window.format;
+  
+  info->x = conf->info_window.x;
+  info->y = conf->info_window.y;
+  info->height = conf->info_window.height;
+  info->width = conf->info_window.width;
+  info->title_dfl = conf->info_window.title_dfl;
+  info->title_fmt = conf->info_window.title_fmt;
+  info->format = conf->info_window.format;
+  
+  
+  play->x = conf->play_window.x;
+  play->y = conf->play_window.y;
+  play->height = conf->play_window.height;
+  play->width = conf->play_window.width;
+  play->title_dfl = conf->play_window.title_dfl;
+  play->title_fmt = conf->play_window.title_fmt;
+  play->format = conf->play_window.format;
+  
+  wbkgd (stdscr, colors[FILE_WINDOW]);
   wbkgd (files->win, colors[FILE_WINDOW]);
   wbkgd (info->win, colors[INFO_WINDOW]);
   wbkgd (play->win, colors[PLAY_WINDOW]);
   wbkgd (menubar->win, colors[MENU_WINDOW]);
-  wbkgd (playback->win, colors[PLAYBACK_WINDOW]);*/
+  wbkgd (playback->win, colors[PLAYBACK_WINDOW]);
 
-/*  menubar->activate (menubar);
+  menubar->activate (menubar);
   init_info (info);
   init_info (playback);
   play->deactivate (play);
@@ -600,9 +637,9 @@ void gui_init(Config * init_conf,   u_int32_t init_colors[])
 
   play->update(play);
   files->update (files);
-  info->update(info);
-  show_playinfo();
-  doupdate ();*/
+//  info->update(info);//TODO genereerd segfault
+//  show_playinfo(); //TODO genereerd segfault
+  doupdate ();
   
 }
 

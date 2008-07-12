@@ -5,7 +5,6 @@
 #include "gui/gui.h"
 #include "gui/inputline.h"
 #include "mjs.h"
-#include "extern.h"
 
 #include <string.h>
 

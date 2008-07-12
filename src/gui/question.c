@@ -4,7 +4,6 @@
 #include "misc.h"
 #include "config.h"
 #include "inputline.h"
-#include "extern.h"
 
 #include <string.h>
 

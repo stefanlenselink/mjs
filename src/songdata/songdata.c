@@ -1,5 +1,4 @@
 #include "defs.h"
-#include "extern.h"
 #include "songdata.h"
 
 #include "mjs_id3.h"
@@ -11,6 +10,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <stdlib.h>
+#include <ncurses.h>
 
 
 /* 	path -> path including trailing slash

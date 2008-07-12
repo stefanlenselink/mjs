@@ -7,7 +7,6 @@
  */
 
 #include "defs.h"
-#include "extern.h"
 #include "config.h"
 
 #include <ncurses.h>

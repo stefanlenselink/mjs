@@ -67,6 +67,7 @@
 #define MIN_FRAME_SIZE 21
 #define NUM_SAMPLES 4
 
+#include <stdio.h>
 
 typedef struct
 {

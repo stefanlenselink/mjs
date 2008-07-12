@@ -6,17 +6,13 @@
 #include "engine/engine.h"
 #include "config.h"
 #include "gui/inputline.h"
-#include "extern.h"
 
 #include <string.h>
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
-/*
- * intialize the external variables 
- */
-Window *files, *info, *play, *active, *menubar;
-Window *playback, *question;
+
+
 Config *conf;
 static struct sigaction handler;
 
@@ -36,8 +32,8 @@ static void timer_handler(int signum)
 //	wrefresh (curscr);
 //	refresh();
   fprintf(stderr, "UpDate!\n");
-  clear_menubar(menubar);
-	std_menubar(menubar);
+//  clear_menubar(menubar);
+//	std_menubar(menubar);
     doupdate ();
     //refresh();
 	//wrefresh (curscr);
@@ -95,19 +91,19 @@ main (int argc, char *argv[])
     /**
      * Do ALL the inits here 
      */
-    gui_init(conf, conf->colors);
     conf = config_init();
+    
     controller_init(conf);
     engine_init(conf);
     songdata_init(conf, conf->colors);
-    
+    gui_init(conf, conf->colors);
 
 
 
-	if (argc > 1)
+/*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
 		read_mp3_list_array(play->contents.list, argc, argv);
 	else if (conf->c_flags & C_P_SAVE_EXIT)
-		read_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs", 1);
+		read_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs", 1);*/
 
 
 
@@ -120,10 +116,10 @@ main (int argc, char *argv[])
 		FD_SET (0, &fds);
 		if (select (FD_SETSIZE, &fds, NULL, NULL, &wait1000) > 0) {
 			if (FD_ISSET (0, &fds)) {
-				if (active != menubar)
-					info->contents.show = &active->contents.list->selected;
-				info->update(info);
-				active->input (active);
+//				if (active != menubar) //TODO anders oplossen
+//					info->contents.show = &active->contents.list->selected;
+// TODO anders oplossen				info->update(info);
+//				active->input (active);
 				timeout = 0;
 			}
 		}
@@ -148,7 +144,7 @@ bailout (int sig)
 
 	switch (sig) {
 	case 0:
-		if (((conf->c_flags & C_P_SAVE_EXIT) > 0) & (play->contents.list->head != NULL)){
+/*		if (((conf->c_flags & C_P_SAVE_EXIT) > 0) & (play->contents.list->head != NULL)){
 			write_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs");
 		}
 		if (play->contents.list) {
@@ -158,15 +154,9 @@ bailout (int sig)
 		if (files->contents.list){
 			wlist_clear (files->contents.list);
 			free (files->contents.list);
-		}
+		}*/ //TODO anders oplossen
 
-		free (info);
-		free (play);
-		free (playback);
-		free (menubar);
-		free (files);
-	
-		free (conf);
+		//TODO class shutdown all function
 		break;
 	case 1:
 		fprintf (stderr, "\n\nmjs:error: in and/or outpipe not available OR cannot start mpg123 \n\n\n");
@@ -213,12 +203,13 @@ unsuspend (int sig)
 
 
 
+//Verplaatsen?
 void
 update_status (void)
 {
 	FILE *logfile;
 	time_t timevalue;
-	wlist *list = play->contents.list;
+	wlist *list =  NULL; //play->contents.list; //TODO anders oplossen
 	if (!list)
 		return;
 
@@ -242,14 +233,14 @@ update_status (void)
 }
 
 
-
+//TODO verplaatsen
 __inline__ void
 clear_play_info (void)
 {
 	//TODO MOET NOG ANDERS my_mvwnclear (playback->win, 1, 1, playback->width - 2);
 	update_panels ();
-	if (conf->c_flags & C_FIX_BORDERS)
-		redrawwin (playback->win);
+	//if (conf->c_flags & C_FIX_BORDERS)
+		//redrawwin (playback->win); 
 }
 
 

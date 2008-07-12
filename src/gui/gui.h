@@ -67,12 +67,14 @@ void	 change_active(Window *);
 int	 active_win(Window *);
 int	 inactive_win(Window *);
 int	 std_menubar(Window *);
-__inline__ void	 printf_menubar(Window *, char *);
+__inline__ void	 printf_menubar(char *);
 int	 clear_menubar(Window *);
 void	 do_scrollbar(Window *);
 __inline__ void clear_info();
 
-void gui_init(Config *);
+void gui_init(Config *,   u_int32_t init_colors[]);
 void gui_shutdown(void);
 
+int	update_menu(Input *);
+void	show_playinfo(void);
 #endif /* _window_h */

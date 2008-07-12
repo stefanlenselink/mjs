@@ -6,6 +6,9 @@
 
 #include "config/config.h"
 
+#include <signal.h>
+#include <errno.h>
+
 #define STOPPED 0
 #define PLAYING 1
 #define PAUSED 2
@@ -28,5 +31,6 @@ wlist	*read_playlist(wlist *, const char *);
 
 void controller_init(Config *);
 void controller_shutdown(void);
+int read_keyboard (Window *);
 
 #endif /* _playlist_h */

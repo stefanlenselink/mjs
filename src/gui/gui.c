@@ -3,6 +3,7 @@
 #include "misc.h"
 #include "tokens.h"
 #include "songdata/songdata.h"
+#include "controller/controller.h"
 #include "extern.h"
 
 #include <stdio.h>
@@ -11,8 +12,19 @@
 #include <string.h>
 
 static u_char	*parse_title(Window *, u_char *, int);
+static void init_info (Window *);
 
 Config * conf;
+
+Window * playback;
+Window * menubar;
+Window * files;
+Window * info;
+Window * play;
+Window * active;
+
+/* colors */
+u_int32_t * colors;
 
 int
 show_list(Window *window)
@@ -108,6 +120,11 @@ show_list(Window *window)
 	if (conf->c_flags & C_FIX_BORDERS)
 		redrawwin(win);
 	return 1;
+}
+
+Window * move_files_selector(int c)
+{
+  return move_selector(files, c);
 }
 
 Window *
@@ -300,10 +317,10 @@ std_menubar(Window *window)
 }
 
 __inline__ void
-printf_menubar(Window *window, char *text) 
+printf_menubar(char *text) 
 {
-	clear_menubar(window);
-	my_mvwaddstr(window->win, 0, 10, colors[MENU_TEXT], text);
+  clear_menubar(menubar);
+  my_mvwaddstr(menubar->win, 0, 10, colors[MENU_TEXT], text);
 	update_panels();
 	doupdate();
 
@@ -438,10 +455,196 @@ parse_title(Window *win, u_char *title, int len)
 }
 
 
-void gui_init(Config * init_conf)
+void gui_init(Config * init_conf,   u_int32_t init_colors[])
 {
+  
   conf = init_conf;
+  colors = init_colors;
+  if (!initscr ())
+    exit (1);
+  curs_set (0);
+  leaveok (stdscr, TRUE);
+  cbreak ();
+  noecho ();
+  use_default_colors ();
+  start_color ();
+  nonl ();
+  init_ansi_pair ();
+  
+  	/*
+  * malloc() for the windows and set up our initial callbacks ... 
+    */
+
+  info = calloc (1, sizeof (Window));
+  play = calloc (1, sizeof (Window));
+  playback = calloc (1, sizeof (Window));
+  menubar = calloc (1, sizeof (Window));
+  active = files = calloc (1, sizeof (Window));
+	
+	/*
+  * reading the config must take place AFTER initscr() and friends 
+    */
+
+  info->update = update_info;
+  info->activate = active_win;
+  info->deactivate = inactive_win;
+  info->prev = files;
+  info->next = play;
+  info->input = read_keyboard;
+  info->flags |= W_RDONLY;
+
+	/*
+  * in theory, this window should NEVER be active, but just in case ... 
+    */
+  playback->update = update_info;	// generic dummy update 
+  playback->activate = active_win;
+  playback->deactivate = inactive_win;
+  playback->prev = NULL;	// can't tab out of this! 
+  playback->next = NULL;
+  playback->input = read_keyboard;
+  playback->flags |= W_RDONLY;
+  playback->yoffset = 1;
+
+  play->update = show_list;
+  play->activate = active_win;
+  play->deactivate = inactive_win;
+  play->prev = files;
+  play->next = files;
+  play->input = read_keyboard;
+  play->flags |= W_LIST;
+
+  files->update = show_list;
+  files->activate = active_win;
+  files->deactivate = inactive_win;
+  files->prev = play;
+  files->next = play;
+  files->input = read_keyboard;
+  files->flags |= W_LIST | W_RDONLY;
+
+  menubar->activate = std_menubar;
+  menubar->update = std_menubar;
+  menubar->deactivate = clear_menubar;
+  
+  
+  	/*
+  * check window settings for sanity -- not perfect yet :) 
+    */
+
+  if (files->height == 0)
+    files->height = LINES - files->y;
+  if (files->width < 4)
+    files->width = COLS - files->x;
+  if (play->height == 0)
+    play->height = LINES - play->y;
+  if (play->width < 4)
+    play->width = COLS - play->x;
+  if (info->width < 4)
+    info->width = COLS - info->x;
+  if (menubar->height == 0)
+    menubar->height = 1;
+  if (menubar->width == 0)
+    menubar->width = COLS - menubar->x;
+  if (playback->height < 6)
+    playback->height = 2;
+  if (playback->width == 0)
+    playback->width = COLS - playback->x;
+
+  active->win = files->win = newwin (files->height, files->width, files->y, files->x);
+  info->win = newwin (info->height, info->width, info->y, info->x);
+  play->win = newwin (play->height, play->width, play->y, play->x);
+  menubar->win = newwin (menubar->height, menubar->width, menubar->y, menubar->x);
+  playback->win = newwin (playback->height, playback->width, playback->y, playback->x);
+  menubar->input = read_keyboard;
+
+  if (!files->win || !info->win || !play->win || !menubar->win)
+    bailout (0);
+
+	/*
+  * create the panels in this order to create the initial stack 
+    */
+
+  menubar->panel = new_panel (menubar->win);
+  info->panel = new_panel (info->win);
+  play->panel = new_panel (play->win);
+  files->panel = new_panel (files->win);
+  playback->panel = new_panel (playback->win);
+
+  keypad (files->win, TRUE);
+  keypad (info->win, TRUE);
+  keypad (play->win, TRUE);
+  keypad (menubar->win, TRUE);
+  
+  
+  /**
+   * Config Kopieren
+   */
+  
+  //TODO
+  
+  /* TODO kan pas na het laden van cfg gebeuren*/
+  /*wbkgd (stdscr, colors[FILE_WINDOW]);
+  wbkgd (files->win, colors[FILE_WINDOW]);
+  wbkgd (info->win, colors[INFO_WINDOW]);
+  wbkgd (play->win, colors[PLAY_WINDOW]);
+  wbkgd (menubar->win, colors[MENU_WINDOW]);
+  wbkgd (playback->win, colors[PLAYBACK_WINDOW]);*/
+
+/*  menubar->activate (menubar);
+  init_info (info);
+  init_info (playback);
+  play->deactivate (play);
+
+  info->deactivate (info);
+  active->activate (active);
+  playback->deactivate (playback);
+
+  play->update(play);
+  files->update (files);
+  info->update(info);
+  show_playinfo();
+  doupdate ();*/
+  
 }
+
+static void
+    init_info (Window * window)
+{
+  WINDOW * win = window->win;
+  my_mvwaddstr (win, 1 + window->yoffset, 2, colors[INFO_TEXT], "Title :");
+  my_mvwaddstr (win, 2 + window->yoffset, 2, colors[INFO_TEXT], "Artist:");
+  my_mvwaddstr (win, 3 + window->yoffset, 2, colors[INFO_TEXT], "Album :");
+  if (conf->c_flags & C_USE_GENRE) 
+    my_mvwaddstr (win, 4 + window->yoffset, 2, colors[INFO_TEXT], "Genre :");
+	
+  update_panels ();
+  doupdate ();
+}
+
+int
+    update_menu (Input * inputline)
+{
+  clear_menubar (menubar);
+  update_anchor (inputline);
+  my_wnprintw (inputline->win, colors[MENU_TEXT] | A_BLINK, inputline->flen + inputline->plen, "%s", inputline->prompt);
+  my_wnprintw (inputline->win, colors[MENU_TEXT], inputline->flen + inputline->plen, " %s", inputline->anchor);
+  update_panels ();
+  doupdate ();
+  return 1;
+}
+
+void
+    show_playinfo (void)
+{
+  playback->contents.show = &play->contents.list->playing;
+  playback->update(playback);
+/*
+  my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)", 
+  (int)message->elapsed / 60, ((int)message->elapsed) % 60, (int)message->remaining / 60, ((int)message->remaining) % 60, (int)(message->elapsed + message->remaining) / 60, (int)(message->elapsed + message->remaining) % 60);*/
+    //TODO uit engine halen???
+  update_panels();
+  doupdate ();
+}
+
 void gui_shutdown(void)
 {
   //nothing here now

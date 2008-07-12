@@ -26,11 +26,11 @@ static u_int32_t str2color (char *);
 static void set_color (char *, char *);
 static void set_window_defaults (void);
 static void set_color_defaults (void);
-static void set_window (Window *, char *, char *);
+static void set_window (WindowConfig *, char *, char *);
 static int break_line (const char *, char *, char *, char *);
 static void parseConfig(Config * conf, char * fname);
 
-u_int32_t colors[NUM_COLORS];
+u_int32_t * colors;
 
 Config * conf;
 void config_shutdonw(Config * conf)
@@ -47,7 +47,7 @@ config_init (void)
     conf = malloc(sizeof (Config));
     
     strncpy (conf->mpgpath, MPGPATH, 255);
-    
+    colors = conf->colors;
 	memset (colors, 0, sizeof (colors));
 	set_window_defaults ();
 	set_color_defaults ();
@@ -103,15 +103,15 @@ static void parseConfig(Config * conf, char * fname)
 		else if (!strcasecmp (keyword, "color"))
 			set_color (param, value);
 		else if (!strcasecmp (keyword, "info"))
-			set_window (info, param, value);
+			set_window (&conf->info_window, param, value);
 		else if (!strcasecmp (keyword, "files"))
-			set_window (files, param, value);
+			set_window (&conf->files_window, param, value);
 		else if (!strcasecmp (keyword, "play"))
-			set_window (play, param, value);
+			set_window (&conf->play_window, param, value);
 		else if (!strcasecmp (keyword, "menubar"))
-			set_window (menubar, param, value);
+			set_window (&conf->menubar_window, param, value);
 		else if (!strcasecmp (keyword, "playback"))
-			set_window (playback, param, value);
+			set_window (&conf->playback_window, param, value);
 	}
 	fclose (cfg);
 }
@@ -426,7 +426,7 @@ window_calc (char *e)
 }
 
 static void
-set_window (Window * win, char *param, char *value)
+set_window (WindowConfig * win, char *param, char *value)
 {
 	int *p = NULL, result;
 
@@ -473,21 +473,21 @@ set_window (Window * win, char *param, char *value)
 static void
 set_window_defaults (void)
 {
-	files->height = LINES - 1, files->width = COLS / 4, files->y =
-		files->x = 0;
-	files->title_dfl = "MP3  Files", files->format = "%f";
-	info->height = 8, info->width = 0, info->y = 0, info->x = COLS / 4;
-	info->title_dfl = "MP3 Info";
-	play->height = LINES - 9, play->width = 0, play->y = 8, play->x =
+	conf->files_window.height = LINES - 1, conf->files_window.width = COLS / 4, conf->files_window.y =
+		conf->files_window.x = 0;
+	conf->files_window.title_dfl = "MP3  Files", conf->files_window.format = "%f";
+    conf->info_window.height = 8, conf->info_window.width = 0, conf->info_window.y = 0, conf->info_window.x = COLS / 4;
+    conf->info_window.title_dfl = "MP3 Info";
+    conf->play_window.height = LINES - 9, conf->play_window.width = 0, conf->play_window.y = 8, conf->play_window.x =
 		COLS / 4;
-	play->title_dfl = "Playlist", play->format = "%f";
-	menubar->height = 1, menubar->width = 0, menubar->y =
-		LINES - 1, menubar->x = 0;
-	playback->height = 3, playback->width = 0, playback->y =
-		6, playback->x = COLS / 4;
-	playback->title_dfl = "Playback Info";
-	playback->title_fmt = "%t";
-	menubar->title_dfl = "You don't have .mjsrc in your home dir - MP3 Jukebox System";
+	conf->play_window.title_dfl = "Playlist", conf->play_window.format = "%f";
+    conf->menubar_window.height = 1, conf->menubar_window.width = 0, conf->menubar_window.y =
+		LINES - 1, conf->menubar_window.x = 0;
+	conf->playback_window.height = 3, conf->playback_window.width = 0, conf->playback_window.y =
+        6, conf->playback_window.x = COLS / 4;
+	conf->playback_window.title_dfl = "Playback Info";
+    conf->playback_window.title_fmt = "%t";
+    conf->menubar_window.title_dfl = "You don't have .mjsrc in your home dir - MP3 Jukebox System";
 
 }
 

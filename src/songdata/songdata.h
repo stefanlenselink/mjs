@@ -2,7 +2,8 @@
 #define _list_h
 
 #include "config/config.h"
-
+#include <unistd.h>
+#include <stdlib.h>
 typedef struct _dirstack {
   struct _dirstack *prev;
   char *fullpath;
@@ -75,7 +76,7 @@ char *	dirstack_fullpath (void);
 char *	dirstack_filename (void);
 int	dirstack_empty (void);
 
-void songdata_init(Config * conf);
+void songdata_init(Config * conf,  u_int32_t init_colors[]);
 void songdata_shutdown(void);
 
 #endif

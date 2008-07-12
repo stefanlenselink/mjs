@@ -37,6 +37,9 @@
 */
 
 Config * conf;
+/* colors */
+u_int32_t * colors;
+
              static int sort_mp3 (const void *, const void *);
              static int sort_mp3_search (const void *, const void *);
 
@@ -533,17 +536,17 @@ flist *
       } else {
         switch (append) {
           case L_SEARCH:
-            menubar->deactivate (menubar);
-            printf_menubar (menubar, SEARCHING);
+/*            menubar->deactivate (menubar);*/ //TODO op nieuwe manier aanroepen
+            printf_menubar (SEARCHING);
             break;
           default:
-            menubar->deactivate (menubar);
-            printf_menubar (menubar, READING);
+/*            menubar->deactivate (menubar);*///TODO op nieuwe manier aanroepen
+            printf_menubar (READING);
         }
         read_mp3_list_file (list, list->from, append);
         if ((append & L_SEARCH) && (list->head))
           sort_search (list);
-        menubar->activate (menubar);
+/*        menubar->activate (menubar);*///TODO op nieuwe manier aanroepen
       }
   }
   return;
@@ -564,11 +567,6 @@ void
 
   chdir(dir);
 	
-  errno = 0;
-  if (errno) {
-    my_mvwprintw (menubar->win, 0, 0, colors[MENU_TEXT], "Error with opendir(): %s", strerror (errno));
-    return;
-  }
 
   if ((strncmp (dir, conf->mp3path, strlen (conf->mp3path)-1)) && (strcmp (dir, conf->playlistpath))) {
     /* TODO uitgezet om problemen met nieuwe indeling te voorkomen*/
@@ -670,17 +668,18 @@ void
 
     while (!feof (fp)) {
       n++;
-      my_mvwaddstr (menubar->win, 0, (26 + (n * (50 / (float)lines))), colors[MENU_TEXT], "*");
+/*      my_mvwaddstr (menubar->win, 0, (26 + (n * (50 / (float)lines))), colors[MENU_TEXT], "*");*/
+      //TODO wat hier staat moet in een progressbar functie komen.....
       if ((n & 0x03)==0x00) {
-        my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "|");
+       // my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "|"); //TODO wat hier staat moet in een progressbar functie komen..... 
       } else
         if ((n & 0x03)==0x01) {
-          my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "/");
+         // my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "/");//TODO wat hier staat moet in een progressbar functie komen..... 
         } else
           if ((n & 0x03)==0x02) {
-            my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "-");
+          //  my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "-");//TODO wat hier staat moet in een progressbar functie komen.....
           } else
-            my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "\\");
+           // my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "\\");//TODO wat hier staat moet in een progressbar functie komen.....
             update_panels ();
             doupdate ();
 		
@@ -858,9 +857,17 @@ flist *
 
 }
 
-void songdata_init(Config * init_conf)
+void songdata_init(Config * init_conf, u_int32_t init_colors[])
 {
+  wlist *mp3list = NULL;
   conf = init_conf;
+  colors = init_colors;
+  mp3list = (wlist *) calloc (1, sizeof (wlist));
+/*  files->contents.list = mp3list;*/ //TODO anders oplossen
+  read_mp3_list (mp3list, conf->mp3path, L_NEW);
+/*  info->contents.show = &mp3list->selected;*/ //TODO anders oplossen
+/*  play->contents.list = (wlist *) calloc (1, sizeof (wlist));*/ //TODO anders oplossen
+/*  wlist_clear(play->contents.list);*/
 }
 void songdata_shutdown(void)
 {

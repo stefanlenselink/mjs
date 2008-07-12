@@ -4,6 +4,7 @@
 #define _config_h
 
 #include <stdlib.h>
+#include "defs.h"
 
 /*
  * Ok, this is an enormous pain in the ass. If you know anything about ansi,
@@ -45,7 +46,15 @@
 #define B_CYAN		(A_BOLD>>11|6UL)
 #define WHITE		(A_BOLD>>11|7UL)
 
-
+typedef struct _window_config {
+  int x;
+  int y;
+  int height;
+  int width;
+  char * title_dfl;
+  char * title_fmt;
+  char * format;
+} WindowConfig;
 
 typedef struct _config {
   char mpgpath[256];
@@ -72,6 +81,12 @@ typedef struct _config {
   int buffer;
   int jump;
   int refresh_interval;
+  u_int32_t colors[NUM_COLORS];
+  WindowConfig info_window;
+  WindowConfig files_window;
+  WindowConfig play_window;
+  WindowConfig menubar_window;
+  WindowConfig playback_window;
 } Config;
 
 Config * config_init(void);

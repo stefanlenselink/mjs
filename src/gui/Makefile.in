@@ -48,7 +48,9 @@ ARFLAGS = cru
 libgui_a_AR = $(AR) $(ARFLAGS)
 libgui_a_LIBADD =
 am_libgui_a_OBJECTS = gui.$(OBJEXT) inputline.$(OBJEXT) misc.$(OBJEXT) \
-	question.$(OBJEXT) tokens.$(OBJEXT)
+	question.$(OBJEXT) tokens.$(OBJEXT) window_files.$(OBJEXT) \
+	window_info.$(OBJEXT) window_menubar.$(OBJEXT) \
+	window_play.$(OBJEXT) window_playback.$(OBJEXT)
 libgui_a_OBJECTS = $(am_libgui_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -178,8 +180,13 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 INCLUDES = -I$(top_srcdir)/src $(all_includes)
 noinst_LIBRARIES = libgui.a
-libgui_a_SOURCES = gui.c inputline.c misc.c question.c tokens.c
+libgui_a_SOURCES = gui.c inputline.c misc.c question.c tokens.c window_files.c \
+	window_info.c window_menubar.c window_play.c window_playback.c
+
 noinst_HEADERS = gui.h inputline.h misc.h tokens.h
+_SOURCES = play_window.h window.h window_files.h window_info.h window_menubar.h \
+	window_play.h window_playback.h
+
 all: all-am
 
 .SUFFIXES:
@@ -232,6 +239,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/question.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tokens.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_files.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_info.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_menubar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_play.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_playback.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

@@ -29,7 +29,7 @@ void	resume_player(wlist *);
 wlist	*randomize_list(wlist *);
 wlist	*read_playlist(wlist *, const char *);
 
-void controller_init(Config *);
+wlist * controller_init(Config *, wlist *);
 void controller_shutdown(void);
 int read_keyboard (Window *);
 

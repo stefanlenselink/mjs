@@ -40,6 +40,8 @@ Config * conf;
 /* colors */
 u_int32_t * colors;
 
+wlist *mp3list;
+
              static int sort_mp3 (const void *, const void *);
              static int sort_mp3_search (const void *, const void *);
 
@@ -536,17 +538,17 @@ flist *
       } else {
         switch (append) {
           case L_SEARCH:
-/*            menubar->deactivate (menubar);*/ //TODO op nieuwe manier aanroepen
+            window_menubar_deactivate();
             printf_menubar (SEARCHING);
             break;
           default:
-/*            menubar->deactivate (menubar);*///TODO op nieuwe manier aanroepen
+            window_menubar_deactivate();
             printf_menubar (READING);
         }
         read_mp3_list_file (list, list->from, append);
         if ((append & L_SEARCH) && (list->head))
           sort_search (list);
-/*        menubar->activate (menubar);*///TODO op nieuwe manier aanroepen
+          window_menubar_activate();
       }
   }
   return;
@@ -857,19 +859,15 @@ flist *
 
 }
 
-void songdata_init(Config * init_conf, u_int32_t init_colors[])
+wlist * songdata_init(Config * init_conf, u_int32_t init_colors[])
 {
-  wlist *mp3list = NULL;
   conf = init_conf;
   colors = init_colors;
   mp3list = (wlist *) calloc (1, sizeof (wlist));
-/*  files->contents.list = mp3list;*/ //TODO anders oplossen
   read_mp3_list (mp3list, conf->mp3path, L_NEW);
-/*  info->contents.show = &mp3list->selected;*/ //TODO anders oplossen
-/*  play->contents.list = (wlist *) calloc (1, sizeof (wlist));*/ //TODO anders oplossen
-/*  wlist_clear(play->contents.list);*/
+  return mp3list;
 }
 void songdata_shutdown(void)
 {
-  //Not yet implemented
+  free(mp3list);
 }

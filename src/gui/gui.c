@@ -1,9 +1,16 @@
 #include "defs.h"
-#include "gui/gui.h"
+#include "gui.h"
 #include "misc.h"
 #include "tokens.h"
 #include "songdata/songdata.h"
 #include "controller/controller.h"
+
+#include "window_playback.h"
+#include "window_play.h"
+#include "window_menubar.h"
+#include "window_files.h"
+#include "window_info.h"
+
 
 #include <stdio.h>
 #include <time.h>
@@ -242,9 +249,20 @@ update_info(Window *window)
 	return 1;
 }
 
-void change_active(Window *new)
+void change_active(int next)
 {
-	//Bug gevonden in owee!!new->contents.list->startposSelected = 0; //Also on change of active windows reset the scroll possition
+  Window * new;
+	if(next){
+      if(active->next == NULL){
+        return;
+      }
+      new = active->next;
+    }else{
+      if(active->prev == NULL){
+        return;
+      }
+      new = active->prev;
+    }
 	active->deactivate(active);
 	active->update(active);
 	active = new;
@@ -454,13 +472,12 @@ parse_title(Window *win, u_char *title, int len)
 }
 
 
-void gui_init(Config * init_conf,   u_int32_t init_colors[])
+void gui_init(Config * init_conf,   u_int32_t init_colors[], wlist * mp3list, wlist * playlist)
 {
   
   conf = init_conf;
   colors = init_colors;
-  if (!initscr ())
-    exit (1);
+
   curs_set (0);
   leaveok (stdscr, TRUE);
   cbreak ();
@@ -469,162 +486,38 @@ void gui_init(Config * init_conf,   u_int32_t init_colors[])
   start_color ();
   nonl ();
   init_ansi_pair ();
+  wbkgd (stdscr, colors[FILE_WINDOW]);
   
   	/*
   * malloc() for the windows and set up our initial callbacks ... 
     */
 
-  info = calloc (1, sizeof (Window));
-  play = calloc (1, sizeof (Window));
-  playback = calloc (1, sizeof (Window));
-  menubar = calloc (1, sizeof (Window));
-  active = files = calloc (1, sizeof (Window));
+  info = window_info_init(conf);
+  play = window_play_init(conf);
+  playback = window_playback_init(conf);
+  menubar = window_menubar_init(conf);
+  files = window_files_init(conf);
+  active = files;
 	
+  
+  files->prev = play;
+  files->next = play;
+  info->prev = files;
+  info->next = play;
+  play->prev = files;
+  play->next = files;
+  
+  /* Eigenlijk nog verplaatsen */
+  files->contents.list = mp3list;
+  info->contents.show = &mp3list->selected;
+  play->contents.list = playlist;
+  
 	/*
   * reading the config must take place AFTER initscr() and friends 
     */
 
-  info->update = update_info;
-  info->activate = active_win;
-  info->deactivate = inactive_win;
-  info->prev = files;
-  info->next = play;
-  info->input = read_keyboard;
-  info->flags |= W_RDONLY;
-
-	/*
-  * in theory, this window should NEVER be active, but just in case ... 
-    */
-  playback->update = update_info;	// generic dummy update 
-  playback->activate = active_win;
-  playback->deactivate = inactive_win;
-  playback->prev = NULL;	// can't tab out of this! 
-  playback->next = NULL;
-  playback->input = read_keyboard;
-  playback->flags |= W_RDONLY;
-  playback->yoffset = 1;
-
-  play->update = show_list;
-  play->activate = active_win;
-  play->deactivate = inactive_win;
-  play->prev = files;
-  play->next = files;
-  play->input = read_keyboard;
-  play->flags |= W_LIST;
-
-  files->update = show_list;
-  files->activate = active_win;
-  files->deactivate = inactive_win;
-  files->prev = play;
-  files->next = play;
-  files->input = read_keyboard;
-  files->flags |= W_LIST | W_RDONLY;
-
-  menubar->activate = std_menubar;
-  menubar->update = std_menubar;
-  menubar->deactivate = clear_menubar;
-  
-  
-  	/*
-  * check window settings for sanity -- not perfect yet :) 
-    */
-
-  if (files->height == 0)
-    files->height = LINES - files->y;
-  if (files->width < 4)
-    files->width = COLS - files->x;
-  if (play->height == 0)
-    play->height = LINES - play->y;
-  if (play->width < 4)
-    play->width = COLS - play->x;
-  if (info->width < 4)
-    info->width = COLS - info->x;
-  if (menubar->height == 0)
-    menubar->height = 1;
-  if (menubar->width == 0)
-    menubar->width = COLS - menubar->x;
-  if (playback->height < 6)
-    playback->height = 2;
-  if (playback->width == 0)
-    playback->width = COLS - playback->x;
-
-  active->win = files->win = newwin (files->height, files->width, files->y, files->x);
-  info->win = newwin (info->height, info->width, info->y, info->x);
-  play->win = newwin (play->height, play->width, play->y, play->x);
-  menubar->win = newwin (menubar->height, menubar->width, menubar->y, menubar->x);
-  playback->win = newwin (playback->height, playback->width, playback->y, playback->x);
-  menubar->input = read_keyboard;
-
   if (!files->win || !info->win || !play->win || !menubar->win)
     bailout (0);
-
-	/*
-  * create the panels in this order to create the initial stack 
-    */
-
-  menubar->panel = new_panel (menubar->win);
-  info->panel = new_panel (info->win);
-  play->panel = new_panel (play->win);
-  files->panel = new_panel (files->win);
-  playback->panel = new_panel (playback->win);
-
-  keypad (files->win, TRUE);
-  keypad (info->win, TRUE);
-  keypad (play->win, TRUE);
-  keypad (menubar->win, TRUE);
-  
-  
-  /**
-   * Config Kopieren
-   */
-  
-  playback->x = conf->playback_window.x;
-  playback->y = conf->playback_window.y;
-  playback->height = conf->playback_window.height;
-  playback->width = conf->playback_window.width;
-  playback->title_dfl = conf->playback_window.title_dfl;
-  playback->title_fmt = conf->playback_window.title_fmt;
-  playback->format = conf->playback_window.format;
-  
-  menubar->x = conf->menubar_window.x;
-  menubar->y = conf->menubar_window.y;
-  menubar->height = conf->menubar_window.height;
-  menubar->width = conf->menubar_window.width;
-  menubar->title_dfl = conf->menubar_window.title_dfl;
-  menubar->title_fmt = conf->menubar_window.title_fmt;
-  menubar->format = conf->menubar_window.format;
-  
-  files->x = conf->files_window.x;
-  files->y = conf->files_window.y;
-  files->height = conf->files_window.height;
-  files->width = conf->files_window.width;
-  files->title_dfl = conf->files_window.title_dfl;
-  files->title_fmt = conf->files_window.title_fmt;
-  files->format = conf->files_window.format;
-  
-  info->x = conf->info_window.x;
-  info->y = conf->info_window.y;
-  info->height = conf->info_window.height;
-  info->width = conf->info_window.width;
-  info->title_dfl = conf->info_window.title_dfl;
-  info->title_fmt = conf->info_window.title_fmt;
-  info->format = conf->info_window.format;
-  
-  
-  play->x = conf->play_window.x;
-  play->y = conf->play_window.y;
-  play->height = conf->play_window.height;
-  play->width = conf->play_window.width;
-  play->title_dfl = conf->play_window.title_dfl;
-  play->title_fmt = conf->play_window.title_fmt;
-  play->format = conf->play_window.format;
-  
-  wbkgd (stdscr, colors[FILE_WINDOW]);
-  wbkgd (files->win, colors[FILE_WINDOW]);
-  wbkgd (info->win, colors[INFO_WINDOW]);
-  wbkgd (play->win, colors[PLAY_WINDOW]);
-  wbkgd (menubar->win, colors[MENU_WINDOW]);
-  wbkgd (playback->win, colors[PLAYBACK_WINDOW]);
 
   menubar->activate (menubar);
   init_info (info);
@@ -637,8 +530,8 @@ void gui_init(Config * init_conf,   u_int32_t init_colors[])
 
   play->update(play);
   files->update (files);
-//  info->update(info);//TODO genereerd segfault
-//  show_playinfo(); //TODO genereerd segfault
+  info->update(info);
+  show_playinfo(); 
   doupdate ();
   
 }
@@ -672,17 +565,30 @@ int
 void
     show_playinfo (void)
 {
+  int elapsed, remaining;
+  elapsed = engine_get_elapsed();
+  remaining = engine_get_remaining();
+  
   playback->contents.show = &play->contents.list->playing;
   playback->update(playback);
-/*
+
   my_mvwnprintw2 (playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)", 
-  (int)message->elapsed / 60, ((int)message->elapsed) % 60, (int)message->remaining / 60, ((int)message->remaining) % 60, (int)(message->elapsed + message->remaining) / 60, (int)(message->elapsed + message->remaining) % 60);*/
-    //TODO uit engine halen???
+  (int)elapsed / 60, ((int)elapsed) % 60, (int)remaining / 60, ((int)remaining) % 60, (int)(elapsed + remaining) / 60, (int)(elapsed + remaining) % 60);
   update_panels();
   doupdate ();
 }
 
 void gui_shutdown(void)
 {
-  //nothing here now
+  window_files_shutdown();
+  window_info_shutdown();
+  window_menubar_shutdown();
+  window_playback_shutdown();
+  window_play_shutdown();
+}
+
+
+void poll_keyboard(void)
+{
+  active->input(active);
 }

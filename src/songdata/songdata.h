@@ -76,7 +76,7 @@ char *	dirstack_fullpath (void);
 char *	dirstack_filename (void);
 int	dirstack_empty (void);
 
-void songdata_init(Config * conf,  u_int32_t init_colors[]);
+wlist * songdata_init(Config * conf,  u_int32_t init_colors[]);
 void songdata_shutdown(void);
 
 #endif

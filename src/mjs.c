@@ -15,9 +15,7 @@
 
 Config *conf;
 static struct sigaction handler;
-
-
-/*TODO LastFM LastFMHandshake * lastFMHandshake;*/
+    wlist * mp3list, * playlist;
 
 /*
  * some internal functions 
@@ -31,10 +29,9 @@ static void timer_handler(int signum)
 //	menubar->update(menubar);
 //	wrefresh (curscr);
 //	refresh();
-  fprintf(stderr, "UpDate!\n");
+  show_playinfo();
 //  clear_menubar(menubar);
 //	std_menubar(menubar);
-    doupdate ();
     //refresh();
 	//wrefresh (curscr);
 }
@@ -49,6 +46,7 @@ main (int argc, char *argv[])
 	struct timeval wait1000 = { 0, 1000000 };
 	int timeout = 0;
 	fd_set fds;
+
 
 
 	srand (time (NULL));
@@ -81,24 +79,25 @@ main (int argc, char *argv[])
 	struct itimerval old_rttimer;
 	
 	signal(SIGALRM,timer_handler);
-	rttimer.it_value.tv_sec     = 3; /* A signal will be sent 250 Milisecond*/
+	rttimer.it_value.tv_sec     = 2; /* A signal will be sent 250 Milisecond*/
 	rttimer.it_value.tv_usec    = 0; /*  from when this is called */
-	rttimer.it_interval.tv_sec  = 3; /* If the timer is not reset, the */
+	rttimer.it_interval.tv_sec  = 2; /* If the timer is not reset, the */
 	rttimer.it_interval.tv_usec = 0; /*  signal will be sent every 250 Milisecond */
 	
 	setitimer (ITIMER_REAL, &rttimer, &old_rttimer);
 
+    //Make sure COLS and LINES are set
+    if (!initscr ())
+      exit (1);
+    
     /**
      * Do ALL the inits here 
      */
     conf = config_init();
-    
-    controller_init(conf);
-    engine_init(conf);
-    songdata_init(conf, conf->colors);
-    gui_init(conf, conf->colors);
-
-
+    engine_init(conf, playlist);
+    mp3list = songdata_init(conf, conf->colors);
+    playlist = controller_init(conf, mp3list);
+    gui_init(conf, conf->colors, mp3list, playlist);
 
 /*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
 		read_mp3_list_array(play->contents.list, argc, argv);
@@ -112,17 +111,11 @@ main (int argc, char *argv[])
     
     //Main loop
 	for (;;) {
-		FD_ZERO (&fds);
-		FD_SET (0, &fds);
-		if (select (FD_SETSIZE, &fds, NULL, NULL, &wait1000) > 0) {
-			if (FD_ISSET (0, &fds)) {
 //				if (active != menubar) //TODO anders oplossen
 //					info->contents.show = &active->contents.list->selected;
-// TODO anders oplossen				info->update(info);
-//				active->input (active);
-				timeout = 0;
-			}
-		}
+                window_info_update();
+                poll_keyboard();
+	   usleep(100);
 	}
 	bailout (-1);
 }
@@ -157,6 +150,7 @@ bailout (int sig)
 		}*/ //TODO anders oplossen
 
 		//TODO class shutdown all function
+      fprintf (stderr, "\n\nWhaaaaaaaaaaaaa \n\n\n");
 		break;
 	case 1:
 		fprintf (stderr, "\n\nmjs:error: in and/or outpipe not available OR cannot start mpg123 \n\n\n");
@@ -209,7 +203,7 @@ update_status (void)
 {
 	FILE *logfile;
 	time_t timevalue;
-	wlist *list =  NULL; //play->contents.list; //TODO anders oplossen
+	wlist *list = playlist;
 	if (!list)
 		return;
 

@@ -6,6 +6,7 @@
 #include <math.h>
 
 #include <xine.h>
+#include <curses.h>
 
 xine_t * engine; // Main libxine object
 xine_audio_port_t * ap; // The audio driver
@@ -19,10 +20,26 @@ xine_stream_t * stream; // Stream object
 
 Config * conf;
  
-void engine_init(Config * init_conf)
+ 
+wlist * playlist;
+
+static void test_cb(void *user_data, const xine_event_t *event)
+{
+  
+  printf("\nHallo:  %d!!!\n", event->type);
+  if(event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  playlist->playing->next != NULL && playlist->playing->next != playlist->playing){
+    printf("\n Playback finished!!!!\n");
+    xine_set_param(event->stream, XINE_PARAM_GAPLESS_SWITCH, 1);
+    xine_open(event->stream, playlist->playing->next->fullpath);
+    xine_play(stream, 0, 0);
+    // TODO Update the controller!
+  }
+}
+
+void engine_init(Config * init_conf, wlist * init_playlist)
 {
   conf = init_conf;
-  
+  playlist = init_playlist;
   // Create our libxine engine, and initialise it
   engine = xine_new();
   xine_init(engine);
@@ -35,6 +52,12 @@ void engine_init(Config * init_conf)
 
   // Create a new stream object
   stream = xine_stream_new(engine, ap, vp);
+  
+  //TODO in CFG zetten??
+  xine_set_param(stream, XINE_PARAM_EARLY_FINISHED_EVENT, 1);
+  
+  
+  xine_event_create_listener_thread(xine_event_new_queue(stream), test_cb, NULL);
   
   playing = 0;
   paused = 0;
@@ -63,8 +86,12 @@ void engine_play(void)
     playing = 1;
     paused = 0;
     
+    xine_stop(stream);
+    
+    xine_close(stream);
+    
     // Open the stream we want to listen to
-    xine_open(stream, "/tmp/test.mp3");
+    xine_open(stream, playlist->playing->fullpath);
     
     // Play the stream
     xine_play(stream, 0, 0);
@@ -167,4 +194,21 @@ void engine_shutdown(void)
   xine_close_audio_driver(engine, ap);
   xine_close_video_driver(engine, vp);
   xine_exit(engine);
+}
+
+int engine_get_elapsed(void)
+{
+  int a, b, c;
+  if(!xine_get_pos_length(stream, &a, &b, &c)){
+    return 0;
+  }
+  return (int) b / 1000;
+}
+int engine_get_remaining(void)
+{
+  int a, b, c;
+  if(!xine_get_pos_length(stream, &a, &b, &c)){
+    return 0;
+  }
+  return (int)(c - b) / 1000;
 }

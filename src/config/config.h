@@ -46,27 +46,29 @@
 #define B_CYAN		(A_BOLD>>11|6UL)
 #define WHITE		(A_BOLD>>11|7UL)
 
-typedef struct _window_config {
-  int x;
-  int y;
-  int height;
-  int width;
-  char * title_dfl;
-  char * title_fmt;
-  char * format;
+typedef struct _window_config
+{
+	int x;
+	int y;
+	int height;
+	int width;
+	char * title_dfl;
+	char * title_fmt;
+	char * format;
 } WindowConfig;
 
-typedef struct _config {
-  char mpgpath[256];
-  char mp3path[256];
-  char statefile[256];
-  char logfile[256];
-  char resultsfile[256];
-  char playlistpath[256];
-  char bottomtext[256];
-  char output[256];
-  char snd_system[256];
-  u_int16_t c_flags;
+typedef struct _config
+{
+	char mpgpath[256];
+	char mp3path[256];
+	char statefile[256];
+	char logfile[256];
+	char resultsfile[256];
+	char playlistpath[256];
+	char bottomtext[256];
+	char output[256];
+	char snd_system[256];
+	u_int16_t c_flags;
 #define C_PADVANCE 	0x0001
 #define C_FADVANCE 	0x0002
 #define C_MONO	   	0x0004
@@ -78,18 +80,18 @@ typedef struct _config {
 #define	C_P_SAVE_EXIT	0x0100
 #define C_USE_GENRE	0x0200
 #define C_USE_REFRESH_INTERVAL 0x0400
-  int buffer;
-  int jump;
-  int refresh_interval;
-  u_int32_t colors[NUM_COLORS];
-  WindowConfig info_window;
-  WindowConfig files_window;
-  WindowConfig play_window;
-  WindowConfig menubar_window;
-  WindowConfig playback_window;
+	int buffer;
+	int jump;
+	int refresh_interval;
+	u_int32_t colors[NUM_COLORS];
+	WindowConfig info_window;
+	WindowConfig files_window;
+	WindowConfig play_window;
+	WindowConfig menubar_window;
+	WindowConfig playback_window;
 } Config;
 
-Config * config_init(void);
-void config_shutdown(Config *);
+Config * config_init ( void );
+void config_shutdown ( Config * );
 
 #endif /* _config_h */

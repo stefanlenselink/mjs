@@ -128,7 +128,7 @@ struct style_s
 // extern struct style_s	id3_styles[];
 int header_bitrate ( mp3header * );
 int header_frequency ( mp3header * );
-int header_layer(mp3header *h);
+int header_layer ( mp3header *h );
 // extern int	id3_readtag (FILE *fin, id3tag_t *id3tag);
 extern int	id3_isvalidtag ( id3tag tag );
 extern char	*id3_findstyle ( int styleid );

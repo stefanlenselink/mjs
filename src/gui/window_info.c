@@ -1,7 +1,7 @@
 #include "window_info.h"
 
 #include "gui.h"
-#include "controller/controller.h"
+#include "controller/keyboard_controller.h"
 Window * info;
 
 Window * window_info_init ( Config * conf )
@@ -11,7 +11,7 @@ Window * window_info_init ( Config * conf )
 	info->update = update_info;
 	info->activate = active_win;
 	info->deactivate = inactive_win;
-	info->input = read_keyboard;
+	info->input = keyboard_controller_read_key;
 	info->flags |= W_RDONLY;
 
 	info->x = conf->info_window.x;

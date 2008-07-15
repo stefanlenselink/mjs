@@ -47,7 +47,8 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libcontroller_a_AR = $(AR) $(ARFLAGS)
 libcontroller_a_LIBADD =
-am_libcontroller_a_OBJECTS = controller.$(OBJEXT)
+am_libcontroller_a_OBJECTS = controller.$(OBJEXT) \
+	keyboard_controller.$(OBJEXT)
 libcontroller_a_OBJECTS = $(am_libcontroller_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -179,7 +180,8 @@ INCLUDES = -I$(top_srcdir)/src $(all_includes)
 METASOURCES = AUTO
 noinst_LIBRARIES = libcontroller.a
 noinst_HEADERS = controller.h
-libcontroller_a_SOURCES = controller.c
+libcontroller_a_SOURCES = controller.c keyboard_controller.c
+_SOURCES = keyboard_controller.h
 all: all-am
 
 .SUFFIXES:
@@ -228,6 +230,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/controller.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/keyboard_controller.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

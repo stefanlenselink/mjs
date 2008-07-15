@@ -878,3 +878,42 @@ void songdata_shutdown ( void )
 {
 	free ( mp3list );
 }
+
+void songdata_randomize(wlist * list)
+{
+  int i = list->length, j, k;
+  flist *ftmp = NULL, *newlist = NULL, **farray = NULL;
+
+  if ( i < 2 )
+    return;
+  if ( ! ( farray = ( flist ** ) calloc ( i, sizeof ( flist * ) ) ) )
+    return;
+  for ( ftmp = list->head, j = 0; ftmp; ftmp = ftmp->next, j++ )
+    farray[j] = ftmp;
+  k = ( int ) ( ( float ) i--*rand() / ( RAND_MAX+1.0 ) );
+  newlist = farray[k];
+  newlist->prev = NULL;
+  farray[k] = NULL;
+  list->head = list->top = newlist;
+  for ( ftmp = NULL; i; i-- )
+  {
+    k = ( int ) ( ( float ) i*rand() / ( RAND_MAX+1.0 ) );
+    for ( j = 0; j <= k; j++ )
+      if ( farray[j] == NULL )
+        k++;
+    ftmp = farray[k];
+    farray[k] = NULL;
+    newlist->next = ftmp;
+    if ( ftmp )
+    {
+      ftmp->prev = newlist;
+      newlist = ftmp;
+    }
+  }
+  list->selected = list->head;
+  list->where = 1;
+  list->wheretop = 0;
+  list->tail = newlist;
+  newlist->next = NULL;
+  free ( farray );
+}

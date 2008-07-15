@@ -1,7 +1,7 @@
 #include "window_menubar.h"
 
 #include "gui.h"
-#include "controller/controller.h"
+#include "controller/keyboard_controller.h"
 
 Window * menubar;
 
@@ -12,7 +12,7 @@ Window * window_menubar_init ( Config * conf )
 	menubar->activate = std_menubar;
 	menubar->update = std_menubar;
 	menubar->deactivate = clear_menubar;
-	menubar->input = read_keyboard;
+	menubar->input = keyboard_controller_read_key;
 
 	menubar->x = conf->menubar_window.x;
 	menubar->y = conf->menubar_window.y;

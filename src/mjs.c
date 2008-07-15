@@ -6,6 +6,7 @@
 #include "engine/engine.h"
 #include "config.h"
 #include "gui/inputline.h"
+#include "log.h"
 
 #include <string.h>
 #include <signal.h>
@@ -36,6 +37,7 @@ static void timer_handler ( int signum )
 	else
 	{
 		clock_count++;
+        keyboard_controller_check_timeout();
 	}
 }
 
@@ -93,12 +95,14 @@ main ( int argc, char *argv[] )
 	/**
 	 * Do ALL the inits here
 	 */
+    log_init();
 	conf = config_init();
 	engine_init ( conf, playlist );
 	mp3list = songdata_init ( conf, conf->colors );
-	playlist = controller_init ( conf, mp3list );
+	playlist = controller_init ( conf );
 	gui_init ( conf, conf->colors, mp3list, playlist );
 	setitimer ( ITIMER_REAL, &rttimer, &old_rttimer );
+
 	/*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
 			read_mp3_list_array(play->contents.list, argc, argv);
 		else if (conf->c_flags & C_P_SAVE_EXIT)
@@ -143,7 +147,6 @@ bailout ( int sig )
 					}*/ //TODO anders oplossen
 
 			//TODO class shutdown all function
-			fprintf ( stderr, "\n\nWhaaaaaaaaaaaaa \n\n\n" );
 			break;
 		case 1:
 			fprintf ( stderr, "\n\nmjs:error: in and/or outpipe not available OR cannot start mpg123 \n\n\n" );

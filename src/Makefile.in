@@ -47,7 +47,7 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_mjs4_OBJECTS = mjs.$(OBJEXT)
+am_mjs4_OBJECTS = log.$(OBJEXT) mjs.$(OBJEXT)
 mjs4_OBJECTS = $(am_mjs4_OBJECTS)
 mjs4_DEPENDENCIES = $(top_builddir)/src/controller/libcontroller.a \
 	$(top_builddir)/src/config/libconfig.a \
@@ -193,7 +193,7 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-mjs4_SOURCES = mjs.c
+mjs4_SOURCES = log.c mjs.c
 
 # set the include path found by configure
 INCLUDES = $(all_includes)
@@ -206,6 +206,7 @@ mjs4_LDADD = $(top_builddir)/src/controller/libcontroller.a \
 	$(top_builddir)/src/songdata/libsongdata.a $(top_builddir)/src/engine/libengine.a
 
 noinst_HEADERS = defs.h mjs.h
+_SOURCES = debug.h log.h
 all: all-recursive
 
 .SUFFIXES:
@@ -277,6 +278,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mjs.Po@am__quote@
 
 .c.o:

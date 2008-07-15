@@ -78,6 +78,7 @@ char *	dirstack_filename ( void );
 int	dirstack_empty ( void );
 
 wlist * songdata_init ( Config * conf,  u_int32_t init_colors[] );
+void songdata_randomize(wlist *);
 void songdata_shutdown ( void );
 
 #endif

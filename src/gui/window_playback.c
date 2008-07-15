@@ -1,7 +1,7 @@
 #include "window_playback.h"
 
 #include "gui.h"
-#include "controller/controller.h"
+#include "controller/keyboard_controller.h"
 
 Window * playback;
 
@@ -17,7 +17,7 @@ Window * window_playback_init ( Config * conf )
 	playback->deactivate = inactive_win;
 	playback->prev = NULL;	// can't tab out of this!
 	playback->next = NULL;
-	playback->input = read_keyboard;
+	playback->input = keyboard_controller_read_key;
 	playback->flags |= W_RDONLY;
 	playback->yoffset = 1;
 

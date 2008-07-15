@@ -1,7 +1,7 @@
 #include "window_play.h"
 
 #include "gui.h"
-#include "controller/controller.h"
+#include "controller/keyboard_controller.h"
 
 
 Window * play;
@@ -13,7 +13,7 @@ Window * window_play_init ( Config * conf )
 	play->update = show_list;
 	play->activate = active_win;
 	play->deactivate = inactive_win;
-	play->input = read_keyboard;
+    play->input = keyboard_controller_read_key;
 	play->flags |= W_LIST;
 
 	play->x = conf->play_window.x;

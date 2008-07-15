@@ -24,6 +24,14 @@ Config * conf;
 
 wlist * playlist;
 
+/* Private internal functions */
+static int is_safe(char);
+static void url_encode(char *, char *);
+static void xine_open_and_play(char *);
+static void event_callback ( void *, const xine_event_t *);
+
+
+
 static int is_safe(char c)
 {
   #define SAFE_LEN 18
@@ -67,7 +75,10 @@ static void xine_open_and_play(char * file)
 {
   int tmp;
   char tmp3[1024], tmp2[1024];
-  url_encode(playlist->playing->fullpath, tmp3);
+  if(file == NULL){
+    return;
+  }
+  url_encode(file, tmp3);
   sprintf(tmp2, "file:/%s", tmp3);
   xine_open ( stream, tmp2);
   xine_play ( stream, 0, 0 );
@@ -76,12 +87,13 @@ static void xine_open_and_play(char * file)
     length = 0;
   }
 }
-static void test_cb ( void *user_data, const xine_event_t *event )
+static void event_callback ( void *user_data, const xine_event_t *event )
 {
 	if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  playlist->playing->next != NULL && playlist->playing->next != playlist->playing )
 	{
+        controller_process_to_next_song();
 		xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
-        xine_open_and_play(playlist->playing->next->fullpath);
+        xine_open_and_play(playlist->playing->fullpath);
 	}
 }
 
@@ -106,7 +118,7 @@ void engine_init ( Config * init_conf, wlist * init_playlist )
 	xine_set_param ( stream, XINE_PARAM_EARLY_FINISHED_EVENT, 1 );
 
 
-	xine_event_create_listener_thread ( xine_event_new_queue ( stream ), test_cb, NULL );
+	xine_event_create_listener_thread ( xine_event_new_queue ( stream ), event_callback, NULL );
 
 	playing = 0;
 	paused = 0;
@@ -119,6 +131,7 @@ void engine_stop ( void )
 	xine_stop ( stream );
 	playing = 0;
 	paused = 0;
+    length = 0;
 }
 
 void engine_play ( void )

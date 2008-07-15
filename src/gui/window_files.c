@@ -1,7 +1,7 @@
 #include "window_files.h"
 
 #include "gui.h"
-#include "controller/controller.h"
+#include "controller/keyboard_controller.h"
 
 #include <stdio.h>
 
@@ -14,7 +14,7 @@ Window * window_files_init ( Config * conf )
 	files->update = show_list;
 	files->activate = active_win;
 	files->deactivate = inactive_win;
-	files->input = read_keyboard;
+	files->input = keyboard_controller_read_key;
 	files->flags |= W_LIST | W_RDONLY;
 
 	files->x = conf->files_window.x;

@@ -1,5 +1,5 @@
 bin_PROGRAMS = mjs4
-mjs4_SOURCES = mjs.c
+mjs4_SOURCES = log.c mjs.c
 
 # set the include path found by configure
 INCLUDES = $(all_includes)
@@ -11,3 +11,5 @@ mjs4_LDADD = $(top_builddir)/src/controller/libcontroller.a \
 	$(top_builddir)/src/config/libconfig.a $(top_builddir)/src/gui/libgui.a \
 	$(top_builddir)/src/songdata/libsongdata.a $(top_builddir)/src/engine/libengine.a
 noinst_HEADERS = defs.h mjs.h
+_SOURCES = debug.h
+_SOURCES = debug.h log.h

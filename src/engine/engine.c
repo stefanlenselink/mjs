@@ -24,18 +24,64 @@ Config * conf;
 
 wlist * playlist;
 
+static int is_safe(char c)
+{
+  #define SAFE_LEN 18
+  const char SAFE[SAFE_LEN] = ";?:@&=+$,-_.!~*'()";
+  int i;
+      if( ('a' <= c && c <= 'z')
+      || ('A' <= c && c <= 'Z')
+      || ('0' <= c && c <= '9') ){
+    return 1;
+      }else{
+        for(i = 0; i < SAFE_LEN; i++)
+        {
+          if(c == SAFE[i]){
+            return 1;
+          }
+        }
+      }
+      return 0;
+}
+
+static void url_encode(char * src, char * dest)
+{
+  int length = strlen(src);
+  int i;
+  const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
+  for(i = 0; i < length; ++src)
+  {
+    i++;
+    if (is_safe(*src))
+      *dest++ = *src;
+    else
+    {
+         // escape this char
+      *dest++ = '%';
+      *dest++ = DEC2HEX[*src >> 4];
+      *dest++ = DEC2HEX[*src & 0x0F];
+    }
+  }
+}
+static void xine_open_and_play(char * file)
+{
+  int tmp;
+  char tmp3[1024], tmp2[1024];
+  url_encode(playlist->playing->fullpath, tmp3);
+  sprintf(tmp2, "file:/%s", tmp3);
+  xine_open ( stream, tmp2);
+  xine_play ( stream, 0, 0 );
+  if ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) )
+  {
+    length = 0;
+  }
+}
 static void test_cb ( void *user_data, const xine_event_t *event )
 {
 	if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  playlist->playing->next != NULL && playlist->playing->next != playlist->playing )
 	{
-		int tmp;
 		xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
-		xine_open ( event->stream, playlist->playing->next->fullpath );
-		xine_play ( stream, 0, 0 );
-		if ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) )
-		{
-			length = 0;
-		}
+        xine_open_and_play(playlist->playing->next->fullpath);
 	}
 }
 
@@ -77,7 +123,6 @@ void engine_stop ( void )
 
 void engine_play ( void )
 {
-	int tmp;
 	if ( playing )
 	{
 		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
@@ -98,17 +143,9 @@ void engine_play ( void )
 		xine_stop ( stream );
 
 		xine_close ( stream );
-
-		// Open the stream we want to listen to
-		xine_open ( stream, playlist->playing->fullpath );
-
-		// Play the stream
-		xine_play ( stream, 0, 0 );
-
-		if ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) )
-		{
-			length = 0;
-		}
+        
+        xine_open_and_play(playlist->playing->fullpath);
+        
 	}
 }
 

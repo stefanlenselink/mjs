@@ -9,7 +9,7 @@ Window * files;
 
 Window * window_files_init ( Config * conf )
 {
-	files = calloc ( 1, sizeof ( Window ) );
+	files = malloc( sizeof ( Window ) );
 
 	files->update = show_list;
 	files->activate = active_win;

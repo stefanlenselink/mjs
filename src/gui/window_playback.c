@@ -7,7 +7,7 @@ Window * playback;
 
 Window * window_playback_init ( Config * conf )
 {
-	playback = calloc ( 1, sizeof ( Window ) );
+	playback = malloc( sizeof ( Window ) );
 
 	/*
 	* in theory, this window should NEVER be active, but just in case ...

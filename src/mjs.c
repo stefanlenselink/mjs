@@ -17,7 +17,8 @@
 Config *conf;
 static struct sigaction handler;
 wlist * mp3list, * playlist;
-
+struct itimerval rttimer;
+struct itimerval old_rttimer;
 /*
  * some internal functions
  */
@@ -77,8 +78,7 @@ main ( int argc, char *argv[] )
 
 
 	/*Uitgezet door Bug tijdens de Owee*/
-	struct itimerval rttimer;
-	struct itimerval old_rttimer;
+
 
 	signal ( SIGALRM,timer_handler );
 	rttimer.it_value.tv_sec     = 0; /* A signal will be sent 250 Milisecond*/
@@ -178,6 +178,18 @@ bailout ( int sig )
 	fprintf ( stdout, " See the GNU GPL (see LICENSE file) for more details.\n" );
 	fprintf ( stdout, " \n" );
 
+    rttimer.it_value.tv_sec     = 0; /* A signal will be sent 250 Milisecond*/
+    rttimer.it_value.tv_usec    = 0; /*  from when this is called */
+    rttimer.it_interval.tv_sec  = 0; /* If the timer is not reset, the */
+    rttimer.it_interval.tv_usec = 0; /*  signal will be sent every 250 Milisecond */
+    
+    setitimer ( ITIMER_REAL, &rttimer, &old_rttimer );
+    engine_shutdown();
+    songdata_shutdown();
+    controller_shutdown();
+    gui_shutdown();
+    config_shutdown();
+    log_shutdown();
 	exit ( sig );
 }
 

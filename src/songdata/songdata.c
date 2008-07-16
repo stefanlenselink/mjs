@@ -190,7 +190,8 @@ free_flist ( flist *file )
 void
 dirstack_push ( const char *fullpath, const char *filename )
 {
-	dirstack *tmp = calloc ( 1, sizeof ( dirstack ) );
+	dirstack *tmp = malloc( sizeof ( dirstack ) );
+    memset(tmp, 0, sizeof(dirstack));
 	tmp->fullpath = strdup ( fullpath );
 	tmp->filename = strdup ( filename );
 	tmp->prev = dirstack_top;
@@ -322,7 +323,8 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 
 	if ( filename[0]=='.' )
 	{
-		ftmp = calloc ( 1, sizeof ( flist ) );
+		ftmp = malloc( sizeof ( flist ) );
+        memset(ftmp, 0, sizeof(flist));
 		ftmp->flags |= F_DIR;
 		ftmp->filename = strdup ( "../" );
 		ftmp->fullpath = strdup ( "../" );
@@ -339,7 +341,8 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 		if ( S_ISDIR ( st.st_mode ) )
 		{
 //directory
-			ftmp = calloc ( 1, sizeof ( flist ) );
+			ftmp = malloc( sizeof ( flist ) );
+            memset(ftmp, 0, sizeof(flist));
 			ftmp->path = calloc ( strlen ( path ) + filename_len + 2, sizeof ( char ) );
 			sprintf ( ftmp->path, "%s/%s", path, filename );
 			ftmp->fullpath = strdup ( fullpath );
@@ -365,7 +368,8 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 			if ( ( strncasecmp ( ".mp3", strchr ( filename, '\0' ) - 4, 4 ) ) && ( strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 ) ) )
 				return NULL;
 
-			ftmp = calloc ( 1, sizeof ( flist ) );
+			ftmp = malloc( sizeof ( flist ) );
+            memset(ftmp, 0, sizeof(flist));
 			ftmp->path = strdup ( path );
 			ftmp->relpath = NULL;
 			ftmp->fullpath = strdup ( fullpath );
@@ -390,6 +394,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 						filename = filename + 3;
 					filename_len = strlen ( filename ) - 4;
 					ftmp->filename = malloc ( filename_len + 6 );
+                    memset(ftmp->filename, 0, filename_len + 6);
 					l = snprintf ( ftmp->filename, 6, "%02.0f ", ( float ) count );
 					strncat ( ftmp->filename, filename, filename_len );
 				}
@@ -458,7 +463,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 		if ( !strncasecmp ( fullpath, "http", 4 ) )
 		{
 			// web-cast http adres
-			ftmp = calloc ( 1, sizeof ( flist ) );
+			ftmp = malloc( sizeof ( flist ) );
 			ftmp->flags |= F_HTTP;
 			ftmp->filename = calloc ( strlen ( playlistname ) + 11, sizeof ( char ) );
 			strcpy ( ftmp->filename, "WebRadio: \0" );
@@ -634,6 +639,7 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 	{
 		length = strrchr ( filename, '/' ) - filename;
 		playlistname = malloc ( strlen ( filename ) - length - 4 );
+        memset(playlistname, 0, strlen(filename) - length - 4);
 		strncpy ( playlistname, filename + length + 1, strlen ( filename ) - length - 5 );
 		playlistname[strlen ( filename ) - length - 5] = '\0';
 	}
@@ -643,7 +649,8 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 
 	if ( append )
 	{
-		ftmp = calloc ( 1, sizeof ( flist ) );
+		ftmp = malloc( sizeof ( flist ) );
+        memset(ftmp, 0, sizeof(flist));
 		ftmp->flags |= F_DIR;
 		ftmp->filename = strdup ( "../" );
 		ftmp->fullpath = getcwd ( NULL, 0 );
@@ -697,7 +704,9 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 		length = strrchr ( buf, '/' ) - buf;
 		buf[strlen ( buf ) - 1] = '\0';	// Get rid off trailing newline
 		dir = malloc ( length + 1 );
+        memset(dir, 0, length + 1);
 		file = malloc ( strlen ( buf ) - length );
+        memset(file, 0, strlen(buf) - length);
 		strncpy ( dir, buf, length );
 		dir[length] = '\0';
 		strcpy ( file, buf + length + 1 );
@@ -870,7 +879,8 @@ wlist * songdata_init ( Config * init_conf, u_int32_t init_colors[] )
 {
 	conf = init_conf;
 	colors = init_colors;
-	mp3list = ( wlist * ) calloc ( 1, sizeof ( wlist ) );
+	mp3list = ( wlist * ) malloc( sizeof ( wlist ) );
+    memset(mp3list, 0, sizeof(wlist));
 	read_mp3_list ( mp3list, conf->mp3path, L_NEW );
 	return mp3list;
 }

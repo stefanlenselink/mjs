@@ -13,7 +13,7 @@ Window * question;
 void
 ask_question ( char *title, char *prompt, char *initial, Window ( *callback ) ( Window * ) )
 {
-	question = calloc ( 1, sizeof ( Window ) );
+	question = malloc( sizeof ( Window ) );
 	question->win = newwin ( 3, 60, 9, 15 );
 	question->width = 60;
 	question->height = 3;

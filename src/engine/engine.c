@@ -74,7 +74,7 @@ static void url_encode(char * src, char * dest)
 static void xine_open_and_play(char * file)
 {
   int tmp;
-  char tmp3[1024], tmp2[1024];
+  char tmp3[1024] = "", tmp2[1024] = "";
   if(file == NULL){
     return;
   }

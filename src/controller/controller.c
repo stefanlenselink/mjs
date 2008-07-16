@@ -133,7 +133,8 @@ add_to_playlist_recursive ( wlist *list, flist *position, flist *file )
 	if ( ! ( file->flags & F_DIR ) )
 		return;
 
-	templist = calloc ( 1, sizeof ( wlist ) );
+	templist = malloc( sizeof ( wlist ) );
+    memset(templist, 0, sizeof(wlist));
 	prevpwd = getcwd ( NULL, 0 );
 
 	read_mp3_list ( templist, file->fullpath, L_NEW );
@@ -164,8 +165,8 @@ add_to_playlist ( wlist *list, flist *position, flist *file )
 
 	if ( !check_file ( file ) )
 		return;
-	newfile = calloc ( 1, sizeof ( flist ) );
-
+	newfile = malloc( sizeof ( flist ) );
+    memset(newfile, 0, sizeof(flist));
 	/* remove tracknumber if it exists and user wants it*/
 	if ( ! ( conf->c_flags & C_TRACK_NUMBERS ) )
 	{
@@ -220,6 +221,7 @@ wlist * controller_init (Config * init_config)
 {
 	conf = init_config;
 	playlist = malloc ( sizeof ( wlist ) );
+    memset(playlist, 0, sizeof(wlist));
 	playlist->head = NULL;
 	wlist_clear ( playlist );
     keyboard_controller_init(playlist, conf);

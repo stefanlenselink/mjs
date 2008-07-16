@@ -8,7 +8,7 @@ Window * play;
 
 Window * window_play_init ( Config * conf )
 {
-	play = calloc ( 1, sizeof ( Window ) );
+	play = malloc( sizeof ( Window ) );
 
 	play->update = show_list;
 	play->activate = active_win;

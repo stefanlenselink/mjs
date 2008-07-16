@@ -92,6 +92,6 @@ typedef struct _config
 } Config;
 
 Config * config_init ( void );
-void config_shutdown ( Config * );
+void config_shutdown ();
 
 #endif /* _config_h */

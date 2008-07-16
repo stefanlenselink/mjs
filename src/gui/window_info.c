@@ -6,7 +6,7 @@ Window * info;
 
 Window * window_info_init ( Config * conf )
 {
-	info = calloc ( 1, sizeof ( Window ) );
+	info = malloc( sizeof ( Window ) );
 
 	info->update = update_info;
 	info->activate = active_win;

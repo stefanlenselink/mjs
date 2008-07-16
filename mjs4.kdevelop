@@ -22,10 +22,10 @@
       <mainprogram>src/mjs4</mainprogram>
       <terminal>true</terminal>
       <runarguments>
-        <mjs4></mjs4>
+        <mjs4/>
       </runarguments>
       <debugarguments>
-        <mjs4></mjs4>
+        <mjs4/>
       </debugarguments>
       <cwd>
         <mjs4>/home/stefan/mjs/trunk/debug/./src</mjs4>

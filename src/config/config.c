@@ -32,7 +32,7 @@ static void parseConfig ( Config * conf, char * fname );
 u_int32_t * colors;
 
 Config * conf;
-void config_shutdonw ( Config * conf )
+void config_shutdown ()
 {
 	free ( conf );
 }
@@ -45,6 +45,15 @@ config_init ( void )
 	 */
 	conf = malloc ( sizeof ( Config ) );
 
+    conf->output[1]='\0';
+    conf->snd_system[1]='\0';
+    conf->info_window.title_fmt = NULL;
+    conf->files_window.title_fmt = NULL;
+    conf->play_window.title_fmt = NULL;
+    conf->menubar_window.title_fmt = NULL;
+    conf->playback_window.title_fmt = NULL;
+    conf->c_flags = 0;
+    
 	strncpy ( conf->mpgpath, MPGPATH, 255 );
 	colors = conf->colors;
 	memset ( colors, 0, sizeof ( colors ) );

@@ -7,7 +7,7 @@ Window * menubar;
 
 Window * window_menubar_init ( Config * conf )
 {
-	menubar = calloc ( 1, sizeof ( Window ) );
+	menubar = malloc( sizeof ( Window ) );
 
 	menubar->activate = std_menubar;
 	menubar->update = std_menubar;

@@ -31,7 +31,7 @@ Window * active;
 
 /* colors */
 u_int32_t * colors;
-
+int last_elapsed = 1; //Foull the guys
 int
 show_list ( Window *window )
 {
@@ -235,7 +235,7 @@ update_info ( Window *window )
 	WINDOW *win = window->win;
 	int i = window->width;
 	flist *file = NULL;
-
+    playback->contents.show = &play->contents.list->playing;
 	file = *window->contents.show;
 
 	clear_info ( window );
@@ -617,18 +617,19 @@ void
 show_playinfo ( void )
 {
 	int elapsed, remaining, length;
-	remaining = engine_get_remaining();
-	elapsed = engine_get_elapsed();
-	length = engine_get_length();
-
-
-	playback->contents.show = &play->contents.list->playing;
-	playback->update ( playback );
-
-	my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
-	                 ( int ) elapsed / 60, ( ( int ) elapsed ) % 60, ( int ) remaining / 60, ( ( int ) remaining ) % 60, ( int ) ( length ) / 60, ( int ) ( length ) % 60 );
-	update_panels();
-	doupdate ();
+    elapsed = engine_get_elapsed();
+    if(last_elapsed != elapsed){
+      last_elapsed = elapsed;
+      remaining = engine_get_remaining();
+      length = engine_get_length();
+      
+      playback->update ( playback );
+  
+      my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
+                      ( int ) elapsed / 60, ( ( int ) elapsed ) % 60, ( int ) remaining / 60, ( ( int ) remaining ) % 60, ( int ) ( length ) / 60, ( int ) ( length ) % 60 );
+      update_panels();
+      doupdate ();
+    }
 }
 
 void gui_shutdown ( void )

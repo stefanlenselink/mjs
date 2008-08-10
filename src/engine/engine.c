@@ -19,10 +19,12 @@ int paused = 0;
 int length = 0;
 int volume = 100;
 
+
 Config * conf;
 
 
-wlist * playlist;
+char * next_song;
+char * current_song;
 
 /* Private internal functions */
 static int is_safe(char);
@@ -89,18 +91,18 @@ static void xine_open_and_play(char * file)
 }
 static void event_callback ( void *user_data, const xine_event_t *event )
 {
-	if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  playlist->playing->next != NULL && playlist->playing->next != playlist->playing )
+  if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  next_song != NULL && next_song != current_song )
 	{
-        controller_process_to_next_song();
-		xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
-        xine_open_and_play(playlist->playing->fullpath);
+      current_song = next_song;
+      next_song = (char *)controller_process_to_next_song(); //TODO waarom niet zo??!!??
+      xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
+      xine_open_and_play(current_song);
 	}
 }
 
-void engine_init ( Config * init_conf, wlist * init_playlist )
+void engine_init ( Config * init_conf)
 {
 	conf = init_conf;
-	playlist = init_playlist;
 	// Create our libxine engine, and initialise it
 	engine = xine_new();
 	xine_init ( engine );
@@ -134,15 +136,15 @@ void engine_stop ( void )
     length = 0;
 }
 
-void engine_play ( void )
+void engine_jump_to ( char * current, char * next, int action)
 {
-	if ( playing )
+	if ( playing && action == 1 )
 	{
 		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
 		playing = 0;
 		paused = 1;
 	}
-	else if ( paused )
+    else if ( paused && action == 1)
 	{
 		playing = 1;
 		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
@@ -157,25 +159,10 @@ void engine_play ( void )
 
 		xine_close ( stream );
         
-        xine_open_and_play(playlist->playing->fullpath);
-        
+        xine_open_and_play(current);
+        current_song = current;
+        next_song = next;
 	}
-}
-
-void engine_next ( void )
-{
-	playing = 0;
-	paused = 0;
-	//TODO shift nr
-	engine_play();
-}
-
-void engine_prev ( void )
-{
-	playing = 0;
-	paused = 0;
-	//TODO shift nr
-	engine_play();
 }
 
 void engine_ffwd ( int mill )

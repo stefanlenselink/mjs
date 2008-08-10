@@ -4,6 +4,10 @@
 #include "config/config.h"
 #include "songdata/songdata.h"
 
+#define ENGINE_PAUSE 1
+#define ENGINE_RESUME 2
+#define ENGINE_NORMAL 3
+
 typedef struct
 {
 	int eq_30;      /* equalizer gains -100..100   */
@@ -18,7 +22,7 @@ typedef struct
 	int eq_16000;   /* equalizer gains -100..100   */
 } Equalizer;
 
-void engine_init ( Config * conf, wlist * playlist );
+void engine_init ( Config * conf);
 void engine_stop ( void );
 void engine_play ( void );
 void engine_next ( void );

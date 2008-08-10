@@ -71,11 +71,11 @@ static void controller_update_statefile ( void )
 		fclose ( activefile );
 	}
 }
-
-void controller_process_to_next_song ( void )
+ 
+char * controller_process_to_next_song ( void )
 {
-	if ( !playlist->playing->next )
-		return;
+    if ( !playlist->playing->next )
+		return NULL;
 
 	playlist->playing = playlist->playing->next;
 
@@ -86,6 +86,7 @@ void controller_process_to_next_song ( void )
 
 	controller_update_whereplaying();
 	controller_update_statefile();
+    return playlist->playing->next->fullpath;
 }
 
 void controller_jump_to_song ( flist *next )
@@ -101,7 +102,7 @@ void controller_jump_to_song ( flist *next )
 
 	playlist->playing = next;
 
-	engine_play();
+    engine_jump_to(next->fullpath, next->next->fullpath, ENGINE_NORMAL);
 
 	/* GUI stuff */
 	window_play_update();
@@ -165,8 +166,7 @@ add_to_playlist ( wlist *list, flist *position, flist *file )
 
 	if ( !check_file ( file ) )
 		return;
-	newfile = malloc( sizeof ( flist ) );
-    memset(newfile, 0, sizeof(flist));
+    newfile = new_flist();
 	/* remove tracknumber if it exists and user wants it*/
 	if ( ! ( conf->c_flags & C_TRACK_NUMBERS ) )
 	{

@@ -81,4 +81,6 @@ wlist * songdata_init ( Config * conf,  u_int32_t init_colors[] );
 void songdata_randomize(wlist *);
 void songdata_shutdown ( void );
 
+flist * new_flist(void);
+
 #endif

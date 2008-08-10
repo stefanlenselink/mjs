@@ -97,7 +97,7 @@ main ( int argc, char *argv[] )
 	 */
     log_init();
 	conf = config_init();
-	engine_init ( conf, playlist );
+	engine_init (conf);
 	mp3list = songdata_init ( conf, conf->colors );
 	playlist = controller_init ( conf );
 	gui_init ( conf, conf->colors, mp3list, playlist );

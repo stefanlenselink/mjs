@@ -323,14 +323,12 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 
 	if ( filename[0]=='.' )
 	{
-		ftmp = malloc( sizeof ( flist ) );
-        memset(ftmp, 0, sizeof(flist));
+        ftmp = new_flist();
 		ftmp->flags |= F_DIR;
 		ftmp->filename = strdup ( "../" );
 		ftmp->fullpath = strdup ( "../" );
 		ftmp->path = strdup ( path );
 		ftmp->relpath = strdup ( path );
-		ftmp->has_id3 = 0;
 		return ftmp;
 	}
 
@@ -341,8 +339,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 		if ( S_ISDIR ( st.st_mode ) )
 		{
 //directory
-			ftmp = malloc( sizeof ( flist ) );
-            memset(ftmp, 0, sizeof(flist));
+            ftmp = new_flist();
 			ftmp->path = calloc ( strlen ( path ) + filename_len + 2, sizeof ( char ) );
 			sprintf ( ftmp->path, "%s/%s", path, filename );
 			ftmp->fullpath = strdup ( fullpath );
@@ -356,26 +353,16 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 			else
 				strcat ( ftmp->filename, "/" );
 			ftmp->title = strdup ( ftmp->filename );
-			ftmp->genre = NULL;
-			ftmp->album = NULL;
-			ftmp->artist = NULL;
-			ftmp->has_id3 = 0;
-
-
 		}
 		else if ( S_ISREG ( st.st_mode ) )
 		{
 			if ( ( strncasecmp ( ".mp3", strchr ( filename, '\0' ) - 4, 4 ) ) && ( strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 ) ) )
 				return NULL;
 
-			ftmp = malloc( sizeof ( flist ) );
-            memset(ftmp, 0, sizeof(flist));
+            ftmp = new_flist();
 			ftmp->path = strdup ( path );
 			ftmp->relpath = NULL;
 			ftmp->fullpath = strdup ( fullpath );
-			ftmp->album = NULL;
-			ftmp->artist = NULL;
-			ftmp->has_id3 = 0;
 
 			if ( !strncasecmp ( ".mp3", strchr ( filename, '\0' ) - 4, 4 ) )
 			{
@@ -400,7 +387,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 				}
 				else
 				{
-					ftmp->filename = calloc ( filename_len - 3, sizeof ( char ) );
+                  ftmp->filename = malloc (sizeof ( char )  * (filename_len - 3));
 					strncpy ( ftmp->filename, filename, filename_len - 4 );
 					ftmp->filename[filename_len - 4] = '\0';
 
@@ -429,6 +416,8 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 							free ( ftmp->album );
 						if ( ftmp->genre != NULL )
 							free ( ftmp->genre );
+                        if(ftmp->filename != NULL)
+                            free(ftmp->filename);
 
 						ftmp->title = strdup ( tag.title );
 						ftmp->artist = strdup ( tag.artist );
@@ -463,7 +452,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 		if ( !strncasecmp ( fullpath, "http", 4 ) )
 		{
 			// web-cast http adres
-			ftmp = malloc( sizeof ( flist ) );
+			ftmp = new_flist();
 			ftmp->flags |= F_HTTP;
 			ftmp->filename = calloc ( strlen ( playlistname ) + 11, sizeof ( char ) );
 			strcpy ( ftmp->filename, "WebRadio: \0" );
@@ -473,7 +462,6 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 			ftmp->artist = strdup ( "http-stream" );
 			ftmp->fullpath = strdup ( fullpath );
 			ftmp->path = strdup ( "http-stream" );
-			ftmp->has_id3 = 0;
 		}
 	}
 	free ( fullpath );
@@ -649,8 +637,7 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 
 	if ( append )
 	{
-		ftmp = malloc( sizeof ( flist ) );
-        memset(ftmp, 0, sizeof(flist));
+		ftmp = new_flist();
 		ftmp->flags |= F_DIR;
 		ftmp->filename = strdup ( "../" );
 		ftmp->fullpath = getcwd ( NULL, 0 );
@@ -926,4 +913,26 @@ void songdata_randomize(wlist * list)
   list->tail = newlist;
   newlist->next = NULL;
   free ( farray );
+}
+
+
+flist * new_flist(void)
+{
+  flist * newfile = malloc( sizeof ( flist ) );
+  memset(newfile, 0, sizeof(flist));
+  newfile->flags = 0;
+  newfile->album = NULL;
+  newfile->filename = NULL;		// filename without path
+  newfile->path = NULL;		// path without filename without mp3path
+  newfile->fullpath = NULL;		// the fullpath
+  newfile->relpath = NULL;
+  newfile->artist = NULL;
+  newfile->genre = NULL;
+  newfile->title = NULL;
+  newfile->has_id3 = 0;
+  newfile->track_id = 0;
+  newfile->length = 0;
+  newfile->next = NULL;
+  newfile->prev = NULL;
+  return newfile;
 }

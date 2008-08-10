@@ -29,7 +29,7 @@ wlist * controller_init (Config *);
 void controller_shutdown ( void );
 void controller_playlist_move_up();
 void controller_playlist_move_down();
-void controller_process_to_next_song ( void );
+char * controller_process_to_next_song ( void );
 void controller_jump_to_song ( flist * );
 void controller_check_timeout(void);
 void controller_stop(void);

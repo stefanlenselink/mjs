@@ -250,7 +250,7 @@ int keyboard_controller_read_key(Window * window)
       {
         if (playlist->playing == playlist->selected && playlist->playing->next != NULL)
         {
-          play_next_song ( playlist );
+          controller_next( playlist );
           window_play_update();
         }else if (playlist->playing == playlist->selected && playlist->playing->next == NULL){
           controller_stop();
@@ -388,7 +388,7 @@ int keyboard_controller_read_key(Window * window)
 
     case KEY_F ( 9 ) :
 						// Skip to previous mp3 in playlist
-      play_prev_song ();
+      controller_prev();
 
       break;
 
@@ -406,7 +406,7 @@ int keyboard_controller_read_key(Window * window)
     case KEY_F ( 12 ) :
 						// Skip to next mp3 in playlist
 
-      play_next_song ( playlist );
+      controller_next( playlist );
 
       break;
 

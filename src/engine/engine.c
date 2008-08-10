@@ -94,7 +94,7 @@ static void event_callback ( void *user_data, const xine_event_t *event )
   if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  next_song != NULL && next_song != current_song )
 	{
       current_song = next_song;
-      next_song = (char *)controller_process_to_next_song(); //TODO waarom niet zo??!!??
+      next_song = controller_process_to_next_song(); //TODO waarom niet zo??!!??
       xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
       xine_open_and_play(current_song);
 	}

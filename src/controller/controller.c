@@ -20,7 +20,7 @@ static int do_search ( Input * );
 static void controller_update_whereplaying ( void );
 static void controller_update_statefile ( void );
 
-void play_next_song()
+void controller_next()
 {
 	flist *ftmp = playlist->playing;
 
@@ -34,7 +34,7 @@ void play_next_song()
 	controller_jump_to_song ( ftmp );
 }
 
-void play_prev_song()
+void controller_prev()
 {
 	flist *ftmp = playlist->playing;
 
@@ -76,9 +76,12 @@ char * controller_process_to_next_song ( void )
 {
     if ( !playlist->playing->next )
 		return NULL;
-
+    char * return_path = playlist->playing->next->fullpath;
 	playlist->playing = playlist->playing->next;
-
+    if( playlist->playing->next)
+    {
+     return_path = playlist->playing->next->fullpath;
+    }
 	/* GUI stuff */
 	window_play_update();
 	window_info_update();
@@ -86,7 +89,7 @@ char * controller_process_to_next_song ( void )
 
 	controller_update_whereplaying();
 	controller_update_statefile();
-    return playlist->playing->next->fullpath;
+    return return_path;
 }
 
 void controller_jump_to_song ( flist *next )
@@ -99,10 +102,14 @@ void controller_jump_to_song ( flist *next )
 		//It's really a jump....
 		engine_stop();
 	}
-
+    char * current = next->fullpath;
+    char * next_char = NULL;
+    if(next->next != NULL){
+      next_char = next->next->fullpath; 
+    }
 	playlist->playing = next;
 
-    engine_jump_to(next->fullpath, next->next->fullpath, ENGINE_NORMAL);
+    engine_jump_to(current, next_char, ENGINE_NORMAL);
 
 	/* GUI stuff */
 	window_play_update();

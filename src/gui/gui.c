@@ -647,3 +647,16 @@ void poll_keyboard ( void )
 {
 	active->input ( active );
 }
+
+int gui_ask_question(char * question)
+{
+  unsigned short c;
+  window_menubar_deactivate();
+  clear_menubar ( menubar );
+  my_mvwaddstr ( menubar->win, 0, 10, colors[MENU_TEXT], question );
+  update_panels();
+  doupdate();
+  c = wgetch ( menubar->win );
+  window_menubar_activate();
+  return ( c == 'y' ) || ( c == 'Y' );
+}

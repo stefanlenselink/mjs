@@ -27,6 +27,8 @@ void gui_shutdown ( void );
 
 void poll_keyboard ( void );
 
+int gui_ask_question(char *);
+
 int	update_menu ( Input * );
 void	show_playinfo ( void );
 #endif /* _gui_h */

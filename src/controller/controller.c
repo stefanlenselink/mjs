@@ -151,7 +151,21 @@ void controller_stop()
 	window_playback_update();
 	controller_update_statefile();
 }
+void controller_clear_playlist()
+{
+  if (gui_ask_question(CLEARPLAYLIST))
+  {
+    controller_stop();
 
+    wlist_clear ( playlist );
+
+    window_play_update();
+    
+    window_info_update();
+    
+    update_panels ();
+  }
+}
 void
 add_to_playlist_recursive ( wlist *list, flist *position, flist *file )
 {

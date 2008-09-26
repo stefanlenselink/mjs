@@ -282,27 +282,10 @@ int keyboard_controller_read_key(Window * window)
       update_panels ();
       break;
 
-    case KEY_F ( 2 ) :
-						// Clear playlist
-      window_menubar_deactivate();
-      printf_menubar ( CLEARPLAYLIST );
-      c = wgetch ( window->win );
-      if ( c == 27 )
-        c = wgetch ( window->win );
-      if ( ( c == 'y' ) | ( c == 'Y' ) )
-      {
-        controller_stop();
-
-        wlist_clear ( playlist );
-
-        window_play_update();
-        clear_info ();
-        window_info_update();
-      }
-      window_menubar_activate();
-      update_panels ();
+    case KEY_F ( 2 ) : // Clear playlist
+      controller_clear_playlist();
       break;
-
+  
     case KEY_F ( 3 ) :
 						// Search in mp3-database
 //      old_active = active;

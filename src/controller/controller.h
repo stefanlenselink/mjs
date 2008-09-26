@@ -37,5 +37,6 @@ void controller_stop(void);
 int controller_has_next_song( void );
 void	 controller_next();
 void	 controller_prev();
+void controller_clear_playlist();
 
 #endif /* _playlist_h */

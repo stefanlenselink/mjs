@@ -618,7 +618,8 @@ show_playinfo ( void )
 {
 	int elapsed, remaining, length;
     elapsed = engine_get_elapsed();
-    if(last_elapsed != elapsed){
+    //If engine == paused keep displaying....Impact on performance...
+    if(last_elapsed != elapsed || engine_is_paused()){
       last_elapsed = elapsed;
       remaining = engine_get_remaining();
       length = engine_get_length();

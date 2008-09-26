@@ -31,8 +31,10 @@ void controller_playlist_move_up();
 void controller_playlist_move_down();
 char * controller_process_to_next_song ( void );
 void controller_jump_to_song ( flist * );
+void controller_play_pause(void);
 void controller_check_timeout(void);
 void controller_stop(void);
+int controller_has_next_song( void );
 void	 controller_next();
 void	 controller_prev();
 

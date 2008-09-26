@@ -14,8 +14,7 @@ xine_audio_port_t * ap; // The audio driver
 xine_video_port_t * vp; // The video driver
 xine_stream_t * stream; // Stream object
 
-int playing = 0;
-int paused = 0;
+EngineState engine_state = engine_unitialized;
 int length = 0;
 int volume = 100;
 
@@ -23,7 +22,6 @@ int volume = 100;
 Config * conf;
 
 
-char * next_song;
 char * current_song;
 
 /* Private internal functions */
@@ -91,13 +89,13 @@ static void xine_open_and_play(char * file)
 }
 static void event_callback ( void *user_data, const xine_event_t *event )
 {
-  if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  next_song != NULL && next_song != current_song )
-	{
-      current_song = next_song;
-      next_song = controller_process_to_next_song(); //TODO waarom niet zo??!!??
+  if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  controller_has_next_song() ){
+      current_song = controller_process_to_next_song();
       xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
       xine_open_and_play(current_song);
-	}
+  }else if(event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  !controller_has_next_song()){
+    engine_state = engine_stoped;
+  }
 }
 
 void engine_init ( Config * init_conf)
@@ -122,52 +120,57 @@ void engine_init ( Config * init_conf)
 
 	xine_event_create_listener_thread ( xine_event_new_queue ( stream ), event_callback, NULL );
 
-	playing = 0;
-	paused = 0;
 	volume = xine_get_param ( stream, XINE_PARAM_AUDIO_VOLUME );
+    
+    engine_state = engine_stoped;
 }
 
 void engine_stop ( void )
 {
 	// Stop the stream
 	xine_stop ( stream );
-	playing = 0;
-	paused = 0;
     length = 0;
+    engine_state = engine_stoped;
 }
 
-void engine_jump_to ( char * current, char * next, int action)
+void engine_jump_to ( char * current)
 {
-	if ( playing && action == 1 )
-	{
-		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
-		playing = 0;
-		paused = 1;
-	}
-    else if ( paused && action == 1)
-	{
-		playing = 1;
-		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
-		paused = 0;
-	}
-	else
-	{
-		playing = 1;
-		paused = 0;
+  xine_stop ( stream );
+  xine_close ( stream );
+  xine_open_and_play(current);
+  current_song = current;
+  engine_state = engine_playing;
+}
 
-		xine_stop ( stream );
+int engine_is_paused(void){
+  return engine_state == engine_paused;
+}
 
-		xine_close ( stream );
-        
-        xine_open_and_play(current);
-        current_song = current;
-        next_song = next;
-	}
+int engine_is_playing(void){
+  return engine_state == engine_playing;
+}
+
+void engine_resume_playback(void){
+  if(engine_state == engine_paused && xine_get_param(stream, XINE_PARAM_SPEED) == XINE_SPEED_PAUSE){
+    xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
+    engine_state = engine_playing;
+  }else if(engine_state == engine_paused && xine_get_param(stream, XINE_PARAM_SPEED) == XINE_SPEED_NORMAL){
+    engine_state = engine_stoped; //TODO klopt deze aanname??
+  }
+}
+
+void engine_pause_playback(void){
+  if(engine_state == engine_playing && xine_get_param(stream, XINE_PARAM_SPEED) == XINE_SPEED_NORMAL){
+    xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_PAUSE );
+    engine_state = engine_paused;
+  }else if(engine_state == engine_playing && xine_get_param(stream, XINE_PARAM_SPEED) == XINE_SPEED_PAUSE){
+    engine_state = engine_paused;
+  }
 }
 
 void engine_ffwd ( int mill )
 {
-	if ( playing )
+	if ( engine_state == engine_playing )
 	{
 		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_FAST_4 );
 		usleep ( mill * 1000 ); //TODO Shiften?
@@ -177,7 +180,7 @@ void engine_ffwd ( int mill )
 
 void engine_frwd ( int mill )
 {
-	if ( playing )
+	if ( engine_state == engine_playing )
 	{
 		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_SLOW_4 );
 		usleep ( mill * 1000 ); //TODO Shiften?

@@ -373,51 +373,29 @@ int keyboard_controller_read_key(Window * window)
       update_menu (inputline);*/ //TODO op nieuwe manier aanroepen
       break;
 
-    case KEY_F ( 7 ) :
-						// Stop the player
+    case KEY_F ( 7 ) : // Stop the player
       controller_stop();
       break;
-
-      case KEY_F ( 8 ) : /* TODO Big overhull*/
-						// Play / Pause key
-						// fix me
-        if ( !playlist->selected )
-          playlist->selected = next_valid ( playlist, playlist->top, KEY_DOWN );
-        controller_jump_to_song ( playlist->selected ); // Play
+    case KEY_F ( 8 ) : // Play / Pause the player
+        controller_play_pause();
         break;
-
-    case KEY_F ( 9 ) :
-						// Skip to previous mp3 in playlist
+    case KEY_F ( 9 ) : // Skip to previous mp3 in playlist
       controller_prev();
-
       break;
-
-    case KEY_F ( 10 ) :
-						// Skip JUMP frames backward
-
+    case KEY_F ( 10 ) : // FRWD
       engine_frwd ( conf->jump );
       break;
-
-    case KEY_F ( 11 ) :
-
+    case KEY_F ( 11 ) : //FFWD
       engine_ffwd ( conf->jump );
       break;
-
-    case KEY_F ( 12 ) :
-						// Skip to next mp3 in playlist
-
+    case KEY_F ( 12 ) : // Skip to next mp3 in playlist
       controller_next( playlist );
-
       break;
-
     case 'a'...'z':
     case 'A'...'Z':
     case '0'...'9':
     case '.':
-    case ' ':
-
-      printf ( "Key\n" );
-			// Jump to directory with matching first letters
+    case ' ': // Jump to directory with matching first letters
       if ( window->name == window_files){
         flist *ftmp = window->contents.list->head;
         int n = 0;

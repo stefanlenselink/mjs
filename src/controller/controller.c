@@ -91,7 +91,9 @@ char * controller_process_to_next_song ( void )
 	controller_update_statefile();
     return return_path;
 }
-
+int controller_has_next_song( void ){
+  return playlist->playing->next != NULL;
+}
 void controller_jump_to_song ( flist *next )
 {
 	if ( !next )
@@ -103,13 +105,10 @@ void controller_jump_to_song ( flist *next )
 		engine_stop();
 	}
     char * current = next->fullpath;
-    char * next_char = NULL;
-    if(next->next != NULL){
-      next_char = next->next->fullpath; 
-    }
-	playlist->playing = next;
+	
+    playlist->playing = next;
 
-    engine_jump_to(current, next_char, ENGINE_NORMAL);
+    engine_jump_to(current);
 
 	/* GUI stuff */
 	window_play_update();
@@ -118,6 +117,26 @@ void controller_jump_to_song ( flist *next )
 
 	controller_update_whereplaying();
 	controller_update_statefile();
+}
+
+void controller_play_pause(void)
+{
+  if(engine_is_paused()){
+    playlist->playing->flags &= ~F_PAUSED;
+    engine_resume_playback();
+  }else if(engine_is_playing()){
+    playlist->playing->flags |= F_PAUSED;
+    engine_pause_playback();
+  }else{
+    if ( !playlist->selected ){
+      playlist->selected = next_valid ( playlist, playlist->top, KEY_DOWN );
+    }
+    controller_jump_to_song ( playlist->selected ); // Play
+  }
+  /* GUI stuff */
+  window_play_update();
+  window_info_update();
+  window_playback_update();
 }
 
 void controller_stop()

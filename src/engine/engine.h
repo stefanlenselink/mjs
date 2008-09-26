@@ -4,9 +4,12 @@
 #include "config/config.h"
 #include "songdata/songdata.h"
 
-#define ENGINE_PAUSE 1
-#define ENGINE_RESUME 2
-#define ENGINE_NORMAL 3
+typedef enum{
+  engine_paused,
+  engine_playing,
+  engine_stoped,
+  engine_unitialized
+} EngineState;
 
 typedef struct
 {
@@ -24,7 +27,11 @@ typedef struct
 
 void engine_init ( Config * conf);
 void engine_stop ( void );
-void engine_play ( void );
+void engine_jump_to ( char *);
+int engine_is_paused(void);
+int engine_is_playing(void);
+void engine_resume_playback(void);
+void engine_pause_playback(void);
 void engine_next ( void );
 void engine_prev ( void );
 void engine_ffwd ( int );

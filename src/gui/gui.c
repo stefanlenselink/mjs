@@ -356,7 +356,7 @@ std_menubar ( Window *window )
 	currentTime = localtime ( &now2 );
 	clear_menubar ( window );
 	my_mvwaddstr ( window->win, 0, ( ( x-strlen ( window->title_dfl ) ) /2 ), colors[MENU_TEXT], window->title_dfl );
-	snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d v%s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour - currentTime->tm_isdst, currentTime->tm_min,  "4.0" /* TODO: VERSION*/ );
+	snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d v%s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour /* - currentTime->tm_isdst TODO GELD dit alleen voor 00:xx? */, currentTime->tm_min,  "4.0rc1" /* TODO: VERSION*/ );
 	my_mvwaddstr ( window->win, 0, x - strlen ( version_str ) + 2, colors[MENU_TEXT], version_str );
 
 	update_panels();

@@ -166,6 +166,29 @@ void controller_clear_playlist()
     update_panels ();
   }
 }
+void controller_shuffle_playlist(){
+  if (gui_ask_question(SHUFFLE))
+  {
+    songdata_randomize(playlist);
+    window_play_update();
+    window_info_update();
+  }
+}
+void controller_exit(){
+  if (gui_ask_question(EXITPROGRAM))
+  {
+    bailout ( 0 );
+  }
+}
+
+void controller_reload_search_results(){
+  if ( ! ( playlist->flags & F_VIRTUAL ) && playlist->selected != NULL)
+    dirstack_push (playlist->from, playlist->selected->filename );
+  read_mp3_list ( playlist, conf->resultsfile, L_SEARCH );
+  window_info_update();
+  window_files_update();
+}
+
 void
 add_to_playlist_recursive ( wlist *list, flist *position, flist *file )
 {

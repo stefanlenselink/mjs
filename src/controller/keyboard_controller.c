@@ -264,22 +264,12 @@ int keyboard_controller_read_key(Window * window)
 
     case KEY_REFRESH:
     case '~':
-    case '`':
-			// refresh screen
+    case '`': // refresh screen
       wrefresh ( curscr );
       break;
 
-    case KEY_F ( 1 ) :
-						// Exit mjs
-      window_menubar_deactivate();
-      printf_menubar ( EXITPROGRAM );
-      c = wgetch ( window->win );
-      if ( c == 27 )
-        c = wgetch ( window->win );
-      if ( ( c == 'y' ) | ( c == 'Y' ) )
-        bailout ( 0 );
-      window_menubar_activate();
-      update_panels ();
+    case KEY_F ( 1 ) : // Exit mjs
+      controller_exit();
       break;
 
     case KEY_F ( 2 ) : // Clear playlist
@@ -307,29 +297,12 @@ int keyboard_controller_read_key(Window * window)
       update_menu (inputline);*/
       break;
 
-    case KEY_F ( 4 ) :
-						// Show last search results
-      if ( ! ( window->contents.list->flags & F_VIRTUAL ) )
-        dirstack_push ( window->contents.list->from, window->contents.list->selected->filename );
-      read_mp3_list ( window->contents.list, conf->resultsfile, L_SEARCH );
-      window_info_update();
-      window_files_update();
+    case KEY_F ( 4 ) : // Show last search results
+      controller_reload_search_results();
       break;
 
-    case KEY_F ( 5 ) :
-						// Randomize the playlist
-      window_menubar_deactivate();
-      printf_menubar ( SHUFFLE );
-      c = wgetch ( window->win );
-      if ( c == 27 )
-        c = wgetch ( window->win );
-      if ( ( c == 'y' ) | ( c == 'Y' ) )
-      {
-        songdata_randomize(playlist);
-        window_play_update();
-        window_info_update();
-      }
-      window_menubar_activate();
+    case KEY_F ( 5 ) : // Randomize the playlist
+      controller_shuffle_playlist();
       break;
 
     case KEY_F ( 6 ) :

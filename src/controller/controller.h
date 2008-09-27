@@ -38,5 +38,8 @@ int controller_has_next_song( void );
 void	 controller_next();
 void	 controller_prev();
 void controller_clear_playlist();
+void controller_shuffle_playlist();
+void controller_exit();
+void controller_reload_search_results();
 
 #endif /* _playlist_h */

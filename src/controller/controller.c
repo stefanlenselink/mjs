@@ -3,7 +3,6 @@
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "gui/gui.h"
-#include "gui/inputline.h"
 #include "mjs.h"
 #include "log.h"
 #include "keyboard_controller.h"
@@ -15,8 +14,6 @@ wlist * playlist;
 
 static struct sigaction handler;
 
-static int do_save ( Input * );
-static int do_search ( Input * );
 static void controller_update_whereplaying ( void );
 static void controller_update_statefile ( void );
 
@@ -153,7 +150,7 @@ void controller_stop()
 }
 void controller_clear_playlist()
 {
-  if (gui_ask_question(CLEARPLAYLIST))
+  if (gui_ask_yes_no_question(CLEARPLAYLIST))
   {
     controller_stop();
 
@@ -167,7 +164,7 @@ void controller_clear_playlist()
   }
 }
 void controller_shuffle_playlist(){
-  if (gui_ask_question(SHUFFLE))
+  if (gui_ask_yes_no_question(SHUFFLE))
   {
     songdata_randomize(playlist);
     window_play_update();
@@ -175,18 +172,14 @@ void controller_shuffle_playlist(){
   }
 }
 void controller_exit(){
-  if (gui_ask_question(EXITPROGRAM))
+  if (gui_ask_yes_no_question(EXITPROGRAM))
   {
     bailout ( 0 );
   }
 }
 
 void controller_reload_search_results(){
-  if ( ! ( playlist->flags & F_VIRTUAL ) && playlist->selected != NULL)
-    dirstack_push (playlist->from, playlist->selected->filename );
-  read_mp3_list ( playlist, conf->resultsfile, L_SEARCH );
-  window_info_update();
-  window_files_update();
+  songdata_reload_search_results();
 }
 
 void
@@ -298,60 +291,35 @@ void controller_shutdown ( void )
 }
 
 
-static int
-do_save ( Input * input )
-{
-	char *s = malloc ( strlen ( input->buf ) + 26 );
-//  active = old_active;  //TODO anders
-	sprintf ( s, "%s/%s.mjs", conf->playlistpath, input->buf );
-	write_mp3_list_file ( playlist, s );
-	free ( s );
-	free ( input );
-	window_menubar_activate();
-	/*  menubar->inputline = NULL;*/ //TODO op nieuwe manier aanroepen
-	doupdate ();
-	return 1;
-}
-
-static int
-do_search ( Input * input )
+void controller_search(char * string)
 {
 	pid_t childpid;
-//  active = old_active;  //TODO anders
-	if ( ! ( ( *input->buf == ' ' ) || ( *input->buf == '\0' ) ) )
-	{
-		handler.sa_handler = SIG_DFL;
-		handler.sa_flags = SA_ONESHOT;
-		sigaction ( SIGCHLD, &handler, NULL );
+	handler.sa_handler = SIG_DFL;
+	handler.sa_flags = SA_ONESHOT;
+	sigaction ( SIGCHLD, &handler, NULL );
+	errno = 0;
+	if ( ! ( childpid = fork () ) ){
 		errno = 0;
-		if ( ! ( childpid = fork () ) )
-		{
-			errno = 0;
-			execlp ( "findmp3", "findmp3", input->buf, conf->resultsfile, ( char * ) NULL );
-			exit ( 3 );
-		}
-		if ( errno )
-			exit ( 3 );
-
-		waitpid ( childpid, NULL, 0 );
-
-		handler.sa_handler = ( SIGHANDLER ) unsuspend;
-		handler.sa_flags = SA_RESTART;
-		sigaction ( SIGCONT, &handler, NULL );
-
-/*		if ( ! ( mp3list->flags & F_VIRTUAL ) ) //TODO anders oplossen!!
-			dirstack_push ( mp3list->from, mp3list->selected->filename ); 
-        read_mp3_list ( mp3list, conf->resultsfile, L_SEARCH );*/
-		window_files_update();
-		window_info_update();
+        execlp ( "findmp3", "findmp3", string, conf->resultsfile, ( char * ) NULL );
+		exit ( 3 );
 	}
-	else
-		window_menubar_activate();
+	if ( errno )
+		exit ( 3 );
+	waitpid ( childpid, NULL, 0 );
+	handler.sa_handler = ( SIGHANDLER ) unsuspend;
+	handler.sa_flags = SA_RESTART;
+	sigaction ( SIGCONT, &handler, NULL );
 
-	free ( input );
-	//menubar->inputline = NULL;  //TODO anders
-	window_files_update();
-	return 1;
+    controller_reload_search_results();
+}
+
+void controller_save_playlist(char * file)
+{
+  char *s = malloc ( strlen ( file ) + strlen(conf->playlistpath) + 6 );
+  sprintf ( s, "%s/%s.mjs", conf->playlistpath, file );
+  write_mp3_list_file ( playlist, s );
+  free ( s );
+  doupdate ();
 }
 
 

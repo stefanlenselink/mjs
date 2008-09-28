@@ -47,10 +47,10 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 libgui_a_AR = $(AR) $(ARFLAGS)
 libgui_a_LIBADD =
-am_libgui_a_OBJECTS = gui.$(OBJEXT) inputline.$(OBJEXT) misc.$(OBJEXT) \
-	question.$(OBJEXT) tokens.$(OBJEXT) window_files.$(OBJEXT) \
-	window_info.$(OBJEXT) window_menubar.$(OBJEXT) \
-	window_play.$(OBJEXT) window_playback.$(OBJEXT)
+am_libgui_a_OBJECTS = gui.$(OBJEXT) misc.$(OBJEXT) tokens.$(OBJEXT) \
+	window_files.$(OBJEXT) window_info.$(OBJEXT) \
+	window_menubar.$(OBJEXT) window_play.$(OBJEXT) \
+	window_playback.$(OBJEXT)
 libgui_a_OBJECTS = $(am_libgui_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -180,10 +180,10 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 INCLUDES = -I$(top_srcdir)/src $(all_includes)
 noinst_LIBRARIES = libgui.a
-libgui_a_SOURCES = gui.c inputline.c misc.c question.c tokens.c window_files.c \
-	window_info.c window_menubar.c window_play.c window_playback.c
+libgui_a_SOURCES = gui.c misc.c tokens.c window_files.c window_info.c \
+	window_menubar.c window_play.c window_playback.c
 
-noinst_HEADERS = gui.h inputline.h misc.h tokens.h
+noinst_HEADERS = gui.h misc.h tokens.h
 _SOURCES = play_window.h window.h window_files.h window_info.h window_menubar.h \
 	window_play.h window_playback.h
 
@@ -235,9 +235,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gui.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/inputline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/question.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tokens.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_files.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/window_info.Po@am__quote@

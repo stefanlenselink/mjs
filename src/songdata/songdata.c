@@ -936,3 +936,12 @@ flist * new_flist(void)
   newfile->prev = NULL;
   return newfile;
 }
+
+
+void songdata_reload_search_results(){
+  if ( ! ( mp3list->flags & F_VIRTUAL ) && mp3list->selected != NULL)
+    dirstack_push (mp3list->from, mp3list->selected->filename );
+  read_mp3_list ( mp3list, conf->resultsfile, L_SEARCH );
+  window_info_update();
+  window_files_update();
+}

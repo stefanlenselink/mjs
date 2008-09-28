@@ -1,68 +1,7 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="20" >
-  <Doc0 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/songdata.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/controller.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/songdata.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/mjs.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/gui.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/log.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/log.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/keyboard_controller.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/keyboard_controller.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_info.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_files.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/controller.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc11>
-  <Doc12 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/config/config.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc12>
-  <Doc13 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/config/config.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc13>
-  <Doc14 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window.h" >
-   <View0 Encoding="" Type="Source" />
-  </Doc14>
-  <Doc15 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/engine/engine.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc15>
-  <Doc16 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/question.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc16>
-  <Doc17 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_play.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc17>
-  <Doc18 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/old_files/lastfm.c" >
-   <View0 Encoding="" Type="Source" />
-  </Doc18>
-  <Doc19 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_playback.c" >
-   <View0 Encoding="" line="27" Type="Source" />
-  </Doc19>
- </DocsAndViews>
+ <DocsAndViews NumberOfDocuments="0" />
  <pluginList>
   <kdevdebugger>
    <breakpointList/>

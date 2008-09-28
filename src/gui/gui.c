@@ -345,26 +345,7 @@ clear_menubar ( Window *window )
 	return 1;
 }
 
-int
-std_menubar ( Window *window )
-{
-	char version_str[128];
-	struct tm * currentTime;
-	time_t now2;
-	int x = window->width-2;
-	now2 = time ( NULL );
-	currentTime = localtime ( &now2 );
-	clear_menubar ( window );
-	my_mvwaddstr ( window->win, 0, ( ( x-strlen ( window->title_dfl ) ) /2 ), colors[MENU_TEXT], window->title_dfl );
-	snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d v%s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour /* - currentTime->tm_isdst TODO GELD dit alleen voor 00:xx? */, currentTime->tm_min,  "4.0rc1" /* TODO: VERSION*/ );
-	my_mvwaddstr ( window->win, 0, x - strlen ( version_str ) + 2, colors[MENU_TEXT], version_str );
 
-	update_panels();
-	if ( conf->c_flags & C_FIX_BORDERS )
-		redrawwin ( window->win );
-	doupdate();
-	return 1;
-}
 
 __inline__ void
 printf_menubar ( char *text )
@@ -582,7 +563,7 @@ void gui_init ( Config * init_conf,   u_int32_t init_colors[], wlist * mp3list, 
 	play->update ( play );
 	files->update ( files );
 	info->update ( info );
-	show_playinfo();
+	gui_update_play_time();
 	doupdate ();
 
 }
@@ -601,21 +582,7 @@ init_info ( Window * window )
 	doupdate ();
 }
 
-int
-update_menu ( Input * inputline )
-{
-	clear_menubar ( menubar );
-	update_anchor ( inputline );
-	my_wnprintw ( inputline->win, colors[MENU_TEXT] | A_BLINK, inputline->flen + inputline->plen, "%s", inputline->prompt );
-	my_wnprintw ( inputline->win, colors[MENU_TEXT], inputline->flen + inputline->plen, " %s", inputline->anchor );
-	update_panels ();
-	doupdate ();
-	return 1;
-}
-
-void
-show_playinfo ( void )
-{
+void gui_update_play_time ( void ) {
 	int elapsed, remaining, length;
     elapsed = engine_get_elapsed();
     //If engine == paused keep displaying....Impact on performance...
@@ -626,8 +593,34 @@ show_playinfo ( void )
       
       playback->update ( playback );
   
-      my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
-                      ( int ) elapsed / 60, ( ( int ) elapsed ) % 60, ( int ) remaining / 60, ( ( int ) remaining ) % 60, ( int ) ( length ) / 60, ( int ) ( length ) % 60 );
+      if(!length){
+        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d:%02d",
+          (int)elapsed / 3600, //Aantal Uur
+          (int)elapsed / 60, //Aantal Minuten
+          ((int)elapsed) % 60 //Aantal Seconden
+        );
+      }else if(length > 3600){
+        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
+          (int)elapsed / 3600, //Uren
+          (int)(elapsed % 3600) / 60, //Minuten
+          (int)(elapsed % 3600) % 60, //Seconden
+          (int)remaining / 3600, //Uren
+          (int)(remaining % 3600) / 60, //Minuten
+          (int)(remaining % 3600) % 60, //Seconden
+          (int)length / 3600, //Uren
+          (int)(length % 3600) / 60, //Minuten
+          (int)(length % 3600) % 60  //Seconden
+        );
+      }else{
+        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
+          (int)elapsed / 60, //Minuten
+          (int)elapsed % 60, //Seconden
+          (int)remaining / 60, //Minuten
+          (int)remaining % 60, //Seconden
+          (int)length / 60, //Minuten
+          (int)length % 60  //Seconden
+        );
+      }
       update_panels();
       doupdate ();
     }
@@ -648,15 +641,44 @@ void poll_keyboard ( void )
 	active->input ( active );
 }
 
-int gui_ask_question(char * question)
+static void print_question(char * question)
 {
-  unsigned short c;
   window_menubar_deactivate();
   clear_menubar ( menubar );
-  my_mvwaddstr ( menubar->win, 0, 10, colors[MENU_TEXT], question );
+  my_mvwaddstr ( menubar->win, 0, 0, colors[MENU_TEXT] | A_BLINK, question );
   update_panels();
   doupdate();
+}
+int gui_ask_yes_no_question(char * question)
+{
+  unsigned short c;
+  print_question(question);
   c = wgetch ( menubar->win );
   window_menubar_activate();
   return ( c == 'y' ) || ( c == 'Y' );
+}
+
+int gui_ask_question(char * question, char * answer){
+  int c, i = 0;
+  print_question(question);
+  do{
+    c = wgetch(menubar->win);
+    if(c == KEY_BACKSPACE && i){
+      i--;
+      answer[i] = ' ';
+      answer[i + 1] = ' ';
+    }else if(c != KEY_BACKSPACE){
+      answer[i] = c;
+      i++;
+    }
+    my_mvwaddstr ( menubar->win, 0, strlen(question), colors[MENU_TEXT], answer);
+    
+  }while(c != 13 && c != 27);
+  i--;
+  answer[i] = '\0';
+  window_menubar_activate();
+  wrefresh ( curscr );
+  
+  //13 == Enter
+  return c == 13;
 }

@@ -5,7 +5,6 @@
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "config.h"
-#include "gui/inputline.h"
 #include "log.h"
 
 #include <string.h>
@@ -29,7 +28,7 @@ int clock_count = 0;
 
 static void timer_handler ( int signum )
 {
-	show_playinfo();
+	gui_update_play_time();
 	if ( clock_count == 300 )   //Every 30 sec?
 	{
 		window_menubar_update();

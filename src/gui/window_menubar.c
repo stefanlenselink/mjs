@@ -2,15 +2,18 @@
 
 #include "gui.h"
 #include "controller/keyboard_controller.h"
+#include <time.h>
+#include <string.h>
 
 Window * menubar;
-
+Config * config;
 Window * window_menubar_init ( Config * conf )
 {
+    config = conf;
 	menubar = malloc( sizeof ( Window ) );
 
-	menubar->activate = std_menubar;
-	menubar->update = std_menubar;
+	menubar->activate = window_menubar_standard;
+	menubar->update = window_menubar_standard;
 	menubar->deactivate = clear_menubar;
 	menubar->input = keyboard_controller_read_key;
 
@@ -49,4 +52,24 @@ void window_menubar_deactivate ( void )
 void window_menubar_shutdown ( void )
 {
 	free ( menubar );
+}
+
+int window_menubar_standard ( Window *window )
+{
+  char version_str[128];
+  struct tm * currentTime;
+  time_t now2;
+  int x = window->width-2;
+  now2 = time ( NULL );
+  currentTime = localtime ( &now2 );
+  clear_menubar ( window );
+  my_mvwaddstr ( window->win, 0, ( ( x-strlen ( window->title_dfl ) ) /2 ), config->colors[MENU_TEXT], window->title_dfl );
+  snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d v%s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour, currentTime->tm_min,  "4.0rc1" /* TODO: VERSION*/ );
+  my_mvwaddstr ( window->win, 0, x - strlen ( version_str ) + 2, config->colors[MENU_TEXT], version_str );
+
+  update_panels();
+  if ( config->c_flags & C_FIX_BORDERS )
+    redrawwin ( window->win );
+  doupdate();
+  return 1;
 }

@@ -41,5 +41,7 @@ void controller_clear_playlist();
 void controller_shuffle_playlist();
 void controller_exit();
 void controller_reload_search_results();
+void controller_search(char *);
+void controller_save_playlist(char *);
 
 #endif /* _playlist_h */

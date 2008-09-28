@@ -9,5 +9,6 @@ void window_menubar_update ( void );
 void window_menubar_activate ( void );
 void window_menubar_deactivate ( void );
 void window_menubar_shutdown ( void );
+int	 window_menubar_standard ( Window * );
 
 #endif /* _window_menubar_h */

@@ -9,7 +9,6 @@ void	unsuspend ( int );
 
 void	update_status ( void );
 
-void	ask_question ( char *, char *, char *, Window ( * ) ( Window * ) );
 void    refresh_window ( int );
 
 #endif /* _struct_h */

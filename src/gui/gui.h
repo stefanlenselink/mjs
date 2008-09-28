@@ -16,7 +16,7 @@ int	 update_title ( Window * );
 void	 change_active ( int );
 int	 active_win ( Window * );
 int	 inactive_win ( Window * );
-int	 std_menubar ( Window * );
+
 __inline__ void	 printf_menubar ( char * );
 int	 clear_menubar ( Window * );
 void	 do_scrollbar ( Window * );
@@ -27,8 +27,8 @@ void gui_shutdown ( void );
 
 void poll_keyboard ( void );
 
-int gui_ask_question(char *);
+int gui_ask_yes_no_question(char *);
+int gui_ask_question(char *, char *);
 
-int	update_menu ( Input * );
-void	show_playinfo ( void );
+void	gui_update_play_time ( void );
 #endif /* _gui_h */

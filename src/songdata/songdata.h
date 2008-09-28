@@ -82,5 +82,5 @@ void songdata_randomize(wlist *);
 void songdata_shutdown ( void );
 
 flist * new_flist(void);
-
+void songdata_reload_search_results();
 #endif

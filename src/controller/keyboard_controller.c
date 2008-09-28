@@ -121,7 +121,7 @@ int keyboard_controller_read_key(Window * window)
     alt = 1;
     c = wgetch ( window->win );
   }
-
+  
   if ( inputline )
     return inputline->parse ( inputline, c, alt );
 
@@ -277,24 +277,14 @@ int keyboard_controller_read_key(Window * window)
       break;
   
     case KEY_F ( 3 ) :
-						// Search in mp3-database
-//      old_active = active;
-						/*      active = menubar;*/ //TODO op nieuwe manier aanroepen
-						/*      menubar->inputline = inputline = (Input *) calloc (1, sizeof (Input)); //TODO op nieuwe manier aanroepen
-      inputline->win = menubar->win;
-      inputline->panel = menubar->panel;
-      inputline->x = inputline->y = 0;
-      strncpy (inputline->prompt, "Search for:", 39);
-      inputline->plen = strlen (inputline->prompt);
-      inputline->flen = 70;
-      inputline->anchor = inputline->buf;
-      inputline->parse = do_inputline;
-      inputline->update = update_menu;
-      inputline->finish = do_search;
-      inputline->complete = filename_complete;
-      inputline->pos = 1;
-      inputline->fpos = 1;
-      update_menu (inputline);*/
+      {
+        char buf[512];
+        memset(&buf, 0, 512);
+        if(gui_ask_question("Search for: ", buf)){
+          //there is input
+          controller_search(buf);
+        }
+      }
       break;
 
     case KEY_F ( 4 ) : // Show last search results
@@ -309,24 +299,13 @@ int keyboard_controller_read_key(Window * window)
 						// Save Playlist
       if ( ( ! ( conf->c_flags & C_ALLOW_P_SAVE ) ) | ( ! ( playlist->head ) ) )
         break;
-//      old_active = active;
-			/*      active = menubar;
-      clear_menubar (menubar);
-      menubar->inputline = inputline = (Input *) calloc (1, sizeof (Input));
-      inputline->win = menubar->win;
-      inputline->panel = menubar->panel;
-      inputline->x = inputline->y = 0;
-      strncpy (inputline->prompt, "Save as:", 39);
-      inputline->plen = strlen (inputline->prompt);
-      inputline->flen = 70;
-      inputline->anchor = inputline->buf;
-      inputline->parse = do_inputline;
-      inputline->update = update_menu;
-      inputline->finish = do_save;
-      inputline->complete = filename_complete;
-      inputline->pos = 1;
-      inputline->fpos = 1;
-      update_menu (inputline);*/ //TODO op nieuwe manier aanroepen
+      {
+        char buf[512];
+        if(gui_ask_question("Save as: ", buf)){
+          //there is input
+          controller_save_playlist(buf);
+        }
+      }
       break;
 
     case KEY_F ( 7 ) : // Stop the player

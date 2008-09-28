@@ -9,6 +9,8 @@
 #include <curses.h>
 #include <math.h>
 
+#include "controller/controller.h"
+
 xine_t * engine; // Main libxine object
 xine_audio_port_t * ap; // The audio driver
 xine_video_port_t * vp; // The video driver
@@ -78,8 +80,12 @@ static void xine_open_and_play(char * file)
   if(file == NULL){
     return;
   }
-  url_encode(file, tmp3);
-  sprintf(tmp2, "file:/%s", tmp3);
+  if(file[0] == '/'){
+    url_encode(file, tmp3);
+    sprintf(tmp2, "file:/%s", tmp3);
+  }else{
+    sprintf(tmp2, file);
+  }
   xine_open ( stream, tmp2);
   xine_play ( stream, 0, 0 );
   if ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) )

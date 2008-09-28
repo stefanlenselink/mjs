@@ -6,17 +6,11 @@
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
-/* Define to 1 if you have the `curl' library (-lcurl). */
-#undef HAVE_LIBCURL
-
 /* Define to 1 if you have the `ncurses' library (-lncurses). */
 #undef HAVE_LIBNCURSES
 
 /* Define to 1 if you have the `panel' library (-lpanel). */
 #undef HAVE_LIBPANEL
-
-/* Define to 1 if you have the `ssl' library (-lssl). */
-#undef HAVE_LIBSSL
 
 /* Define to 1 if you have the `xine' library (-lxine). */
 #undef HAVE_LIBXINE

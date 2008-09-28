@@ -24,9 +24,9 @@ AC_CHECK_LIB(ncurses, refresh, , AC_ERROR([Couldn't find ncurses library]), -lnc
 
 AC_CHECK_LIB(panel, refresh, , AC_ERROR([Couldn't find panel library]), -lpanel, )
 
-AC_CHECK_LIB(curl, curl_easy_init, , AC_ERROR([Couldn't find cURL library try apt-get install libcurl]), -lcurl, )
+#AC_CHECK_LIB(curl, curl_easy_init, , AC_ERROR([Couldn't find cURL library try apt-get install libcurl]), -lcurl, )
 
-AC_CHECK_LIB(ssl, MD5_Init, , AC_ERROR([Couldn't find OpenSSL library try apt-get install openssl]), -lssl, )
+#AC_CHECK_LIB(ssl, MD5_Init, , AC_ERROR([Couldn't find OpenSSL library try apt-get install openssl]), -lssl, )
 
 AC_OUTPUT(Makefile src/Makefile src/config/Makefile src/controller/Makefile \
 	src/engine/Makefile src/gui/Makefile src/songdata/Makefile)

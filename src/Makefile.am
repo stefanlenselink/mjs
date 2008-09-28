@@ -10,4 +10,4 @@ SUBDIRS = config controller engine gui songdata
 mjs4_LDADD = $(top_builddir)/src/controller/libcontroller.a \
 	$(top_builddir)/src/config/libconfig.a $(top_builddir)/src/gui/libgui.a \
 	$(top_builddir)/src/songdata/libsongdata.a $(top_builddir)/src/engine/libengine.a
-noinst_HEADERS = defs.h mjs.h debug.h log.h
+noinst_HEADERS = defs.h mjs.h log.h

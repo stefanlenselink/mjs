@@ -672,5 +672,5 @@ int gui_ask_question(char * question, char * answer){
   wrefresh ( curscr );
   
   //13 == Enter
-  return c == 13;
+  return c == 13 && i;
 }

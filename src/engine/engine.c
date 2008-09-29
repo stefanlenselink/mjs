@@ -103,7 +103,7 @@ static void xine_open_and_play(char * file)
   xine_play ( stream, 0, 0 );
   while ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) ) // The header file states: "probably because it's not known yet... try again later"
   {
-	sleep(10); //Just try until you get some usefull info
+	sleep(1); //Just try until you get some usefull info
   }
 }
 static void event_callback ( void *user_data, const xine_event_t *event )
@@ -173,6 +173,7 @@ void engine_stop ( void )
 {
 	// Stop the stream
 	xine_stop ( stream );
+    xine_close ( stream );
     length = 0;
     engine_state = engine_stoped;
 }

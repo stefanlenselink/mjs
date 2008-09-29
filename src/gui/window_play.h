@@ -9,5 +9,6 @@ void window_play_update ( void );
 void window_play_activate ( void );
 void window_play_deactivate ( void );
 void window_play_shutdown ( void );
+void window_play_notify_title_changed(void);
 
 #endif /* _window_play_h */

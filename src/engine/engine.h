@@ -45,5 +45,8 @@ void engine_volume_down ( int );//vol = 0 .. 100
 int engine_get_elapsed ( void );
 int engine_get_remaining ( void );
 int engine_get_length ( void );
+void engine_load_current_meta_info(flist *);
+void engine_load_meta_info(flist *);
+int engine_extention_is_supported(char *);
 
 #endif /* _engine_h */

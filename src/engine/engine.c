@@ -10,12 +10,17 @@
 #include <math.h>
 
 #include "controller/controller.h"
+#include "gui/window_menubar.h"
 
 xine_t * engine; // Main libxine object
 xine_audio_port_t * ap; // The audio driver
 xine_video_port_t * vp; // The video driver
 xine_stream_t * stream; // Stream object
 
+xine_t * meta_engine; // Main libxine object
+xine_stream_t * meta_stream; // Meta Stream object
+xine_audio_port_t * meta_ap; // The audio driver
+xine_video_port_t * meta_vp; // The video driver
 EngineState engine_state = engine_unitialized;
 int length = 0;
 int volume = 100;
@@ -32,7 +37,10 @@ static void url_encode(char *, char *);
 static void xine_open_and_play(char *);
 static void event_callback ( void *, const xine_event_t *);
 
-
+int engine_extention_is_supported(char * ext)
+{
+  return strstr(xine_get_file_extensions(engine), ext) != NULL;
+}
 
 static int is_safe(char c)
 {
@@ -101,6 +109,24 @@ static void event_callback ( void *user_data, const xine_event_t *event )
       xine_open_and_play(current_song);
   }else if(event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  !controller_has_next_song()){
     engine_state = engine_stoped;
+  }else if(event->type == XINE_EVENT_PROGRESS){
+    xine_progress_data_t * prog = event->data;
+    if(prog->percent == 0){
+      window_menubar_progress_bar_init((char *)prog->description);
+    }else if(prog->percent == 100){
+      window_menubar_progress_bar_remove();
+    }else{
+      int pcts = prog->percent;
+      if(pcts < 0){
+        pcts = 0;
+      }else if(pcts > 100){
+        pcts = 100;
+      }
+      window_menubar_progress_bar_animate();
+      window_menubar_progress_bar_progress(pcts);
+    }
+  }else if(event->type == XINE_EVENT_UI_SET_TITLE){
+    window_play_notify_title_changed();
   }
 }
 
@@ -110,7 +136,7 @@ void engine_init ( Config * init_conf)
 	// Create our libxine engine, and initialise it
 	engine = xine_new();
 	xine_init ( engine );
-
+    
 	// Automatically choose an audio driver
 	ap = xine_open_audio_driver ( engine, NULL, NULL );
 
@@ -119,6 +145,16 @@ void engine_init ( Config * init_conf)
 
 	// Create a new stream object
 	stream = xine_stream_new ( engine, ap, vp );
+    
+    
+    meta_engine = xine_new();
+    xine_init ( meta_engine );
+    // Automatically choose an audio driver
+    meta_ap = xine_open_audio_driver ( meta_engine, NULL, NULL );
+
+	// We don't need a video driver
+    meta_vp = xine_open_video_driver ( meta_engine, NULL, XINE_VISUAL_TYPE_NONE, NULL );
+    meta_stream = xine_stream_new ( meta_engine, meta_ap, meta_vp );
 
 	//TODO in CFG zetten??
 	xine_set_param ( stream, XINE_PARAM_EARLY_FINISHED_EVENT, 1 );
@@ -257,6 +293,8 @@ void engine_shutdown ( void )
 {
 	// Stop playing and close down the stream
 	xine_close ( stream );
+    
+    xine_close( meta_stream );
 
 	// Now shut down cleanly
 	xine_close_audio_driver ( engine, ap );
@@ -287,3 +325,43 @@ int engine_get_length ( void )
 {
 	return length / 1000;
 }
+
+static char * engine_load_meta_info_update_field(char * old, const char * new){
+  if(old != NULL){
+    free(old);
+  }
+  if(new == NULL)
+    return NULL;
+  return strdup(new);
+}
+
+static void engine_load_meta_info_from_stream(flist * file, xine_stream_t * str){
+  const char * tmp;
+  tmp = xine_get_meta_info(str, XINE_META_INFO_TITLE);
+  file->title = engine_load_meta_info_update_field(file->title, tmp);
+  tmp = xine_get_meta_info(str, XINE_META_INFO_ARTIST);
+  file->artist = engine_load_meta_info_update_field(file->artist, tmp);
+  tmp = xine_get_meta_info(str, XINE_META_INFO_ALBUM);
+  file->album = engine_load_meta_info_update_field(file->album, tmp);
+  tmp = xine_get_meta_info(str, XINE_META_INFO_GENRE);
+  file->genre = engine_load_meta_info_update_field(file->genre, tmp);
+  
+}
+
+void engine_load_current_meta_info(flist * file){
+  engine_load_meta_info_from_stream(file, stream);
+}
+
+void engine_load_meta_info(flist * file){
+  char tmp3[1024] = "", tmp2[1024] = "";
+  if(file->fullpath[0] == '/'){
+    url_encode(file->fullpath, tmp3);
+    sprintf(tmp2, "file:/%s", tmp3);
+  }else{
+    return; //We only handle files!
+  }
+  
+  xine_open ( meta_stream, tmp2);
+  engine_load_meta_info_from_stream(file, meta_stream);
+}
+

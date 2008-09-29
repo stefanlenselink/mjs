@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <ncurses.h>
 
+#include "gui/window_menubar.h"
+#include "engine/engine.h"
 
 /* 	path -> path including trailing slash
 	filename -> filename without any slashes
@@ -356,7 +358,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 		}
 		else if ( S_ISREG ( st.st_mode ) )
 		{
-			if ( ( strncasecmp ( ".mp3", strchr ( filename, '\0' ) - 4, 4 ) ) && ( strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 ) ) )
+          if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3))
 				return NULL;
 
             ftmp = new_flist();
@@ -364,9 +366,9 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 			ftmp->relpath = NULL;
 			ftmp->fullpath = strdup ( fullpath );
 
-			if ( !strncasecmp ( ".mp3", strchr ( filename, '\0' ) - 4, 4 ) )
+			if ( strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 ) )
 			{
-// mp3-file
+// suppored-file
 				if ( conf->c_flags & C_USE_GENRE )
 					ftmp->genre = split_filename ( &path );
 
@@ -430,7 +432,14 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 						sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
 
 					}
-				}
+				}else{
+                  //Other formats Meta info...
+                  engine_load_meta_info(ftmp);
+                  if(ftmp->title && ftmp->artist){
+                    ftmp->filename = calloc ( strlen ( ftmp->title ) + strlen ( ftmp->artist ) + 4, sizeof ( char ) );
+                    sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
+                  }
+                }
 				fclose ( file );
 			}
 			else
@@ -515,12 +524,10 @@ read_mp3_list ( wlist * list, const char * from, int append )
 			switch ( append )
 			{
 				case L_SEARCH:
-					window_menubar_deactivate();
-					printf_menubar ( SEARCHING );
+                  window_menubar_progress_bar_init(SEARCHING);
 					break;
 				default:
-					window_menubar_deactivate();
-					printf_menubar ( READING );
+                  window_menubar_progress_bar_init(READING);
 			}
 			read_mp3_list_file ( list, list->from, append );
 			if ( ( append & L_SEARCH ) && ( list->head ) )
@@ -613,6 +620,7 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 	{
 		lines++;
 		fgets ( buf, 255, fp );
+        window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
 	}
 	fclose ( fp );
 	errno = 0;
@@ -657,27 +665,15 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 
 	while ( !feof ( fp ) )
 	{
+      int pcts = (100 * n) / lines;
+      if(pcts < 0){
+        pcts = 0;
+      }else if(pcts > 100){
+        pcts = 100;
+      }
 		n++;
-		/*      my_mvwaddstr (menubar->win, 0, (26 + (n * (50 / (float)lines))), colors[MENU_TEXT], "*");*/
-		//TODO wat hier staat moet in een progressbar functie komen.....
-		if ( ( n & 0x03 ) ==0x00 )
-		{
-			// my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "|"); //TODO wat hier staat moet in een progressbar functie komen.....
-		}
-		else
-			if ( ( n & 0x03 ) ==0x01 )
-			{
-				// my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "/");//TODO wat hier staat moet in een progressbar functie komen.....
-			}
-			else
-				if ( ( n & 0x03 ) ==0x02 )
-				{
-					//  my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "-");//TODO wat hier staat moet in een progressbar functie komen.....
-				}
-				else
-					// my_mvwaddstr (menubar->win, 0, 79 , colors[MENU_TEXT], "\\");//TODO wat hier staat moet in een progressbar functie komen.....
-					update_panels ();
-		doupdate ();
+        window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
+        window_menubar_progress_bar_progress(pcts);
 
 		if ( !fgets ( buf, 255, fp ) )
 		{
@@ -710,6 +706,8 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 	free ( buf );
 	if ( playlistname )
 		free ( playlistname );
+    
+    window_menubar_progress_bar_remove();
 	return;
 }
 

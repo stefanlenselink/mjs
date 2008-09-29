@@ -52,3 +52,7 @@ void window_play_shutdown ( void )
 {
 	free ( play );
 }
+void window_play_notify_title_changed(void){
+  engine_load_current_meta_info(play->contents.list->playing);
+  window_play_update();
+}

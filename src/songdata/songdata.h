@@ -55,7 +55,6 @@ typedef struct
 #define L_NEW		1
 #define L_SEARCH	2
 
-//flist	*mp3_info(char *, char *, flist *, u_int32_t);
 flist 	*mp3_info ( const char *, const char *, const char *, int );
 
 void	read_mp3_list ( wlist *, const char *, int );

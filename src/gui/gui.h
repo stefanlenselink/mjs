@@ -18,7 +18,7 @@ int	 active_win ( Window * );
 int	 inactive_win ( Window * );
 
 __inline__ void	 printf_menubar ( char * );
-int	 clear_menubar ( Window * );
+
 void	 do_scrollbar ( Window * );
 __inline__ void clear_info();
 

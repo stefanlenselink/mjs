@@ -113,7 +113,6 @@ void keyboard_controller_init(wlist * init_playlist, Config * init_conf)
 int keyboard_controller_read_key(Window * window)
 {
   int c, alt = 0;
-  Input *inputline = window->inputline;
 
   c = wgetch ( window->win );
   if ( c == 27 )
@@ -121,9 +120,6 @@ int keyboard_controller_read_key(Window * window)
     alt = 1;
     c = wgetch ( window->win );
   }
-  
-  if ( inputline )
-    return inputline->parse ( inputline, c, alt );
 
   switch ( c )
   {

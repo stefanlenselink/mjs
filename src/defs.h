@@ -9,8 +9,8 @@
 #define BIG_BUFFER_SIZE	4096
 
 #define SHUFFLE "Shuffle Playlist ? (y/n)"
-#define SEARCHING "Searching...   [                                                   ]"
-#define READING   "Reading...     [                                                   ]"
+#define SEARCHING "Searching... "
+#define READING   "Reading...   "
 #define CLEARPLAYLIST "Are you sure you want to clear the playlist ? (y/n)"
 #define EXITPROGRAM "Are you sure you want to reset this program ? (y/n)"
 

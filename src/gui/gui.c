@@ -336,21 +336,14 @@ inactive_win ( Window *window )
 	return 1;
 }
 
-int
-clear_menubar ( Window *window )
-{
-	wmove ( window->win, 0, 0 );
-	wclrtoeol ( window->win );
-	wbkgd ( window->win, colors[MENU_WINDOW] );
-	return 1;
-}
+
 
 
 
 __inline__ void
 printf_menubar ( char *text )
 {
-	clear_menubar ( menubar );
+	window_menubar_clear ( menubar );
 	my_mvwaddstr ( menubar->win, 0, 10, colors[MENU_TEXT], text );
 	update_panels();
 	doupdate();
@@ -594,13 +587,13 @@ void gui_update_play_time ( void ) {
       playback->update ( playback );
   
       if(!length){
-        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d:%02d",
+        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 18, " Time  : %02d:%02d:%02d",
           (int)elapsed / 3600, //Aantal Uur
           (int)elapsed / 60, //Aantal Minuten
           ((int)elapsed) % 60 //Aantal Seconden
         );
       }else if(length > 3600){
-        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
+        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 40, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
           (int)elapsed / 3600, //Uren
           (int)(elapsed % 3600) / 60, //Minuten
           (int)(elapsed % 3600) % 60, //Seconden
@@ -644,7 +637,6 @@ void poll_keyboard ( void )
 static void print_question(char * question)
 {
   window_menubar_deactivate();
-  clear_menubar ( menubar );
   my_mvwaddstr ( menubar->win, 0, 0, colors[MENU_TEXT] | A_BLINK, question );
   update_panels();
   doupdate();

@@ -17,11 +17,12 @@ xine_audio_port_t * ap; // The audio driver
 xine_video_port_t * vp; // The video driver
 xine_stream_t * stream; // Stream object
 
-xine_t * meta_engine; // Main libxine object
 xine_stream_t * meta_stream; // Meta Stream object
 xine_audio_port_t * meta_ap; // The audio driver
 xine_video_port_t * meta_vp; // The video driver
+
 EngineState engine_state = engine_unitialized;
+
 int length = 0;
 int volume = 100;
 
@@ -146,15 +147,12 @@ void engine_init ( Config * init_conf)
 	// Create a new stream object
 	stream = xine_stream_new ( engine, ap, vp );
     
-    
-    meta_engine = xine_new();
-    xine_init ( meta_engine );
     // Automatically choose an audio driver
-    meta_ap = xine_open_audio_driver ( meta_engine, NULL, NULL );
+    meta_ap = xine_open_audio_driver ( engine, NULL, NULL );
 
 	// We don't need a video driver
-    meta_vp = xine_open_video_driver ( meta_engine, NULL, XINE_VISUAL_TYPE_NONE, NULL );
-    meta_stream = xine_stream_new ( meta_engine, meta_ap, meta_vp );
+    meta_vp = xine_open_video_driver ( engine, NULL, XINE_VISUAL_TYPE_NONE, NULL );
+    meta_stream = xine_stream_new ( engine, meta_ap, meta_vp );
 
 	//TODO in CFG zetten??
 	xine_set_param ( stream, XINE_PARAM_EARLY_FINISHED_EVENT, 1 );
@@ -299,6 +297,11 @@ void engine_shutdown ( void )
 	// Now shut down cleanly
 	xine_close_audio_driver ( engine, ap );
 	xine_close_video_driver ( engine, vp );
+    
+    	// Now shut down cleanly
+    xine_close_audio_driver ( engine, meta_ap );
+    xine_close_video_driver ( engine, meta_vp );
+    
 	xine_exit ( engine );
 }
 

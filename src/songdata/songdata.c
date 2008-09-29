@@ -358,7 +358,7 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 		}
 		else if ( S_ISREG ( st.st_mode ) )
 		{
-          if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3))
+          if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3) && strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 ))
 				return NULL;
 
             ftmp = new_flist();
@@ -401,6 +401,8 @@ mp3_info ( const char *abspath, const char *filename, const char *playlistname, 
 				ftmp->title = strdup ( ftmp->filename );
 				//id3tag_t tag;
 				FILE * file = fopen ( fullpath, "r" );
+				if(!file) return NULL;
+
 				mp3info mp3;
 				memset ( &mp3,0,sizeof ( mp3info ) );
 				mp3.filename = fullpath;

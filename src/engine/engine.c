@@ -9,6 +9,8 @@
 #include <curses.h>
 #include <math.h>
 
+#include <unistd.h>
+
 #include "controller/controller.h"
 #include "gui/window_menubar.h"
 
@@ -85,6 +87,7 @@ static void url_encode(char * src, char * dest)
 static void xine_open_and_play(char * file)
 {
   int tmp;
+  int status;
   char tmp3[1024] = "", tmp2[1024] = "";
   if(file == NULL){
     return;
@@ -95,11 +98,12 @@ static void xine_open_and_play(char * file)
   }else{
     sprintf(tmp2, file);
   }
+  xine_close ( stream );
   xine_open ( stream, tmp2);
   xine_play ( stream, 0, 0 );
-  if ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) )
+  while ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) ) // The header file states: "probably because it's not known yet... try again later"
   {
-    length = 0;
+	sleep(10); //Just try until you get some usefull info
   }
 }
 static void event_callback ( void *user_data, const xine_event_t *event )

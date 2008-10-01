@@ -34,8 +34,8 @@ void engine_resume_playback(void);
 void engine_pause_playback(void);
 void engine_next ( void );
 void engine_prev ( void );
-void engine_ffwd ( int );
-void engine_frwd ( int );
+void engine_ffwd ( int , int );
+void engine_frwd ( int , int );
 void engine_shutdown ( void );
 void engine_eq ( Equalizer * );
 void engine_rva ( int );//Rva 100 = 100% = no change; range:  0<->200

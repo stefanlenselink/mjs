@@ -113,7 +113,8 @@ void keyboard_controller_init(wlist * init_playlist, Config * init_conf)
 int keyboard_controller_read_key(Window * window)
 {
   int c, alt = 0;
-
+  cbreak();
+  nodelay( window-> win, TRUE);
   c = wgetch ( window->win );
   if ( c == 27 )
   {
@@ -314,10 +315,17 @@ int keyboard_controller_read_key(Window * window)
       controller_prev();
       break;
     case KEY_F ( 10 ) : // FRWD
-      engine_frwd ( conf->jump );
+      engine_frwd ( conf->jump , conf->jumpExpFactor);
+	while(wgetch( window->win ) != ERR) {
+		//NOP
+	}
       break;
     case KEY_F ( 11 ) : //FFWD
-      engine_ffwd ( conf->jump );
+      engine_ffwd ( conf->jump , conf->jumpExpFactor);
+	while(wgetch( window->win ) != ERR) {
+		//NOP
+	}
+	
       break;
     case KEY_F ( 12 ) : // Skip to next mp3 in playlist
       controller_next( playlist );

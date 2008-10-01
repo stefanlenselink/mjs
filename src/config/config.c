@@ -15,6 +15,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #define COMMENT '#'
 #define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1' || s[0] == 'Y' || s[0] == 'T')
@@ -202,6 +203,13 @@ set_option ( Config * conf, char *option, char *value )
 		conf->jump = strtoul ( value, NULL, 10 );
 		if ( errno )
 			conf->jump = 1000;
+	}
+	else if ( !strcasecmp ( option, "jumpExpFactor" ) )
+	{
+		errno = 0;
+		conf->jumpExpFactor = strtoul(value, NULL, 10);
+		if ( errno )
+			conf->jumpExpFactor = 1.05;
 	}
 	else if ( !strcasecmp ( option, "refresh_interval" ) )
 	{

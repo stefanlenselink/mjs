@@ -82,6 +82,7 @@ typedef struct _config
 #define C_USE_REFRESH_INTERVAL 0x0400
 	int buffer;
 	int jump;
+	int jumpExpFactor;
 	int refresh_interval;
 	u_int32_t colors[NUM_COLORS];
 	WindowConfig info_window;

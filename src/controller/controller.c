@@ -75,10 +75,10 @@ char * controller_process_to_next_song ( void )
 		return NULL;
     char * return_path = playlist->playing->next->fullpath;
 	playlist->playing = playlist->playing->next;
-    if( playlist->playing->next)
-    {
-     return_path = playlist->playing->next->fullpath;
-    }
+   // if( playlist->playing->next)
+   // {
+   //  return_path = playlist->playing->next->fullpath;
+   // }
 	/* GUI stuff */
 	window_play_update();
 	window_info_update();

@@ -222,7 +222,7 @@ add_to_playlist ( wlist *list, flist *position, flist *file )
 
 	if ( !check_file ( file ) )
 		return;
-    newfile = new_flist();
+    	newfile = new_flist();
 	/* remove tracknumber if it exists and user wants it*/
 	if ( ! ( conf->c_flags & C_TRACK_NUMBERS ) )
 	{

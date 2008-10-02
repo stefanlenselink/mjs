@@ -617,11 +617,11 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 	if ( ! ( fp = fopen ( filename, "r" ) ) )
 		return;
 
-	buf = calloc ( 256, sizeof ( char ) );
+	buf = calloc ( 1025, sizeof ( char ) );
 	while ( !feof ( fp ) )
 	{
 		lines++;
-		fgets ( buf, 255, fp );
+		fgets ( buf, 1024, fp );
         window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
 	}
 	fclose ( fp );
@@ -629,7 +629,7 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 	if ( ! ( fp = fopen ( filename, "r" ) ) )
 		return;
 
-	fgets ( buf, 255, fp );
+	fgets ( buf, 1024, fp );
 	if ( !strncmp ( "Playlist for mjs", buf, 16 ) )
 		playlist = 1;
 
@@ -677,7 +677,7 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
         window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
         window_menubar_progress_bar_progress(pcts);
 
-		if ( !fgets ( buf, 255, fp ) )
+		if ( !fgets ( buf, 1024, fp ) )
 		{
 			// end-of-file reached or got zero characters
 			fclose ( fp );
@@ -686,12 +686,14 @@ read_mp3_list_file ( wlist * list, const char *filename, int append )
 				free ( playlistname );
 			return;
 		}
+		//printf("%d - \n",n);
 		length = strrchr ( buf, '/' ) - buf;
+		if(length <= 0) continue;
 		buf[strlen ( buf ) - 1] = '\0';	// Get rid off trailing newline
 		dir = malloc ( length + 1 );
-        memset(dir, 0, length + 1);
+        	memset(dir, 0, length + 1);
 		file = malloc ( strlen ( buf ) - length );
-        memset(file, 0, strlen(buf) - length);
+        	memset(file, 0, strlen(buf) - length);
 		strncpy ( dir, buf, length );
 		dir[length] = '\0';
 		strcpy ( file, buf + length + 1 );

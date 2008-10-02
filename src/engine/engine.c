@@ -236,8 +236,9 @@ void engine_ffwd ( int mill ,int expFactor )
 		time(&currentWind);
 		while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
 			nanosleep(&sleepTS,NULL);
+			if(engine_state != engine_playing) return;
 		}
-		if ( difftime(currentWind,previousWind) < 2) {
+		if ( difftime(currentWind,previousWind) < 1) {
 			windFactor *= (1 + (float) expFactor/1000);
 		} else {
 			windFactor = 1;
@@ -268,8 +269,9 @@ void engine_frwd ( int mill , int expFactor)
 		time(&currentWind);
 		while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
 			nanosleep(&sleepTS,NULL);
+			if(engine_state != engine_playing) return;
 		}
-		if ( difftime(currentWind,previousWind) < 2) {
+		if ( difftime(currentWind,previousWind) < 1) {
 			windFactor *= (1 + (float) expFactor/1000);
 		} else {
 			windFactor = 1;

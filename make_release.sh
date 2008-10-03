@@ -20,6 +20,5 @@ do_checkinstall 4.0 i386 $VAR libxine1,libncurses5
 sudo ./configure --prefix=/usr --host=amd64 --build=amd64
 do_checkinstall 4.0 amd64 $VAR libxine1,libncurses5
 scp *.deb root@serv:/srv/www/html/mjs/.
-
-#dpkg-packgeinfo etc...
-#sudo rm -Rf /tmp/mjs_build
+ssh root@serv "cd /srv/www/html/mjs && dpkg-scanpackages -m . /dev/null | gzip -9c > /srv/www/html/mjs/Packages.gz"
+sudo rm -Rf /tmp/mjs_build

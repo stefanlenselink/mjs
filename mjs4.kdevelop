@@ -14,8 +14,8 @@
     <projectname>mjs4</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
-    <defaultencoding></defaultencoding>
+    <description/>
+    <defaultencoding/>
     <versioncontrol>kdevsubversion</versioncontrol>
   </general>
   <kdevautoproject>
@@ -24,7 +24,7 @@
       <useconfiguration>debug</useconfiguration>
     </general>
     <run>
-      <mainprogram>/home/peter/develop/mjs/debug/src/mjs4</mainprogram>
+      <mainprogram>src/mjs4</mainprogram>
       <terminal>true</terminal>
       <runarguments>
         <mjs4/>
@@ -33,11 +33,11 @@
         <mjs4/>
       </debugarguments>
       <cwd>
-        <mjs4>/home/stefan/mjs/trunk/debug/./src</mjs4>
+        <mjs4>./src</mjs4>
       </cwd>
-      <programargs></programargs>
-      <globaldebugarguments></globaldebugarguments>
-      <globalcwd>/home/peter/develop/mjs/debug</globalcwd>
+      <programargs/>
+      <globaldebugarguments/>
+      <globalcwd>debug</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
@@ -175,6 +175,7 @@
     <tree>
       <hidepatterns>*.o,*.lo,CVS</hidepatterns>
       <hidenonprojectfiles>false</hidenonprojectfiles>
+      <showvcsfields>false</showvcsfields>
     </tree>
   </kdevfileview>
   <kdevdocumentation>
@@ -236,7 +237,7 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -257,11 +258,11 @@
   </cppsupportpart>
   <kdevdebugger>
     <general>
-      <gdbpath></gdbpath>
+      <gdbpath/>
       <dbgshell>libtool</dbgshell>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>

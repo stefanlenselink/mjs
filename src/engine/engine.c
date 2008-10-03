@@ -218,70 +218,51 @@ void engine_pause_playback(void){
   }
 }
 
+static void engine_fwd(int mill, int expFactor, int forward)
+{
+  if ( engine_state == engine_playing )
+  {
+		/*
+    xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_FAST_4 );
+    usleep ( mill * 1000 ); //TODO Shiften?
+    xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
+        */
+    int pos_stream, pos_time, length_time;
+    int status;
+    int speedUp = 5;
+    sleepTS.tv_sec = 0;
+    sleepTS.tv_nsec = 20000000;
+    time_t currentWind;
+    time(&currentWind);
+    while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
+      nanosleep(&sleepTS,NULL);
+      if(engine_state != engine_playing) return;
+    }
+    if ( difftime(currentWind,previousWind) < 2) {
+      windFactor *= (1 + (float) expFactor/1000);
+    } else {
+      windFactor = 1;
+    }
+    time(&previousWind);
+    speedUp = speedUp * (int) windFactor;
+    if(forward){
+      xine_play( stream , 0 , pos_time + ( mill * speedUp) );
+    }else{
+      xine_play( stream , 0 , pos_time - ( mill * speedUp) );
+    }
+		//status = xine_get_status ( stream );
+    nanosleep(&sleepTS,NULL);
+  }
+}
+
 void engine_ffwd ( int mill ,int expFactor )
 {
-	if ( engine_state == engine_playing )
-	{
-		/*
-		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_FAST_4 );
-		usleep ( mill * 1000 ); //TODO Shiften?
-		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
-		*/
-		int pos_stream, pos_time, length_time;
-		int status;
-		int speedUp = 5;
-		sleepTS.tv_sec = 0;
-		sleepTS.tv_nsec = 20000000;
-		time_t currentWind;
-		time(&currentWind);
-		while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
-			nanosleep(&sleepTS,NULL);
-			if(engine_state != engine_playing) return;
-		}
-		if ( difftime(currentWind,previousWind) < 2) {
-			windFactor *= (1 + (float) expFactor/1000);
-		} else {
-			windFactor = 1;
-		}
-		time(&previousWind);
-		speedUp = speedUp * (int) windFactor;
-		xine_play( stream , 0 , pos_time + ( mill * speedUp) );
-		//status = xine_get_status ( stream );
-		nanosleep(&sleepTS,NULL);
-	}
+  engine_fwd(mill, expFactor, 1);
 }
 
 void engine_frwd ( int mill , int expFactor)
 {
-	if ( engine_state == engine_playing )
-	{
-		/*
-		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_SLOW_4 );
-		usleep ( mill * 1000 ); //TODO Shiften?
-		xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
-		*/
-		int pos_stream, pos_time, length_time;
-		int status;
-		int speedUp = 10;
-		sleepTS.tv_sec = 0;
-		sleepTS.tv_nsec = 20000000;
-		time_t currentWind;
-		time(&currentWind);
-		while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
-			nanosleep(&sleepTS,NULL);
-			if(engine_state != engine_playing) return;
-		}
-		if ( difftime(currentWind,previousWind) < 2) {
-			windFactor *= (1 + (float) expFactor/1000);
-		} else {
-			windFactor = 1;
-		}
-		time(&previousWind);
-		speedUp = speedUp * (int) windFactor;
-		xine_play( stream , 0 , pos_time - ( mill * speedUp) );
-		//status = xine_get_status ( stream );
-		nanosleep(&sleepTS,NULL);
-	}
+  engine_fwd(mill, expFactor, 0);
 }
 
 void engine_eq ( Equalizer * eq )

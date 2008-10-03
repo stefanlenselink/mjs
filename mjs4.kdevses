@@ -1,40 +1,10 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="11" >
-  <Doc0 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/engine/engine.c" >
-   <View0 Encoding="" line="243" Type="Source" />
+ <DocsAndViews NumberOfDocuments="1" >
+  <Doc0 NumberOfViews="1" URL="file:///usr/include/xine.h" >
+   <View0 Encoding="UTF-8" line="0" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///usr/include/xine.h" >
-   <View0 Encoding="UTF-8" line="835" Type="Source" />
-  </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/controller/keyboard_controller.c" >
-   <View0 Encoding="" line="320" Type="Source" />
-  </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/controller/controller.c" >
-   <View0 Encoding="" line="17" Type="Source" />
-  </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/mjs.c" >
-   <View0 Encoding="" line="22" Type="Source" />
-  </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/gui/window_files.c" >
-   <View0 Encoding="" line="25" Type="Source" />
-  </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/config/config.c" >
-   <View0 Encoding="" line="209" Type="Source" />
-  </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/config/config.h" >
-   <View0 Encoding="" line="84" Type="Source" />
-  </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/engine/engine.h" >
-   <View0 Encoding="" line="37" Type="Source" />
-  </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/Makefile.am" >
-   <View0 Encoding="" line="0" Type="Source" />
-  </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///home/peter/develop/mjs/src/controller/keyboard_controller.h" >
-   <View0 Encoding="" line="0" Type="Source" />
-  </Doc10>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>

@@ -218,15 +218,10 @@ void engine_pause_playback(void){
   }
 }
 
-static void engine_fwd(int mill, int expFactor, int forward)
+static void engine_fwd(int mill, int expFactor, char forward)
 {
   if ( engine_state == engine_playing )
   {
-		/*
-    xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_FAST_4 );
-    usleep ( mill * 1000 ); //TODO Shiften?
-    xine_set_param ( stream, XINE_PARAM_SPEED, XINE_SPEED_NORMAL );
-        */
     int pos_stream, pos_time, length_time;
     int status;
     int speedUp = 5;
@@ -250,7 +245,6 @@ static void engine_fwd(int mill, int expFactor, int forward)
     }else{
       xine_play( stream , 0 , pos_time - ( mill * speedUp) );
     }
-		//status = xine_get_status ( stream );
     nanosleep(&sleepTS,NULL);
   }
 }

@@ -37,7 +37,7 @@ static void timer_handler ( int signum )
 	else
 	{
 		clock_count++;
-        keyboard_controller_check_timeout();
+        	keyboard_controller_check_timeout();
 	}
 }
 
@@ -94,7 +94,7 @@ main ( int argc, char *argv[] )
 	/**
 	 * Do ALL the inits here
 	 */
-    log_init();
+    	log_init();
 	conf = config_init();
 	engine_init (conf);
 	mp3list = songdata_init ( conf, conf->colors );

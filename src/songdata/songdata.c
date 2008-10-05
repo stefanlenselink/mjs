@@ -42,7 +42,7 @@
 
 Config * conf;
 /* colors */
-u_int32_t * colors;
+int * colors;
 
 wlist *mp3list;
 
@@ -866,7 +866,7 @@ next_valid ( wlist * list, flist * file, int c )
 
 }
 
-wlist * songdata_init ( Config * init_conf, u_int32_t init_colors[] )
+wlist * songdata_init ( Config * init_conf, int init_colors[] )
 {
 	conf = init_conf;
 	colors = init_colors;

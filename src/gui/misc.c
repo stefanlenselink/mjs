@@ -26,11 +26,11 @@ init_ansi_pair ( void )
 }
 
 int
-my_mvwprintw ( WINDOW *win, int y, int x, u_int32_t attribs, const u_char *format, ... )
+my_mvwprintw ( WINDOW *win, int y, int x, int attribs, const char *format, ... )
 {
 	u_int16_t i;
 	va_list args;
-	u_char buf[BUFFER_SIZE+1], *p;
+	char buf[BUFFER_SIZE+1], *p;
 	memset ( buf, 0, BUFFER_SIZE+1 );
 	va_start ( args, format );
 	i = vsnprintf ( buf, BUFFER_SIZE, format, args );
@@ -43,11 +43,11 @@ my_mvwprintw ( WINDOW *win, int y, int x, u_int32_t attribs, const u_char *forma
 }
 
 // int
-// my_wprintw(WINDOW *win, u_int32_t attribs, const u_char *format, ...)
+// my_wprintw(WINDOW *win, int attribs, const char *format, ...)
 // {
 // 	u_int16_t i;
 // 	va_list args;
-// 	u_char buf[BUFFER_SIZE+1], *p;
+// 	char buf[BUFFER_SIZE+1], *p;
 // 	memset(buf, 0, BUFFER_SIZE+1);
 // 	va_start(args, format);
 // 	i = vsnprintf(buf, BUFFER_SIZE, format, args);
@@ -59,11 +59,11 @@ my_mvwprintw ( WINDOW *win, int y, int x, u_int32_t attribs, const u_char *forma
 // }
 
 int
-my_mvwnprintw ( WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ... )
+my_mvwnprintw ( WINDOW *win, int y, int x, int attribs, int n, const char *format, ... )
 {
 	u_int16_t i;
 	va_list args;
-	u_char buf[n+1], *p;
+	char buf[n+1], *p;
 	memset ( buf, 0, n+1 );
 	va_start ( args, format );
 	i = vsnprintf ( buf, n, format, args );
@@ -76,11 +76,11 @@ my_mvwnprintw ( WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_cha
 }
 
 int
-my_mvwnprintw2 ( WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_char *format, ... )
+my_mvwnprintw2 ( WINDOW *win, int y, int x, int attribs, int n, const char *format, ... )
 {
 	u_int16_t i;
 	va_list args;
-	u_char buf[n+1], *p;
+	char buf[n+1], *p;
 	memset ( buf, 0, n+1 );
 	va_start ( args, format );
 	i = vsnprintf ( buf, n, format, args );
@@ -101,11 +101,11 @@ my_mvwnprintw2 ( WINDOW *win, int y, int x, u_int32_t attribs, int n, const u_ch
 }
 
 int
-my_wnprintw ( WINDOW *win, u_int32_t attribs, int n, const u_char *format, ... )
+my_wnprintw ( WINDOW *win, int attribs, int n, const char *format, ... )
 {
 	u_int16_t i;
 	va_list args;
-	u_char buf[n+1], *p;
+	char buf[n+1], *p;
 	memset ( buf, 0, n+1 );
 	va_start ( args, format );
 	i = vsnprintf ( buf, n, format, args );
@@ -117,9 +117,9 @@ my_wnprintw ( WINDOW *win, u_int32_t attribs, int n, const u_char *format, ... )
 }
 
 int
-my_mvwnaddstr ( WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_char *str, int offset )
+my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *str, int offset )
 {
-	u_char *s = ( u_char * ) str;
+	char *s = ( char * ) str;
 	size_t n2 = n;
 	int offset_count = offset;
 	for ( ; *s && offset_count; offset_count-- )
@@ -142,7 +142,7 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_
 				newOffset = 0;
 			}
 			waddch ( win, ' ' | attribs );
-			s = ( u_char * ) str;
+			s = ( char * ) str;
 			for ( ; *s && n - 1; n-- ) //Don't forget to subtract 1 of the space :P
 			{
 				waddch ( win, *s++ | attribs );
@@ -164,9 +164,9 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_
 }
 
 // int
-// my_wnaddstr(WINDOW *win, u_int32_t attribs, size_t n, const u_char *str)
+// my_wnaddstr(WINDOW *win, int attribs, size_t n, const char *str)
 // {
-// 	u_char *s = (u_char *)str;
+// 	char *s = (char *)str;
 //
 // 	if (str && *str)
 // 		for (; *s && n; n--)
@@ -177,9 +177,9 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_
 // }
 
 int
-my_waddstr ( WINDOW *win, u_int32_t attribs, const u_char *str )
+my_waddstr ( WINDOW *win, int attribs, const char *str )
 {
-	u_char *s = ( u_char * ) str;
+	char *s = ( char * ) str;
 
 	if ( !str || !*str )
 		return OK;
@@ -188,7 +188,7 @@ my_waddstr ( WINDOW *win, u_int32_t attribs, const u_char *str )
 }
 
 int
-my_mvwaddstr ( WINDOW *win, int y, int x, u_int32_t attribs, const u_char *str )
+my_mvwaddstr ( WINDOW *win, int y, int x, int attribs, const char *str )
 {
 	wmove ( win, y, x );
 	return my_waddstr ( win, attribs, str );

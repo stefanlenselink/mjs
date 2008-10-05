@@ -2,6 +2,8 @@
 
 #include "gui.h"
 #include "controller/keyboard_controller.h"
+#include "misc.h"
+
 #include <time.h>
 #include <string.h>
 #include <signal.h>

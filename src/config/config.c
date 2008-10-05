@@ -22,8 +22,8 @@
 #define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1' || s[0] == 'Y' || s[0] == 'T')
 
 static Config *set_option ( Config *, char *, char * );
-static u_int32_t merge_colors ( u_int32_t, u_int32_t );
-static u_int32_t str2color ( char * );
+static int merge_colors ( int, int );
+static int str2color ( char * );
 static void set_color ( char *, char * );
 static void set_window_defaults ( void );
 static void set_color_defaults ( void );
@@ -31,7 +31,7 @@ static void set_window ( WindowConfig *, char *, char * );
 static int break_line ( const char *, char *, char *, char * );
 static void parseConfig ( Config * conf, char * fname );
 
-u_int32_t * colors;
+int * colors;
 
 Config * conf;
 void config_shutdown ()
@@ -223,7 +223,7 @@ set_option ( Config * conf, char *option, char *value )
 }
 
 
-static u_int32_t
+static int
 str2color ( char *color )
 {
 	while ( color[0] == ' ' )	// remove whitespace at start
@@ -263,8 +263,8 @@ str2color ( char *color )
 	return GREY;
 }
 
-static u_int32_t
-merge_colors ( u_int32_t fore, u_int32_t back )
+static int
+merge_colors ( int fore, int back )
 {
 	/*
 	 * make sure they aren't dumb enough to use a bold background, and
@@ -293,7 +293,7 @@ set_color ( char *color, char *value )
 
 	/* IMPORTANT IMPORTANT IMPORTANT IMPORTANT IMPORTANT
 	* check
-	* u_int32_t colors[24];
+	* int colors[24];
 	* around line 24 !!!!!
 	* resize this array when adding more color entries !!!!!
 	*/

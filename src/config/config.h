@@ -84,7 +84,7 @@ typedef struct _config
 	int jump;
 	int jumpExpFactor;
 	int refresh_interval;
-	u_int32_t colors[NUM_COLORS];
+	int colors[NUM_COLORS];
 	WindowConfig info_window;
 	WindowConfig files_window;
 	WindowConfig play_window;

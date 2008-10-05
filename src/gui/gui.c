@@ -11,6 +11,7 @@
 #include "window_files.h"
 #include "window_info.h"
 #include "engine/engine.h"
+#include "mjs.h"
 
 
 #include <stdio.h>
@@ -19,7 +20,7 @@
 #include <string.h>
 
 
-static u_char	*parse_title ( Window *, u_char *, int );
+static char	*parse_title ( Window *, char *, int );
 static void init_info ( Window * );
 
 Config * conf;
@@ -32,15 +33,15 @@ Window * play;
 Window * active;
 
 /* colors */
-u_int32_t * colors;
+int * colors;
 int last_elapsed = 1; //Foull the guys
 int
 show_list ( Window *window )
 {
 	int x = window->width-4, y = window->height-2, i;
-	u_char buf[BUFFER_SIZE+1];
-	const u_char *line;
-	u_int32_t color;
+	char buf[BUFFER_SIZE+1];
+	const char *line;
+	int color;
 	WINDOW *win = window->win;
 	flist *ftmp;
 	wlist *list = window->contents.list;
@@ -271,6 +272,11 @@ update_info ( Window *window )
 	}
 	update_title ( window );
 	update_panels();
+    if ( window->flags & W_LIST )
+      do_scrollbar ( window );
+    if ( conf->c_flags & C_FIX_BORDERS )
+      redrawwin ( win );
+    doupdate();
 	return 1;
 }
 
@@ -356,8 +362,8 @@ int
 update_title ( Window *window )
 {
 	WINDOW *win = window->win;
-	u_char title[BUFFER_SIZE+1], *p = NULL, horiz = ACS_HLINE;
-	u_int32_t color;
+	char title[BUFFER_SIZE+1], *p = NULL, horiz = ACS_HLINE;
+	int color;
 	int i = 0, left, right, center, x = window->width-2;
 
 	if ( window->flags & W_ACTIVE )
@@ -379,7 +385,7 @@ update_title ( Window *window )
 		if ( ( i = strlen ( window->title_dfl ) ) < x )
 		{
 			i += 4;
-			p = ( u_char * ) window->title_dfl;
+			p = ( char * ) window->title_dfl;
 		}
 		else
 		{
@@ -411,7 +417,7 @@ do_scrollbar ( Window *window )
 	int x, y; /* window dimensions, etc */
 	int top, bar, bottom; /* scrollbar portions */
 	double value; /* how much each notch represents */
-	u_int32_t color, barcolor;
+	int color, barcolor;
 	wlist *list = window->contents.list;
 	WINDOW *win = window->win;
 
@@ -480,26 +486,26 @@ do_scrollbar ( Window *window )
 //	update_panels();
 }
 
-u_char *
-parse_title ( Window *win, u_char *title, int len )
+char *
+parse_title ( Window *win, char *title, int len )
 {
-	u_char *p = ( u_char * ) win->title_dfl;
+	char *p = ( char * ) win->title_dfl;
 
 	if ( win->title_fmt )
 	{
 		if ( win->flags & W_LIST && win->contents.list && win->contents.list->selected )
-			p = ( u_char * ) parse_tokens ( win, win->contents.list->selected, title, len, win->title_fmt );
+			p = ( char * ) parse_tokens ( win, win->contents.list->selected, title, len, win->title_fmt );
 		else if ( ! ( win->flags & W_LIST ) && ( win==info ) )
-			p = ( u_char * ) parse_tokens ( win, *win->contents.show, title, len, win->title_fmt );
+			p = ( char * ) parse_tokens ( win, *win->contents.show, title, len, win->title_fmt );
 //		else if (info->contents.show)
-//			p = (u_char *)parse_tokens(win, *info->contents.show, title, len, win->title_fmt);
+//			p = (char *)parse_tokens(win, *info->contents.show, title, len, win->title_fmt);
 	}
 
 	return p;
 }
 
 
-void gui_init ( Config * init_conf,   u_int32_t init_colors[], wlist * mp3list, wlist * playlist )
+void gui_init ( Config * init_conf,   int init_colors[], wlist * mp3list, wlist * playlist )
 {
 
 	conf = init_conf;

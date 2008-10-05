@@ -39,10 +39,10 @@ typedef struct _win
 		wlist *list;               /* if the window has contents, use this */
 		flist **show;               /* otherwise just this                  */
 	} contents;
-	const u_char *title_fmt;           /* format string for window title       */
-	const u_char *title_dfl;           /* default (if needed) window title     */
-	u_char *title;                     /* the window title                     */
-	const u_char *format;              /* format for the text in the window    */
+	const char *title_fmt;           /* format string for window title       */
+	const char *title_dfl;           /* default (if needed) window title     */
+	char *title;                     /* the window title                     */
+	const char *format;              /* format for the text in the window    */
 	struct _win *next;                 /* next window in the cycle             */
 	struct _win *prev;                 /* previous window in the cycle         */
 	WindowName name;

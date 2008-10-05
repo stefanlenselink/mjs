@@ -22,7 +22,7 @@ __inline__ void	 printf_menubar ( char * );
 void	 do_scrollbar ( Window * );
 __inline__ void clear_info();
 
-void gui_init ( Config *,   u_int32_t init_colors[], wlist * mp3list, wlist * playlist );
+void gui_init ( Config *,   int init_colors[], wlist * mp3list, wlist * playlist );
 void gui_shutdown ( void );
 
 void poll_keyboard ( void );

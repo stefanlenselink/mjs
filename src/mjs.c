@@ -1,7 +1,9 @@
 #include "defs.h"
 #include "mjs.h"
 #include "controller/controller.h"
+#include "controller/keyboard_controller.h"
 #include "gui/gui.h"
+#include "gui/window_menubar.h"
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "config.h"
@@ -11,7 +13,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <sys/time.h>
-
+#include <time.h>
 
 Config *conf;
 static struct sigaction handler;
@@ -44,13 +46,6 @@ static void timer_handler ( int signum )
 int
 main ( int argc, char *argv[] )
 {
-
-	struct timeval wait1000 = { 0, 1000000 };
-	int timeout = 0;
-	fd_set fds;
-
-
-
 	srand ( time ( NULL ) );
 
 	memset ( &handler, 0, sizeof ( struct sigaction ) );

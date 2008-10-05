@@ -2,6 +2,8 @@
 #include "songdata.h"
 
 #include "mjs_id3.h"
+#include "gui/window_info.h"
+#include "gui/window_files.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>

@@ -43,6 +43,7 @@
 #include <ctype.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <ctype.h>
 #include "mjs_id3.h"
 
 
@@ -522,12 +523,12 @@ extern int get_mp3_info ( mp3info *mp3, int id3Only )
 	int frame_type[15]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 	float seconds=0,total_rate=0;
 	int frames=0,frame_types=0,frames_so_far=0;
-	int l,vbr_median=-1;
-	int bitrate,lastrate;
+	int vbr_median=-1;
+	int bitrate;
 	int counter=0;
 	mp3header header;
 	struct stat filestat;
-	off_t sample_pos,data_start=0;
+	off_t data_start=0;
 
 
 	stat ( mp3->filename,&filestat );

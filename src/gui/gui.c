@@ -10,12 +10,14 @@
 #include "window_menubar.h"
 #include "window_files.h"
 #include "window_info.h"
+#include "engine/engine.h"
 
 
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
 #include <string.h>
+
 
 static u_char	*parse_title ( Window *, u_char *, int );
 static void init_info ( Window * );

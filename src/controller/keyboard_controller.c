@@ -1,4 +1,9 @@
 #include "keyboard_controller.h"
+#include "engine/engine.h"
+#include "controller/controller.h"
+#include "gui/window_play.h"
+#include "gui/window_info.h"
+#include "gui/window_files.h"
 
 #include <string.h>
 

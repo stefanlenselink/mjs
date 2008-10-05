@@ -160,7 +160,7 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, u_int32_t attribs, size_t n, const u_
 			waddch ( win, ' ' | attribs );
 		return 0;
 	}
-	//return OK;
+	return OK;
 }
 
 // int

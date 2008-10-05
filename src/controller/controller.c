@@ -3,10 +3,16 @@
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "gui/gui.h"
+#include "gui/window_play.h"
+#include "gui/window_info.h"
+#include "gui/window_playback.h"
 #include "mjs.h"
 #include "log.h"
 #include "keyboard_controller.h"
+
 #include <string.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 
 Config * conf;

@@ -13,6 +13,7 @@
 
 #include "controller/controller.h"
 #include "gui/window_menubar.h"
+#include "gui/window_play.h"
 
 xine_t * engine; // Main libxine object
 xine_audio_port_t * ap; // The audio driver
@@ -89,7 +90,6 @@ static void url_encode(char * src, char * dest)
 static void xine_open_and_play(char * file)
 {
   int tmp;
-  int status;
   char tmp3[1024] = "", tmp2[1024] = "";
   if(file == NULL){
     return;
@@ -223,7 +223,6 @@ static void engine_fwd(int mill, int expFactor, char forward)
   if ( engine_state == engine_playing )
   {
     int pos_stream, pos_time, length_time;
-    int status;
     int speedUp = 5;
     sleepTS.tv_sec = 0;
     sleepTS.tv_nsec = 20000000;

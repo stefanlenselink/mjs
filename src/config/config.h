@@ -68,6 +68,7 @@ typedef struct _config
 	char bottomtext[256];
 	char output[256];
 	char snd_system[256];
+	char serial_device[256];
 	u_int16_t c_flags;
 #define C_PADVANCE 	0x0001
 #define C_FADVANCE 	0x0002

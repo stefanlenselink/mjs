@@ -14,8 +14,8 @@
     <projectname>mjs4</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
-    <defaultencoding></defaultencoding>
+    <description/>
+    <defaultencoding/>
     <versioncontrol>kdevsubversion</versioncontrol>
   </general>
   <kdevautoproject>
@@ -24,7 +24,7 @@
       <useconfiguration>debug</useconfiguration>
     </general>
     <run>
-      <mainprogram>src/mjs4</mainprogram>
+      <mainprogram>/home/hidde/CODE/mjs/debug</mainprogram>
       <terminal>true</terminal>
       <runarguments>
         <mjs4/>
@@ -37,7 +37,7 @@
       </cwd>
       <programargs/>
       <globaldebugarguments/>
-      <globalcwd>debug</globalcwd>
+      <globalcwd>/home/hidde/CODE/mjs/debug</globalcwd>
       <useglobalprogram>true</useglobalprogram>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
@@ -70,14 +70,14 @@
         <f77compiler>kdevg77options</f77compiler>
         <cflags>-O0 -g3 -Wall</cflags>
         <envvars/>
-        <topsourcedir></topsourcedir>
-        <cppflags></cppflags>
-        <ldflags></ldflags>
-        <ccompilerbinary></ccompilerbinary>
-        <cxxcompilerbinary></cxxcompilerbinary>
-        <f77compilerbinary></f77compilerbinary>
-        <cxxflags></cxxflags>
-        <f77flags></f77flags>
+        <topsourcedir/>
+        <cppflags/>
+        <ldflags/>
+        <ccompilerbinary/>
+        <cxxcompilerbinary/>
+        <f77compilerbinary/>
+        <cxxflags/>
+        <f77flags/>
       </debug>
       <default>
         <envvars/>
@@ -208,8 +208,8 @@
       <includestyle>3</includestyle>
       <root>/usr/share/qt3</root>
       <designerintegration>EmbeddedKDevDesigner</designerintegration>
-      <qmake>/usr/bin/qmake-qt3</qmake>
-      <designer>/usr/bin/designer</designer>
+      <qmake></qmake>
+      <designer></designer>
       <designerpluginpaths/>
     </qt>
     <references/>
@@ -237,7 +237,7 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -258,11 +258,11 @@
   </cppsupportpart>
   <kdevdebugger>
     <general>
-      <gdbpath></gdbpath>
+      <gdbpath/>
       <dbgshell>libtool</dbgshell>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>

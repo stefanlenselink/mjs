@@ -54,6 +54,7 @@ config_init ( void )
     conf->play_window.title_fmt = NULL;
     conf->menubar_window.title_fmt = NULL;
     conf->playback_window.title_fmt = NULL;
+    conf->serial_device[1] = '\0';
     conf->c_flags = 0;
     
 	strncpy ( conf->mpgpath, MPGPATH, 255 );
@@ -151,8 +152,10 @@ set_option ( Config * conf, char *option, char *value )
 		strncpy ( conf->resultsfile, value, sizeof ( conf->resultsfile ) - 1 );
 	else if ( !strcasecmp ( option, "playlistpath" ) )
 		strncpy ( conf->playlistpath, value, sizeof ( conf->playlistpath ) - 1 );
+	else if ( !strcasecmp ( option, "serial_device" ) )
+		strncpy ( conf->serial_device, value, sizeof ( conf->serial_device ) - 1 );
 	else if ( !strcasecmp ( option, "output_device" ) )
-		strncpy ( conf->output, value, sizeof ( conf->output ) - 1 );
+		strncpy ( conf->output, value, sizeof ( conf->output ) - 1 );	
 	else if ( !strcasecmp ( option, "sound_system" ) )
 		strncpy ( conf->snd_system, value, sizeof ( conf->snd_system ) - 1 );
 	else if ( !strcasecmp ( option, "file_advance" ) )

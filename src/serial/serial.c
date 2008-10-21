@@ -17,3 +17,74 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+
+#include "serial.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <signal.h>
+
+static int fd;
+
+int serial_init(char device[]) {
+	fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
+	if (fd == -1) {
+    return 0;
+  } else {
+    fcntl(fd, F_SETFL, 0);
+    return 1;
+  }
+}
+
+void serial_shutdown(void) {
+	close(fd);
+}
+
+void serial_poll(void) {
+	static prev_state = 0;
+	int next_state = serial_poll_button();
+	if(next_state && next_state != prev_state) {
+	  controller_next();
+	  serial_set_led(0);
+	  sleep(1);
+	  serial_set_led(1);
+	  sleep(1);
+	  serial_set_led(0);
+	  sleep(1);	
+	  serial_set_led(1);
+	  sleep(1);
+	  serial_set_led(0);
+	  sleep(1);
+	  serial_set_led(1);
+	  sleep(1);
+	  serial_set_led(0);
+	  sleep(1);	
+	  serial_set_led(1);
+	}
+	prev_state = next_state;
+}
+
+int serial_poll_button(void) {
+	int state;
+	ioctl(fd, TIOCMGET, &state);	/* read interface */
+	if (state & TIOCM_CTS) {
+		return (1);
+	} else {
+		return (0);
+	}
+}
+
+void serial_set_led(int on) {
+  int status;
+  ioctl(fd,TIOCMGET,&status);
+  if (on)
+  	status |= TIOCM_RTS;
+  else
+  	status &= ~TIOCM_RTS;
+  ioctl(fd,TIOCMSET,&status);
+}

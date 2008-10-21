@@ -22,4 +22,4 @@ AC_CHECK_LIB(ncurses, refresh, , AC_ERROR([Couldn't find ncurses library]), -lnc
 AC_CHECK_LIB(panel, refresh, , AC_ERROR([Couldn't find panel library]), -lpanel, )
 
 AC_OUTPUT(Makefile src/Makefile src/config/Makefile src/controller/Makefile \
-	src/engine/Makefile src/gui/Makefile src/songdata/Makefile)
+	src/engine/Makefile src/gui/Makefile src/serial/Makefile src/songdata/Makefile)

@@ -6,6 +6,7 @@
 #include "gui/window_menubar.h"
 #include "songdata/songdata.h"
 #include "engine/engine.h"
+#include "serial/serial.h"
 #include "config.h"
 #include "log.h"
 
@@ -46,6 +47,7 @@ static void timer_handler ( int signum )
 int
 main ( int argc, char *argv[] )
 {
+	int serial_attached;
 	srand ( time ( NULL ) );
 
 	memset ( &handler, 0, sizeof ( struct sigaction ) );
@@ -89,14 +91,15 @@ main ( int argc, char *argv[] )
 	/**
 	 * Do ALL the inits here
 	 */
-    	log_init();
+  log_init();
 	conf = config_init();
 	engine_init (conf);
 	mp3list = songdata_init ( conf, conf->colors );
 	playlist = controller_init ( conf );
 	gui_init ( conf, conf->colors, mp3list, playlist );
 	setitimer ( ITIMER_REAL, &rttimer, &old_rttimer );
-
+  serial_attached = serial_init(conf->serial_device);
+  
 	/*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
 			read_mp3_list_array(play->contents.list, argc, argv);
 		else if (conf->c_flags & C_P_SAVE_EXIT)
@@ -104,6 +107,7 @@ main ( int argc, char *argv[] )
 
 	for ( ;; )
 	{
+		if(serial_attached) serial_poll();
 		poll_keyboard();
 		usleep ( 500 );
 	}
@@ -182,6 +186,7 @@ bailout ( int sig )
     gui_shutdown();
     config_shutdown();
     log_shutdown();
+    serial_shutdown();
 	exit ( sig );
 }
 

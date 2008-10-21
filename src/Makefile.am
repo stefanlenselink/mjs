@@ -6,8 +6,9 @@ INCLUDES = $(all_includes)
 
 # the library search path.
 mjs4_LDFLAGS = $(all_libraries)
-SUBDIRS = config controller engine gui songdata
-mjs4_LDADD = $(top_builddir)/src/controller/libcontroller.a \
-	$(top_builddir)/src/config/libconfig.a $(top_builddir)/src/gui/libgui.a \
-	$(top_builddir)/src/songdata/libsongdata.a $(top_builddir)/src/engine/libengine.a
-noinst_HEADERS = defs.h mjs.h log.h
+SUBDIRS = config controller engine gui serial songdata
+mjs4_LDADD = $(top_builddir)/src/serial/libserial.a \
+	$(top_builddir)/src/config/libconfig.a $(top_builddir)/src/controller/libcontroller.a \
+	$(top_builddir)/src/engine/libengine.a $(top_builddir)/src/gui/libgui.a \
+	$(top_builddir)/src/songdata/libsongdata.a
+noinst_HEADERS = defs.h log.h mjs.h

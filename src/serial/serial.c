@@ -19,6 +19,7 @@
  ***************************************************************************/
 
 #include "serial.h"
+#include "controller/controller.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -46,7 +47,7 @@ void serial_shutdown(void) {
 }
 
 void serial_poll(void) {
-	static prev_state = 0;
+	static int prev_state = 0;
 	int next_state = serial_poll_button();
 	if(next_state && next_state != prev_state) {
 	  controller_next();

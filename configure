@@ -2260,7 +2260,7 @@ fi
 
 # Define the identity of the package.
  PACKAGE=mjs4
- VERSION=4.0rc5
+ VERSION=4.0rc6
 
 
 cat >>confdefs.h <<_ACEOF

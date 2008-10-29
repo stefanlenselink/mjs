@@ -99,6 +99,8 @@ main ( int argc, char *argv[] )
 	gui_init ( conf, conf->colors, mp3list, playlist );
 	setitimer ( ITIMER_REAL, &rttimer, &old_rttimer );
     serial_attached = serial_init(conf->serial_device);
+    engine_jump_to("/pub/mp3/.bin/intro.mp3");
+    log_debug("MJS Started!!");
   
 	/*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
 			read_mp3_list_array(play->contents.list, argc, argv);

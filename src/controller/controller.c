@@ -6,6 +6,7 @@
 #include "gui/window_play.h"
 #include "gui/window_info.h"
 #include "gui/window_playback.h"
+#include "gui/window_menubar.h"
 #include "mjs.h"
 #include "log.h"
 #include "keyboard_controller.h"
@@ -95,6 +96,9 @@ char * controller_process_to_next_song ( void )
     return return_path;
 }
 int controller_has_next_song( void ){
+  if(!playlist || !playlist->playing){
+    return 0;
+  }
   return playlist->playing->next != NULL;
 }
 void controller_jump_to_song ( flist *next )
@@ -300,6 +304,7 @@ void controller_shutdown ( void )
 void controller_search(char * string)
 {
 	pid_t childpid;
+    window_menubar_progress_bar_init(SEARCHING);
 	handler.sa_handler = SIG_DFL;
 	handler.sa_flags = SA_ONESHOT;
 	sigaction ( SIGCHLD, &handler, NULL );

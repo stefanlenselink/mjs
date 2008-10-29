@@ -14,6 +14,7 @@
 #include "controller/controller.h"
 #include "gui/window_menubar.h"
 #include "gui/window_play.h"
+#include "log.h"
 
 xine_t * engine; // Main libxine object
 xine_audio_port_t * ap; // The audio driver
@@ -101,13 +102,24 @@ static void xine_open_and_play(char * file)
     sprintf(tmp2, file);
   }
   xine_close ( stream );
-  xine_open ( stream, tmp2);
-  xine_play ( stream, 0, 0 );
+  if(!xine_open ( stream, tmp2)){
+    char buf[512];
+    sprintf(buf,"xine-open faild: %d", xine_get_error(stream) );
+    log_debug(buf);
+    return;
+  }
+  if(!xine_play ( stream, 0, 0 )){
+    char buf[512];
+    sprintf(buf,"xine-play faild: %d", xine_get_error(stream) );
+    log_debug(buf);
+    return;
+  }
   while ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) ) // The header file states: "probably because it's not known yet... try again later"
   {
 	sleepTS.tv_sec = 0;
 	sleepTS.tv_nsec = 10000000;
 	nanosleep(&sleepTS,NULL); //Just try until you get some usefull info
+    log_debug("Sleeping");
   }
 }
 static void event_callback ( void *user_data, const xine_event_t *event )

@@ -86,19 +86,19 @@ main ( int argc, char *argv[] )
 
 	//Make sure COLS and LINES are set
 	if ( !initscr () )
-		exit ( 1 );
+		bailout ( 1 );
 
 	/**
 	 * Do ALL the inits here
 	 */
-  log_init();
+    log_init();
 	conf = config_init();
 	engine_init (conf);
 	mp3list = songdata_init ( conf, conf->colors );
 	playlist = controller_init ( conf );
 	gui_init ( conf, conf->colors, mp3list, playlist );
 	setitimer ( ITIMER_REAL, &rttimer, &old_rttimer );
-  serial_attached = serial_init(conf->serial_device);
+    serial_attached = serial_init(conf->serial_device);
   
 	/*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
 			read_mp3_list_array(play->contents.list, argc, argv);
@@ -147,23 +147,13 @@ bailout ( int sig )
 			//TODO class shutdown all function
 			break;
 		case 1:
-			fprintf ( stderr, "\n\nmjs:error: in and/or outpipe not available OR cannot start mpg123 \n\n\n" );
-			break;
-		case 2:
-			fprintf ( stderr, "\n\nmjs:error: starting mpg123 failed !\n\n\n" );
-			break;
-		case 3:
-			fprintf ( stderr, "\n\nmjs:error: Forking of mpg123 child proces failed !n\n\n" );
-			break;
-		case 5:
-			fprintf ( stderr, "\n\nmjs:warning: There are no command line switches !\n\n" );
-			fprintf ( stderr, " See the file ~/.mjsrc for configuration details.\n" );
+			fprintf ( stderr, "\n\nmjs:error: Windows are not loaded\n\n\n" );
 			break;
 		default:
 			fprintf ( stderr, "\n\nmjs:error: unknown\n\n\n" );
 			break;
 	}
-	fprintf ( stdout, "\n\n MP3 Jukebox System (mjs) v%s\n", "4.0"/* TODO VERSION*/ );
+	fprintf ( stdout, "\n\n MP3 Jukebox System (mjs) v%s\n", VERSION );
 	fprintf ( stdout, " Copyright (C) 2008\n" );
 	fprintf ( stdout, " This program is free software; you can redistribute it and/or modify it\n" );
 	fprintf ( stdout, " under the terms of the GNU General Public License as published by the Free\n" );

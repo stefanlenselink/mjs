@@ -1,5 +1,5 @@
-#ifndef _mms_h
-#define _mms_h
+#ifndef _mjs_h
+#define _mjs_h
 
 #include "engine/engine.h"
 #include "gui/gui.h"
@@ -11,4 +11,4 @@ void	update_status ( void );
 
 void    refresh_window ( int );
 
-#endif /* _struct_h */
+#endif /* _mjs_h */

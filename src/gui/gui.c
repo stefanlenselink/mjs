@@ -550,7 +550,7 @@ void gui_init ( Config * init_conf,   int init_colors[], wlist * mp3list, wlist 
 	*/
 
 	if ( !files->win || !info->win || !play->win || !menubar->win )
-		bailout ( 0 );
+		bailout ( 1 );
 
 	menubar->activate ( menubar );
 	init_info ( info );

@@ -5,15 +5,18 @@
 Window * info;
 
 Window * window_info_init ( Config * conf )
-{
+{ 
 	info = malloc( sizeof ( Window ) );
 
 	info->update = update_info;
 	info->activate = active_win;
 	info->deactivate = inactive_win;
+    info->prev = NULL;
+    info->next = NULL;
 	info->input = keyboard_controller_read_key;
 	info->flags |= W_RDONLY;
-
+    info->yoffset = 0;
+    
 	info->x = conf->info_window.x;
 	info->y = conf->info_window.y;
 	info->height = conf->info_window.height;
@@ -22,6 +25,7 @@ Window * window_info_init ( Config * conf )
 	info->title_fmt = conf->info_window.title_fmt;
 	info->format = conf->info_window.format;
 	info->name = window_info;
+    
 
 	if ( info->width < 4 )
 		info->width = COLS - info->x;

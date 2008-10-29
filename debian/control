@@ -1,12 +1,12 @@
 Source: mjs
 Section: unknown
 Priority: extra
-Maintainer: root <beheer@bolkhuis.nl>
+Maintainer: Bolkhuis Beheer <beheer@bolkhuis.nl>
 Build-Depends: debhelper (>= 5), autotools-dev
 Standards-Version: 3.7.2
 
 Package: mjs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: libc6 (>= 2.3.6), libncurses5 (>= 5.5), libxine1 (>= 1.1.2)
+Description: MJS (Mp3 Jukebox System)
+ MJS 4.0rc4

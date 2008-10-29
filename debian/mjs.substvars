@@ -1,1 +1,1 @@
-shlibs:Depends=libc6 (>= 2.3.6-6), libncurses5 (>= 5.4-5), libxine1 (>= 1.1.2-5)
+shlibs:Depends=libncurses5 (>= 5.6+20071006-3), libxine1 (>= 1.1.8), libc6 (>= 2.1)

@@ -114,11 +114,14 @@ static void xine_open_and_play(char * file)
     //log_debug(buf);
     return;
   }
+ int count = 0;
   while ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) ) // The header file states: "probably because it's not known yet... try again later"
   {
 	sleepTS.tv_sec = 0;
 	sleepTS.tv_nsec = 10000000;
 	nanosleep(&sleepTS,NULL); //Just try until you get some usefull info
+	count++;
+	if(count>5) break;
     //log_debug("Sleeping");
   }
 }
@@ -240,8 +243,11 @@ static void engine_fwd(int mill, int expFactor, char forward)
     sleepTS.tv_nsec = 20000000;
     time_t currentWind;
     time(&currentWind);
+    int count = 0;
     while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
       nanosleep(&sleepTS,NULL);
+      count++;
+      if(count>5) return;
       if(engine_state != engine_playing) return;
     }
     if ( difftime(currentWind,previousWind) < 2) {

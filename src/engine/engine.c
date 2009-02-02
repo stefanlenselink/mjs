@@ -99,7 +99,7 @@ static void xine_open_and_play(char * file)
     url_encode(file, tmp3);
     sprintf(tmp2, "file:/%s", tmp3);
   }else{
-    sprintf(tmp2, file);
+    sprintf(tmp2, "%s", file);
   }
   xine_close ( stream );
   if(!xine_open ( stream, tmp2)){

@@ -6,24 +6,24 @@
 FILE * logfile;
 void log_init(void)
 {
-  openlog("MJS", LOG_CONS | LOG_NDELAY | LOG_PID, LOG_DAEMON);
+  //openlog("MJS", LOG_CONS | LOG_NDELAY | LOG_PID, LOG_DAEMON);
   logfile = fopen("/tmp/mjs4.log", "a");
 }
 
 void log_debug(char * msg)
 {
-  syslog(LOG_ERR, msg);
-  fprintf(logfile, msg);
+  //syslog(LOG_ERR, "%s", msg);
+  fprintf(logfile, "%s", msg);
 }
 
 void log_debug_format(const char *format, va_list ap)
 {
-  syslog(LOG_ERR, format, ap);
+  //syslog(LOG_ERR, format, ap);
   fprintf(logfile, format, ap);
 }
 
 void log_shutdown(void)
 {
-  closelog();
+  //closelog();
   fclose(logfile);
 }

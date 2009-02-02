@@ -121,9 +121,6 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *st
 {
 	char *s = ( char * ) str;
 	size_t n2 = n;
-	int offset_count = offset;
-	for ( ; *s && offset_count; offset_count-- )
-		*s++;
 
 	wmove ( win, y, x );
 

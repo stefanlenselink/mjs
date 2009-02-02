@@ -36,7 +36,6 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -45,6 +44,8 @@
 #include <unistd.h>
 #include <ctype.h>
 #include "mjs_id3.h"
+
+
 
 
 int layer_tab[4] = {0, 3, 2, 1};
@@ -252,7 +253,7 @@ static int isvalid ( const char * field, int checkSpaces )
 	for ( i = 0; i < strlen ( field ); i++ )
 		if ( !isprint ( field[i] ) )
 			return 0;
-		else if ( isblank ( field[i] ) )
+		else if ( field[i] == ' ' )
 			spacecounter++;
 	if ( checkSpaces && spacecounter == strlen ( field ) )
 		return 0;

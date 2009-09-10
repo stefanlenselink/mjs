@@ -43,8 +43,8 @@ show_list ( Window *window )
 	const char *line;
 	int color;
 	WINDOW *win = window->win;
-	flist *ftmp;
-	wlist *list = window->contents.list;
+	songdata_song *ftmp;
+	songdata *list = window->contents.list;
 
 	if ( !list )
 		return 0;
@@ -152,8 +152,8 @@ Window * move_files_selector ( int c )
 Window *
 move_selector ( Window *window, int c )
 {
-	flist *file;
-	wlist *list = window->contents.list;
+	songdata_song *file;
+	songdata *list = window->contents.list;
 	int j, maxx, maxy, length;
 
 	if ( !list )
@@ -161,7 +161,7 @@ move_selector ( Window *window, int c )
 	if ( !list->selected )
 		return NULL;
 
-	//BUG gevonden in owee: list->startposSelected = 0; //Reset the scrolling pos in the flist
+	//BUG gevonden in owee: list->startposSelected = 0; //Reset the scrolling pos in the songdata_song
 
 	getmaxyx ( window->win, maxy, maxx );
 	length = maxy - 1;
@@ -173,29 +173,29 @@ move_selector ( Window *window, int c )
 		case '\r':
 			if ( ( window == play ) && ( list->playing ) )
 			{
-				list->selected = next_valid ( list, list->head, KEY_HOME );
+				list->selected = songdata_next_valid ( list, list->head, KEY_HOME );
 				list->where = 1;
 				list->wheretop = 0;
 
 				for ( j = 0; list->selected->next && list->selected != list->playing; j++ )
 				{
-					list->selected = next_valid ( list, list->selected->next, KEY_DOWN );
+					list->selected = songdata_next_valid ( list, list->selected->next, KEY_DOWN );
 					list->where++;
 				}
 				return window;
 			}
 			break;
 		case KEY_HOME:
-			list->selected = next_valid ( list, list->head, c );
+			list->selected = songdata_next_valid ( list, list->head, c );
 			list->where = 1;
 			list->wheretop = 0;
 			return window;
 		case KEY_END:
-			list->selected = next_valid ( list, list->tail, c );
+			list->selected = songdata_next_valid ( list, list->tail, c );
 			list->where = list->length;
 			return window;
 		case KEY_DOWN:
-			if ( ( file = next_valid ( list, list->selected->next, c ) ) )
+			if ( ( file = songdata_next_valid ( list, list->selected->next, c ) ) )
 			{
 				list->selected = file;
 				list->where++;
@@ -203,7 +203,7 @@ move_selector ( Window *window, int c )
 			}
 			break;
 		case KEY_UP:
-			if ( ( file = next_valid ( list, list->selected->prev, c ) ) )
+			if ( ( file = songdata_next_valid ( list, list->selected->prev, c ) ) )
 			{
 				list->selected = file;
 				list->where--;
@@ -213,18 +213,18 @@ move_selector ( Window *window, int c )
 		case KEY_NPAGE:
 			for ( j = 0; list->selected->next && j < length-1; j++ )
 			{
-				list->selected = next_valid ( list, list->selected->next, KEY_DOWN );
+				list->selected = songdata_next_valid ( list, list->selected->next, KEY_DOWN );
 				list->where++;
 			}
-			list->selected = next_valid ( list, list->selected, c );
+			list->selected = songdata_next_valid ( list, list->selected, c );
 			return window;
 		case KEY_PPAGE:
 			for ( j = 0; list->selected->prev && j < length-1; j++ )
 			{
-				list->selected = next_valid ( list, list->selected->prev, KEY_UP );
+				list->selected = songdata_next_valid ( list, list->selected->prev, KEY_UP );
 				list->where--;
 			}
-			list->selected = next_valid ( list, list->selected, c );
+			list->selected = songdata_next_valid ( list, list->selected, c );
 			return window;
 		default:
 			break;
@@ -237,7 +237,7 @@ update_info ( Window *window )
 {
 	WINDOW *win = window->win;
 	int i = window->width;
-	flist *file = NULL;
+	songdata_song *file = NULL;
     playback->contents.show = &play->contents.list->playing;
 	file = *window->contents.show;
 
@@ -272,7 +272,7 @@ update_info ( Window *window )
 	}
 	update_title ( window );
 	update_panels();
-    if ( window->flags & W_LIST )
+    if (window->flags & W_LIST )
       do_scrollbar ( window );
     if ( conf->c_flags & C_FIX_BORDERS )
       redrawwin ( win );
@@ -418,7 +418,7 @@ do_scrollbar ( Window *window )
 	int top, bar, bottom; /* scrollbar portions */
 	double value; /* how much each notch represents */
 	int color, barcolor;
-	wlist *list = window->contents.list;
+	songdata *list = window->contents.list;
 	WINDOW *win = window->win;
 
 	getmaxyx ( win, y, x );
@@ -505,7 +505,7 @@ parse_title ( Window *win, char *title, int len )
 }
 
 
-void gui_init ( Config * init_conf,   int init_colors[], wlist * mp3list, wlist * playlist )
+void gui_init ( Config * init_conf,   int init_colors[], songdata * mp3list, songdata * playlist )
 {
 
 	conf = init_conf;
@@ -588,6 +588,7 @@ void gui_update_play_time ( void ) {
     elapsed = engine_get_elapsed();
     //If engine == paused keep displaying....Impact on performance...
     if(last_elapsed != elapsed || engine_is_paused()){
+      int color = engine_is_paused() ? colors[PLAYBACK_TEXT] | A_BLINK : colors[PLAYBACK_TEXT];
       last_elapsed = elapsed;
       remaining = engine_get_remaining();
       length = engine_get_length();
@@ -595,13 +596,14 @@ void gui_update_play_time ( void ) {
       playback->update ( playback );
   
       if(!length){
-        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 18, " Time  : %02d:%02d:%02d",
+        
+        my_mvwnprintw2 ( playback->win, 1, 1, color, 18, " Time  : %02d:%02d:%02d",
           (int)elapsed / 3600, //Aantal Uur
           (int)elapsed / 60, //Aantal Minuten
           ((int)elapsed) % 60 //Aantal Seconden
         );
       }else if(length > 3600){
-        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 40, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
+        my_mvwnprintw2 ( playback->win, 1, 1, color, 40, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
           (int)elapsed / 3600, //Uren
           (int)(elapsed % 3600) / 60, //Minuten
           (int)(elapsed % 3600) % 60, //Seconden
@@ -613,7 +615,7 @@ void gui_update_play_time ( void ) {
           (int)(length % 3600) % 60  //Seconden
         );
       }else{
-        my_mvwnprintw2 ( playback->win, 1, 1, colors[PLAYBACK_TEXT], 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
+        my_mvwnprintw2 ( playback->win, 1, 1, color, 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
           (int)elapsed / 60, //Minuten
           (int)elapsed % 60, //Seconden
           (int)remaining / 60, //Minuten
@@ -629,11 +631,18 @@ void gui_update_play_time ( void ) {
 
 void gui_shutdown ( void )
 {
-	window_files_shutdown();
-	window_info_shutdown();
-	window_menubar_shutdown();
-	window_playback_shutdown();
-	window_play_shutdown();
+  /*General NCurses shutdown*/
+  wclear ( stdscr );
+  refresh ();
+  endwin ();
+//  delscreen(stdscr);
+  
+  window_files_shutdown();
+  window_info_shutdown();
+  window_menubar_shutdown();
+  window_playback_shutdown();
+  window_play_shutdown();
+    
 }
 
 

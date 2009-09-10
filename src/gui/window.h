@@ -36,8 +36,8 @@ typedef struct _win
 #define W_RDONLY   0x04              /* is it read-only, ie can we modify it */
 	union
 	{
-		wlist *list;               /* if the window has contents, use this */
-		flist **show;               /* otherwise just this                  */
+		songdata *list;               /* if the window has contents, use this */
+		songdata_song **show;               /* otherwise just this                  */
 	} contents;
 	const char *title_fmt;           /* format string for window title       */
 	const char *title_dfl;           /* default (if needed) window title     */

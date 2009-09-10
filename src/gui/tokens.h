@@ -3,6 +3,6 @@
 
 #include "gui/gui.h"
 
-const	char *parse_tokens ( Window *, flist*, char *, int, const char * );
+const	char *parse_tokens ( Window *, songdata_song*, char *, int, const char * );
 
 #endif /* _tokens_h */

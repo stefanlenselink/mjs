@@ -24,7 +24,7 @@
       <useconfiguration>debug</useconfiguration>
     </general>
     <run>
-      <mainprogram>/home/hidde/CODE/mjs/debug</mainprogram>
+      <mainprogram>/home/stefan/mjs/trunk/debug/src/mjs4</mainprogram>
       <terminal>true</terminal>
       <runarguments>
         <mjs4/>
@@ -37,7 +37,7 @@
       </cwd>
       <programargs/>
       <globaldebugarguments/>
-      <globalcwd>/home/hidde/CODE/mjs/debug</globalcwd>
+      <globalcwd/>
       <useglobalprogram>true</useglobalprogram>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>

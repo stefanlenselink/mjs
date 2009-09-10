@@ -1,49 +1,58 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="14" >
-  <Doc0 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/mjs.c" >
+ <DocsAndViews NumberOfDocuments="17" >
+  <Doc0 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/songdata.h" >
    <View0 Encoding="" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/mjs_id3.c" >
-   <View0 Encoding="" line="255" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/songdata.c" >
+   <View0 Encoding="" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_info.c" >
+  <Doc2 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/dirstack.c" >
    <View0 Encoding="" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_playback.c" >
+  <Doc3 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/song.c" >
    <View0 Encoding="" Type="Source" />
   </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/gui.c" >
+  <Doc4 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/disk_songdata.c" >
    <View0 Encoding="" Type="Source" />
   </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_files.c" >
+  <Doc5 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/disk_songdata.h" >
    <View0 Encoding="" Type="Source" />
   </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_play.c" >
+  <Doc6 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/mjs_id3.c" >
    <View0 Encoding="" Type="Source" />
   </Doc6>
-  <Doc7 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/configure.in" >
+  <Doc7 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/mjs_id3.h" >
    <View0 Encoding="" Type="Source" />
   </Doc7>
-  <Doc8 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/log.c" >
-   <View0 Encoding="" line="15" Type="Source" />
+  <Doc8 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/mysql_songdata.h" >
+   <View0 Encoding="" Type="Source" />
   </Doc8>
-  <Doc9 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/engine/engine.c" >
-   <View0 Encoding="" line="101" Type="Source" />
+  <Doc9 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/mysql_songdata.c" >
+   <View0 Encoding="" Type="Source" />
   </Doc9>
-  <Doc10 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/controller.c" >
+  <Doc10 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_files.c" >
    <View0 Encoding="" Type="Source" />
   </Doc10>
-  <Doc11 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/songdata/songdata.c" >
+  <Doc11 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/keyboard_controller.c" >
    <View0 Encoding="" Type="Source" />
   </Doc11>
-  <Doc12 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/window_menubar.c" >
-   <View0 Encoding="" line="101" Type="Source" />
+  <Doc12 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/gui.c" >
+   <View0 Encoding="" line="637" Type="Source" />
   </Doc12>
-  <Doc13 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/misc.c" >
-   <View0 Encoding="" line="30" Type="Source" />
+  <Doc13 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/tokens.h" >
+   <View0 Encoding="" Type="Source" />
   </Doc13>
+  <Doc14 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/gui/tokens.c" >
+   <View0 Encoding="" Type="Source" />
+  </Doc14>
+  <Doc15 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/controller/controller.c" >
+   <View0 Encoding="" line="25" Type="Source" />
+  </Doc15>
+  <Doc16 NumberOfViews="1" URL="file:///home/stefan/mjs/trunk/src/engine/engine.c" >
+   <View0 Encoding="" line="162" Type="Source" />
+  </Doc16>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>

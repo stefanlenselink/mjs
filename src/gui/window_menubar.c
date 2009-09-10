@@ -24,7 +24,7 @@ Window * window_menubar_init ( Config * conf )
 	menubar->update = window_menubar_standard;
 	menubar->deactivate = window_menubar_clear;
 	menubar->input = keyboard_controller_read_key;
-
+    menubar->flags = 0x0;
 	menubar->x = conf->menubar_window.x;
 	menubar->y = conf->menubar_window.y;
 	menubar->height = conf->menubar_window.height;
@@ -59,6 +59,8 @@ void window_menubar_deactivate ( void )
 }
 void window_menubar_shutdown ( void )
 {
+  delwin(menubar->win);
+  del_panel(menubar->panel);
 	free ( menubar );
 }
 

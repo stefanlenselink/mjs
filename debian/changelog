@@ -1,3 +1,15 @@
+mjs (4.0rc9-1ppa) unstable; urgency=low
+
+  * PPA release
+
+ -- stefan <stefan@bolkhuis.nl> Wed, 13 May 2009 20:00:20 +0100
+
+mjs (4.0rc7) intrepid; urgency=low
+
+  * Alot of things fixed; new trunk version
+
+ -- stefan <stefan@bolkhuis.nl>  Wed, 13 May 2009 19:00:20 +0100
+
 mjs (4.0rc6) intrepid; urgency=low
 
   * Search fixed; intro tune restored

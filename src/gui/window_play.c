@@ -14,6 +14,7 @@ Window * window_play_init ( Config * conf )
 	play->activate = active_win;
 	play->deactivate = inactive_win;
     play->input = keyboard_controller_read_key;
+    play->flags = 0x0;
 	play->flags |= W_LIST;
 
 	play->x = conf->play_window.x;
@@ -50,6 +51,8 @@ void window_play_deactivate ( void )
 }
 void window_play_shutdown ( void )
 {
+  delwin(play->win);
+  del_panel(play->panel);
 	free ( play );
 }
 void window_play_notify_title_changed(void){

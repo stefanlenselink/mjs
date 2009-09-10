@@ -11,12 +11,12 @@ char *previous_selected;	// previous selected number
 char typed_letters[10] = "\0";	// letters previously typed when jumping
 int typed_letters_timeout = 0;	// timeout for previously typed letters
 
-wlist * playlist;
+songdata * playlist;
 Config * conf;
 /* Private functions */
-static void process_return ( wlist *, int );
+static void process_return ( songdata *, int );
 
-static void process_return ( wlist * fileslist, int alt )
+static void process_return ( songdata * fileslist, int alt )
 {
   if ( !fileslist )
     return;
@@ -34,7 +34,7 @@ static void process_return ( wlist * fileslist, int alt )
         char * filename = strdup ( dirstack_filename() );
         char * fullpath = strdup ( dirstack_fullpath() );
         dirstack_pop();
-        read_mp3_list ( fileslist, fullpath, L_NEW );
+        songdata_read_mp3_list ( fileslist, fullpath, L_NEW );
         while ( strcmp ( fileslist->selected->filename, filename ) )
           move_files_selector ( KEY_DOWN );
         free ( filename );
@@ -44,7 +44,7 @@ static void process_return ( wlist * fileslist, int alt )
       {
         if ( ! ( fileslist->flags & F_VIRTUAL ) )
           dirstack_push ( fileslist->from, fileslist->selected->filename );
-        read_mp3_list ( fileslist, fileslist->selected->fullpath, L_NEW );
+        songdata_read_mp3_list ( fileslist, fileslist->selected->fullpath, L_NEW );
       }
 
       window_files_update();
@@ -70,12 +70,12 @@ static void process_return ( wlist * fileslist, int alt )
     if ( !alt )
     {
       dirstack_push ( fileslist->from, fileslist->selected->filename );
-      read_mp3_list ( fileslist, fileslist->selected->fullpath, L_NEW );
+      songdata_read_mp3_list ( fileslist, fileslist->selected->fullpath, L_NEW );
       window_files_update();
     }
     else
     {
-//			read_mp3_list (playlist, fileslist->selected->fullpath, L_APPEND);
+//			songdata_read_mp3_list (playlist, fileslist->selected->fullpath, L_APPEND);
       add_to_playlist_recursive ( playlist, playlist->tail, fileslist->selected );
       window_play_update();
     }
@@ -107,7 +107,7 @@ static void process_return ( wlist * fileslist, int alt )
 }
 
 
-void keyboard_controller_init(wlist * init_playlist, Config * init_conf)
+void keyboard_controller_init(songdata * init_playlist, Config * init_conf)
 {
   playlist = init_playlist;
   conf = init_conf;
@@ -216,7 +216,7 @@ int keyboard_controller_read_key(Window * window)
         char * filename = strdup ( dirstack_filename() );
         char * fullpath = strdup ( dirstack_fullpath() );
         dirstack_pop();
-        read_mp3_list ( window->contents.list, fullpath, L_NEW );
+        songdata_read_mp3_list ( window->contents.list, fullpath, L_NEW );
         while ( strcmp ( window->contents.list->selected->filename, filename ) )
           move_files_selector ( KEY_DOWN );
         window_files_update();
@@ -235,7 +235,7 @@ int keyboard_controller_read_key(Window * window)
         {
           if ( ! ( window->contents.list->flags & F_VIRTUAL ) )
             dirstack_push ( window->contents.list->from, window->contents.list->selected->filename );
-          read_mp3_list ( window->contents.list, window->contents.list->selected->fullpath, L_NEW );
+          songdata_read_mp3_list ( window->contents.list, window->contents.list->selected->fullpath, L_NEW );
           if ( window->contents.list->head )
             move_files_selector ( KEY_DOWN );
         }
@@ -258,7 +258,7 @@ int keyboard_controller_read_key(Window * window)
           controller_stop();
           window_play_update();
         }
-        wlist_del ( playlist, playlist->selected );
+        songdata_del ( playlist, playlist->selected );
         window_info_update();
         window_play_update();
       }
@@ -341,7 +341,7 @@ int keyboard_controller_read_key(Window * window)
     case '.':
     case ' ': // Jump to directory with matching first letters
       if ( window->name == window_files){
-        flist *ftmp = window->contents.list->head;
+        songdata_song *ftmp = window->contents.list->head;
         int n = 0;
         if ( strlen ( typed_letters ) < 10 )   // add the letter to the string and reset the timeout
         {

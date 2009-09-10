@@ -15,6 +15,7 @@ Window * window_files_init ( Config * conf )
 	files->activate = active_win;
 	files->deactivate = inactive_win;
 	files->input = keyboard_controller_read_key;
+    files->flags = 0x0;
 	files->flags |= W_LIST | W_RDONLY;
 
 	files->x = conf->files_window.x;
@@ -50,5 +51,7 @@ void window_files_deactivate ( void )
 }
 void window_files_shutdown ( void )
 {
+  delwin(files->win);
+  del_panel(files->panel);
 	free ( files );
 }

@@ -19,18 +19,18 @@
 
 int	 playback_title ( Window * );
 
-void	add_to_playlist_recursive ( wlist *, flist *, flist * );
-void	add_to_playlist ( wlist *, flist *, flist * );
+void	add_to_playlist_recursive ( songdata *, songdata_song *, songdata_song * );
+void	add_to_playlist ( songdata *, songdata_song *, songdata_song * );
 
-wlist	*read_playlist ( wlist *, const char * );
+songdata	*read_playlist ( songdata *, const char * );
 
 
-wlist * controller_init (Config *);
+songdata * controller_init (Config *);
 void controller_shutdown ( void );
 void controller_playlist_move_up();
 void controller_playlist_move_down();
 char * controller_process_to_next_song ( void );
-void controller_jump_to_song ( flist * );
+void controller_jump_to_song ( songdata_song * );
 void controller_play_pause(void);
 void controller_check_timeout(void);
 void controller_stop(void);

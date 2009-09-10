@@ -33,6 +33,7 @@
 static int fd;
 
 int serial_init(char device[]) {
+  //TODO SysCall on none exsiting file; needs a check if the file is defined
 	fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd == -1) {
     return 0;

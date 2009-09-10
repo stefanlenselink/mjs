@@ -5,7 +5,7 @@
 #include <string.h>
 
 const char *
-parse_tokens ( Window *window, flist *file, char *line, int size, const char *fmt )
+parse_tokens ( Window *window, songdata_song *file, char *line, int size, const char *fmt )
 {
 	int len = 0;
 	char *artist;

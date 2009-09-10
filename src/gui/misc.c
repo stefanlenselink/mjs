@@ -42,22 +42,6 @@ my_mvwprintw ( WINDOW *win, int y, int x, int attribs, const char *format, ... )
 	return i;
 }
 
-// int
-// my_wprintw(WINDOW *win, int attribs, const char *format, ...)
-// {
-// 	u_int16_t i;
-// 	va_list args;
-// 	char buf[BUFFER_SIZE+1], *p;
-// 	memset(buf, 0, BUFFER_SIZE+1);
-// 	va_start(args, format);
-// 	i = vsnprintf(buf, BUFFER_SIZE, format, args);
-// 	va_end(args);
-// 	p = buf;
-// 	while (*p)
-// 		waddch(win, *p++ | attribs);
-// 	return i;
-// }
-
 int
 my_mvwnprintw ( WINDOW *win, int y, int x, int attribs, int n, const char *format, ... )
 {
@@ -97,22 +81,6 @@ my_mvwnprintw2 ( WINDOW *win, int y, int x, int attribs, int n, const char *form
 		waddch ( win, ' ' | attribs );
 		n--;
 	}
-	return i;
-}
-
-int
-my_wnprintw ( WINDOW *win, int attribs, int n, const char *format, ... )
-{
-	u_int16_t i;
-	va_list args;
-	char buf[n+1], *p;
-	memset ( buf, 0, n+1 );
-	va_start ( args, format );
-	i = vsnprintf ( buf, n, format, args );
-	va_end ( args );
-	p = buf;
-	while ( *p )
-		waddch ( win, *p++ | attribs );
 	return i;
 }
 
@@ -160,45 +128,16 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *st
 	return OK;
 }
 
-// int
-// my_wnaddstr(WINDOW *win, int attribs, size_t n, const char *str)
-// {
-// 	char *s = (char *)str;
-//
-// 	if (str && *str)
-// 		for (; *s && n; n--)
-// 			waddch(win, *s++ | attribs);
-// 	for (; n; n--)
-// 		waddch(win, ' ' | attribs);
-// 	return OK;
-// }
-
-int
-my_waddstr ( WINDOW *win, int attribs, const char *str )
-{
-	char *s = ( char * ) str;
-
-	if ( !str || !*str )
-		return OK;
-	for ( ; *s; waddch ( win, *s++ | attribs ) );
-	return OK;
-}
-
 int
 my_mvwaddstr ( WINDOW *win, int y, int x, int attribs, const char *str )
 {
 	wmove ( win, y, x );
-	return my_waddstr ( win, attribs, str );
-}
+    char *s = ( char * ) str;
 
-__inline__ void
-my_wnclear ( WINDOW *win, int n )
-{
-	int x, y;
-	getyx ( win, y, x );
-	for ( ; n > 0; n-- )
-		waddch ( win, ' ' );
-	wmove ( win, y, x );
+    if ( !str || !*str )
+      return OK;
+    for ( ; *s; waddch ( win, *s++ | attribs ) );
+    return OK;
 }
 
 __inline__ void

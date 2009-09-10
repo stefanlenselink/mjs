@@ -18,7 +18,7 @@
 
 Config *conf;
 static struct sigaction handler;
-wlist * mp3list, * playlist;
+songdata * mp3list, * playlist;
 struct itimerval rttimer;
 struct itimerval old_rttimer;
 /*
@@ -32,15 +32,15 @@ int clock_count = 0;
 static void timer_handler ( int signum )
 {
 	gui_update_play_time();
-	if ( clock_count == 300 )   //Every 30 sec?
+	if ( clock_count == 60 )   //Every 30 sec?
 	{
 		window_menubar_update();
 		clock_count = 0;
 	}
 	else
 	{
-		clock_count++;
-        	keyboard_controller_check_timeout();
+        clock_count++;
+        keyboard_controller_check_timeout();
 	}
 }
 
@@ -78,9 +78,9 @@ main ( int argc, char *argv[] )
 
 	signal ( SIGALRM,timer_handler );
 	rttimer.it_value.tv_sec     = 0; /* A signal will be sent 250 Milisecond*/
-	rttimer.it_value.tv_usec    = 100000; /*  from when this is called */
+	rttimer.it_value.tv_usec    = 500000; /*  from when this is called */
 	rttimer.it_interval.tv_sec  = 0; /* If the timer is not reset, the */
-	rttimer.it_interval.tv_usec = 100000; /*  signal will be sent every 250 Milisecond */
+	rttimer.it_interval.tv_usec = 500000; /*  signal will be sent every 250 Milisecond */
 
 
 
@@ -100,13 +100,8 @@ main ( int argc, char *argv[] )
 	setitimer ( ITIMER_REAL, &rttimer, &old_rttimer );
     serial_attached = serial_init(conf->serial_device);
     engine_jump_to("/pub/mp3/.bin/intro.mp3");
-    //log_debug("MJS Started!!");
+    //log_debug("MJS Started!!"); 
   
-	/*	if (argc > 1) //TODO als alles klaar is dit ook weer implementeren
-			read_mp3_list_array(play->contents.list, argc, argv);
-		else if (conf->c_flags & C_P_SAVE_EXIT)
-			read_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs", 1);*/
-
 	for ( ;; )
 	{
 		if(serial_attached) serial_poll();
@@ -126,23 +121,20 @@ bailout ( int sig )
 	handler.sa_flags = 0;
 	sigaction ( SIGINT, &handler, NULL );
 
-	wclear ( stdscr );
-	refresh ();
-	endwin ();
 
 
 	switch ( sig )
 	{
 		case 0:
 			/*		if (((conf->c_flags & C_P_SAVE_EXIT) > 0) & (play->contents.list->head != NULL)){
-						write_mp3_list_file (play->contents.list, "/home/mvgalen/.previous_playlist.mjs");
+						songdata_save_playlist (play->contents.list, "/home/mvgalen/.previous_playlist.mjs");
 					}
 					if (play->contents.list) {
-						wlist_clear (play->contents.list);
+						songdata_clear (play->contents.list);
 						free (play->contents.list);
 					}
 					if (files->contents.list){
-						wlist_clear (files->contents.list);
+						songdata_clear (files->contents.list);
 						free (files->contents.list);
 					}*/ //TODO anders oplossen
 

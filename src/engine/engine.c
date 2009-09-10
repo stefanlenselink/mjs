@@ -160,6 +160,7 @@ void engine_init ( Config * init_conf)
 	// Create our libxine engine, and initialise it
 	engine = xine_new();
 	xine_init ( engine );
+    xine_config_load(engine, "/tmp/xine.config");
     
 	// Automatically choose an audio driver
 	ap = xine_open_audio_driver ( engine, NULL, NULL );
@@ -237,14 +238,14 @@ static void engine_fwd(int mill, int expFactor, char forward)
 {
   if ( engine_state == engine_playing )
   {
-    int pos_stream, pos_time, length_time;
+    int pos_stream, pos_time;
     int speedUp = 5;
     sleepTS.tv_sec = 0;
     sleepTS.tv_nsec = 20000000;
     time_t currentWind;
     time(&currentWind);
     int count = 0;
-    while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length_time ) ) {
+    while( !xine_get_pos_length ( stream, &pos_stream , &pos_time , &length ) ) {
       nanosleep(&sleepTS,NULL);
       count++;
       if(count>5) return;
@@ -355,8 +356,8 @@ void engine_shutdown ( void )
 
 int engine_get_elapsed ( void )
 {
-	int a, b, c;
-	if ( !xine_get_pos_length ( stream, &a, &b, &c ) )
+	int a, b;
+    if ( !xine_get_pos_length ( stream, &a, &b, &length ) )
 	{
 		return 0;
 	}
@@ -364,12 +365,12 @@ int engine_get_elapsed ( void )
 }
 int engine_get_remaining ( void )
 {
-	int a, b, c;
-	if ( !xine_get_pos_length ( stream, &a, &b, &c ) )
+	int a, b;
+    if ( !xine_get_pos_length ( stream, &a, &b, &length ) && !length)
 	{
 		return 0;
 	}
-	return ( c - b ) / 1000;
+	return ( length - b ) / 1000;
 }
 
 int engine_get_length ( void )
@@ -386,7 +387,7 @@ static char * engine_load_meta_info_update_field(char * old, const char * new){
   return strdup(new);
 }
 
-static void engine_load_meta_info_from_stream(flist * file, xine_stream_t * str){
+static void engine_load_meta_info_from_stream(songdata_song * file, xine_stream_t * str){
   const char * tmp;
   tmp = xine_get_meta_info(str, XINE_META_INFO_TITLE);
   file->title = engine_load_meta_info_update_field(file->title, tmp);
@@ -399,11 +400,11 @@ static void engine_load_meta_info_from_stream(flist * file, xine_stream_t * str)
   
 }
 
-void engine_load_current_meta_info(flist * file){
+void engine_load_current_meta_info(songdata_song * file){
   engine_load_meta_info_from_stream(file, stream);
 }
 
-void engine_load_meta_info(flist * file){
+void engine_load_meta_info(songdata_song * file){
   char tmp3[1024] = "", tmp2[1024] = "";
   if(file->fullpath[0] == '/'){
     url_encode(file->fullpath, tmp3);

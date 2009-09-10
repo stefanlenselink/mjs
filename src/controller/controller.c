@@ -17,7 +17,7 @@
 
 
 Config * conf;
-wlist * playlist;
+songdata * playlist;
 
 static struct sigaction handler;
 
@@ -26,7 +26,7 @@ static void controller_update_statefile ( void );
 
 void controller_next()
 {
-	flist *ftmp = playlist->playing;
+	songdata_song *ftmp = playlist->playing;
 
 	if ( !ftmp )
 		return;
@@ -40,7 +40,7 @@ void controller_next()
 
 void controller_prev()
 {
-	flist *ftmp = playlist->playing;
+	songdata_song *ftmp = playlist->playing;
 
 	if ( !ftmp )
 		return;
@@ -53,7 +53,7 @@ void controller_prev()
 
 static void controller_update_whereplaying ( void )
 {
-	flist *ftmp;
+	songdata_song *ftmp;
 	for ( ftmp = playlist->head, playlist->whereplaying=0; ftmp!=playlist->playing; ftmp=ftmp->next )
 		playlist->whereplaying++;
 }
@@ -101,7 +101,7 @@ int controller_has_next_song( void ){
   }
   return playlist->playing->next != NULL;
 }
-void controller_jump_to_song ( flist *next )
+void controller_jump_to_song ( songdata_song *next )
 {
 	if ( !next )
 		return;
@@ -136,7 +136,7 @@ void controller_play_pause(void)
     engine_pause_playback();
   }else{
     if ( !playlist->selected ){
-      playlist->selected = next_valid ( playlist, playlist->top, KEY_DOWN );
+      playlist->selected = songdata_next_valid ( playlist, playlist->top, KEY_DOWN );
     }
     controller_jump_to_song ( playlist->selected ); // Play
   }
@@ -164,7 +164,7 @@ void controller_clear_playlist()
   {
     controller_stop();
 
-    wlist_clear ( playlist );
+    songdata_clear ( playlist );
 
     window_play_update();
     
@@ -193,18 +193,18 @@ void controller_reload_search_results(){
 }
 
 void
-add_to_playlist_recursive ( wlist *list, flist *position, flist *file )
+add_to_playlist_recursive ( songdata *list, songdata_song *position, songdata_song *file )
 {
 	char *prevpwd = NULL;
-	wlist *templist = NULL;
+	songdata *templist = NULL;
 	if ( ! ( file->flags & F_DIR ) )
 		return;
 
-	templist = malloc( sizeof ( wlist ) );
-    memset(templist, 0, sizeof(wlist));
+	templist = malloc( sizeof ( songdata ) );
+    memset(templist, 0, sizeof(songdata));
 	prevpwd = getcwd ( NULL, 0 );
 
-	read_mp3_list ( templist, file->fullpath, L_NEW );
+	songdata_read_mp3_list ( templist, file->fullpath, L_NEW );
 	if ( !strncmp ( templist->selected->filename, "../", 3 ) )
 		templist->selected = templist->head->next; // skip ../ entry
 
@@ -215,24 +215,24 @@ add_to_playlist_recursive ( wlist *list, flist *position, flist *file )
 		else if ( ! ( templist->selected->flags & F_PLAYLIST ) )
 			add_to_playlist ( list, list->tail, templist->selected );
 
-		templist->selected = next_valid ( templist, templist->selected->next, KEY_DOWN );
+		templist->selected = songdata_next_valid ( templist, templist->selected->next, KEY_DOWN );
 	}
 
-	wlist_clear ( templist );
+	songdata_clear ( templist );
 	free ( templist );
 	chdir ( prevpwd );
 	free ( prevpwd );
 }
 
 void
-add_to_playlist ( wlist *list, flist *position, flist *file )
+add_to_playlist ( songdata *list, songdata_song *position, songdata_song *file )
 {
-	flist *newfile;
+	songdata_song *newfile;
 	char *p;
 
-	if ( !check_file ( file ) )
+	if ( !songdata_check_file ( file ) )
 		return;
-    	newfile = new_flist();
+    	newfile = new_songdata_song();
 	/* remove tracknumber if it exists and user wants it*/
 	if ( ! ( conf->c_flags & C_TRACK_NUMBERS ) )
 	{
@@ -273,7 +273,7 @@ add_to_playlist ( wlist *list, flist *position, flist *file )
 	newfile->track_id = file->track_id;
 	newfile->length = file->length;
 
-	wlist_add ( list, position, newfile );
+	songdata_add ( list, position, newfile );
 
 	if ( conf->c_flags & C_PADVANCE )
 	{
@@ -283,13 +283,13 @@ add_to_playlist ( wlist *list, flist *position, flist *file )
 	return;
 }
 
-wlist * controller_init (Config * init_config)
+songdata * controller_init (Config * init_config)
 {
 	conf = init_config;
-	playlist = malloc ( sizeof ( wlist ) );
-    memset(playlist, 0, sizeof(wlist));
+	playlist = malloc ( sizeof ( songdata ) );
+    memset(playlist, 0, sizeof(songdata));
 	playlist->head = NULL;
-	wlist_clear ( playlist );
+	songdata_clear ( playlist );
     keyboard_controller_init(playlist, conf);
 	return playlist;
 }
@@ -328,7 +328,7 @@ void controller_save_playlist(char * file)
 {
   char *s = malloc ( strlen ( file ) + strlen(conf->playlistpath) + 6 );
   sprintf ( s, "%s/%s.mjs", conf->playlistpath, file );
-  write_mp3_list_file ( playlist, s );
+  songdata_save_playlist ( playlist, s );
   free ( s );
   doupdate ();
 }
@@ -337,7 +337,7 @@ void controller_save_playlist(char * file)
 void
 controller_playlist_move_up()
 {
-	flist *f1,*f2,*f3,*f4;
+	songdata_song *f1,*f2,*f3,*f4;
 
 	f3 = playlist->selected;
 	f2 = f3->prev;
@@ -366,7 +366,7 @@ controller_playlist_move_up()
 void
 controller_playlist_move_down()
 {
-	flist *f1,*f2,*f3,*f4;
+	songdata_song *f1,*f2,*f3,*f4;
 
 	f2 = playlist->selected;
 	f3 = f2->next;

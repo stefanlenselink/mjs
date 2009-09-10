@@ -14,6 +14,7 @@ Window * window_info_init ( Config * conf )
     info->prev = NULL;
     info->next = NULL;
 	info->input = keyboard_controller_read_key;
+    info->flags = 0x0;
 	info->flags |= W_RDONLY;
     info->yoffset = 0;
     
@@ -50,5 +51,7 @@ void window_info_deactivate ( void )
 }
 void window_info_shutdown ( void )
 {
-	free ( info );
+  delwin(info->win);
+  del_panel(info->panel);
+  free ( info );
 }

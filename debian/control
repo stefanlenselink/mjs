@@ -1,12 +1,10 @@
 Source: mjs
-Section: unknown
+Section: sound
 Priority: extra
 Maintainer: Bolkhuis Beheer <beheer@bolkhuis.nl>
-Build-Depends: debhelper (>= 5), autotools-dev
+Build-Depends: debhelper (>= 5), autotools-dev, libmysqlclient-dev, libncurses-dev
 Standards-Version: 3.7.2
-
 Package: mjs
 Architecture: any
-Depends: libc6 (>= 2.3.6), libncurses5 (>= 5.5), libxine1 (>= 1.1.2)
+Depends: libc6 (>= 2.3.6), libncurses5 (>= 5.5), libxine1 (>= 1.1.2), libmysqlclient15 (>= 5.0)
 Description: MJS (Mp3 Jukebox System)
- MJS 4.0rc4

@@ -1,5 +1,5 @@
-#ifndef _list_h
-#define _list_h
+#ifndef _songdata_h
+#define _songdata_h
 
 #include "config/config.h"
 #include <unistd.h>
@@ -11,7 +11,7 @@ typedef struct _dirstack
 	char *filename;
 } dirstack;
 
-typedef struct _flist
+typedef struct _songdata_song
 {
 	unsigned short flags;
 #define F_DIR      	0x01
@@ -29,19 +29,20 @@ typedef struct _flist
 	int has_id3;
 	int track_id;
 	int length;
-	struct _flist *next;
-	struct _flist *prev;
-} flist;
+    int catalog_id;
+	struct _songdata_song *next;
+	struct _songdata_song *prev;
+} songdata_song;
 
 typedef struct
 {
 	char *from;
-	flist *head;                       /* ptr to the HEAD of the linked list   */
-	flist *tail;                       /* ptr to the TAIL of the linked list   */
-	flist *top;                        /* ptr to the element at the window top */
-	flist *bottom;                        /* ptr to the element at the window bottom */
-	flist *selected;                   /* currently selected file              */
-	flist *playing;                    /* currently PLAYING file               */
+	songdata_song *head;                       /* ptr to the HEAD of the linked list   */
+	songdata_song *tail;                       /* ptr to the TAIL of the linked list   */
+	songdata_song *top;                        /* ptr to the element at the window top */
+	songdata_song *bottom;                        /* ptr to the element at the window bottom */
+	songdata_song *selected;                   /* currently selected file              */
+	songdata_song *playing;                    /* currently PLAYING file               */
 	int length;                        /* length of the list we are tracking   [0..n]*/
 	int where;			   /* what position in the list are we?    if length=0 [0] else [1..length]*/
 	int wheretop;			   /* at what position is the top */
@@ -49,37 +50,36 @@ typedef struct
 	unsigned short flags;
 	int startposSelected;
 #define F_VIRTUAL      	0x01
-} wlist;
+} songdata;
 
 #define L_APPEND      	0
 #define L_NEW		1
 #define L_SEARCH	2
 
-flist 	*mp3_info ( const char *, const char *, const char *, int );
 
-void	read_mp3_list ( wlist *, const char *, int );
-void	read_mp3_list_dir ( wlist *, const char *, int );
-void	read_mp3_list_file ( wlist *, const char *, int );
-void 	read_mp3_list_array ( wlist *, int, char * [] );
-int	write_mp3_list_file ( wlist *, char * );
-wlist	*sort_songs ( wlist * );
-wlist	*sort_search ( wlist * );
-__inline__ int check_file ( flist * );
-flist	*next_valid ( wlist *, flist *, int );
 
-void 	wlist_add ( wlist *, flist *, flist * );
-void 	wlist_del ( wlist *, flist * );
-void 	wlist_clear ( wlist * );
+void	songdata_read_mp3_list ( songdata *, const char *, int );
+
+
+int	songdata_save_playlist ( songdata *, char * );
+
+
+int songdata_check_file ( songdata_song * );
+songdata_song	*songdata_next_valid ( songdata *, songdata_song *, int );
+
+void 	songdata_add ( songdata *, songdata_song *, songdata_song * );
+void 	songdata_del ( songdata *, songdata_song * );
+void 	songdata_clear ( songdata * );
 void	dirstack_push ( const char *, const char * );
 void	dirstack_pop ( void );
 char *	dirstack_fullpath ( void );
 char *	dirstack_filename ( void );
 int	dirstack_empty ( void );
 
-wlist * songdata_init ( Config * conf,  int init_colors[] );
-void songdata_randomize(wlist *);
+songdata * songdata_init ( Config * conf,  int init_colors[] );
+void songdata_randomize(songdata *);
 void songdata_shutdown ( void );
 
-flist * new_flist(void);
+songdata_song * new_songdata_song(void);
 void songdata_reload_search_results();
 #endif

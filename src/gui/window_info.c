@@ -51,7 +51,7 @@ void window_info_deactivate ( void )
 }
 void window_info_shutdown ( void )
 {
-  delwin(info->win);
   del_panel(info->panel);
+  delwin(info->win);
   free ( info );
 }

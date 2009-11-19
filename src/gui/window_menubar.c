@@ -59,9 +59,9 @@ void window_menubar_deactivate ( void )
 }
 void window_menubar_shutdown ( void )
 {
-  delwin(menubar->win);
   del_panel(menubar->panel);
-	free ( menubar );
+  delwin(menubar->win);
+  free ( menubar );
 }
 
 int window_menubar_standard ( Window *window )

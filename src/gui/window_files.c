@@ -51,7 +51,7 @@ void window_files_deactivate ( void )
 }
 void window_files_shutdown ( void )
 {
-  delwin(files->win);
   del_panel(files->panel);
-	free ( files );
+  delwin(files->win);
+  free ( files );
 }

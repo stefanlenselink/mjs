@@ -101,12 +101,14 @@ main ( int argc, char *argv[] )
     serial_attached = serial_init(conf->serial_device);
     engine_jump_to("/pub/mp3/.bin/intro.mp3");
     //log_debug("MJS Started!!"); 
-  
+      struct timespec wait;
+    wait.tv_sec = 0;
+   wait.tv_nsec = 50000000;
 	for ( ;; )
 	{
 		if(serial_attached) serial_poll();
 		poll_keyboard();
-		usleep ( 500 );
+		nanosleep(&wait, NULL);
 	}
 	bailout ( -1 );
 }

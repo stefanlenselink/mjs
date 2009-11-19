@@ -121,6 +121,10 @@ int keyboard_controller_read_key(Window * window)
   cbreak();
   nodelay( window-> win, TRUE);
   c = wgetch ( window->win );
+  if(c == ERR){
+    //Nothing happend
+    return c;
+  }
   if ( c == 27 )
   {
     alt = 1;
@@ -388,7 +392,7 @@ int keyboard_controller_read_key(Window * window)
     default:
       break;
   }
-  doupdate ();
+  //doupdate ();
   return c;
 }
 

@@ -51,9 +51,9 @@ void window_play_deactivate ( void )
 }
 void window_play_shutdown ( void )
 {
-  delwin(play->win);
   del_panel(play->panel);
-	free ( play );
+  delwin(play->win);
+  free ( play );
 }
 void window_play_notify_title_changed(void){
   engine_load_current_meta_info(play->contents.list->playing);

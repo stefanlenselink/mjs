@@ -36,6 +36,7 @@ int * colors;
 Config * conf;
 void config_shutdown ()
 {
+	//TODO free the stdups from :475 etc..
 	free ( conf );
 }
 Config *

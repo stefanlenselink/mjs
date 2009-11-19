@@ -55,7 +55,7 @@ void window_playback_deactivate ( void )
 }
 void window_playback_shutdown ( void )
 {
-  delwin(playback->win);
   del_panel(playback->panel);
-	free ( playback );
+  delwin(playback->win);
+  free ( playback );
 }

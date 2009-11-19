@@ -8,8 +8,6 @@
 #include <dirent.h>
 
 Config * conf;
-
-static songdata_song 	*mp3_info ( const char *, const char *, const char *, int );
 static char *  split_filename ( char **s );
 
 
@@ -35,7 +33,7 @@ static
   return part;
 }
 
-static songdata_song *
+songdata_song *
     mp3_info ( const char *abspath, const char *filename, const char *playlistname, int count )
 {
   songdata_song *ftmp = NULL;
@@ -124,8 +122,9 @@ static songdata_song *
     }
     else if ( S_ISREG ( st.st_mode ) )
     {
-      if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3) && strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 ))
+      if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3) && strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 )){
         return NULL;
+      }
 
       ftmp = new_songdata_song();
       ftmp->path = strdup ( path );
@@ -282,8 +281,9 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
     if ( *dent->d_name == '.' )
       continue;
 
-    if ( ( ftmp = mp3_info ( dir, dent->d_name, NULL, 0 ) ) )
+    if ( ( ftmp = mp3_info ( dir, dent->d_name, NULL, 0 ) ) ){
       songdata_add ( list, list->tail, ftmp );
+	}
   }
   closedir ( dptr );
   free ( dir );
@@ -292,4 +292,6 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
 
 void disk_songdata_init(Config * thisconf){
   conf = thisconf;
+}
+void disk_songdata_shutdown(){
 }

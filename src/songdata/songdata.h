@@ -82,4 +82,6 @@ void songdata_shutdown ( void );
 
 songdata_song * new_songdata_song(void);
 void songdata_reload_search_results();
+
+
 #endif

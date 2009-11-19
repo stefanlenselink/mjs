@@ -154,9 +154,9 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 		if ( *filename == '.' )
 			continue;
 
-/* TODO What happens??         
+/* TODO What happens?? */
 		if ( ( ftmp = mp3_info ( dir, file, playlistname, n ) ) )
-			songdata_add ( list, list->tail, ftmp );*/
+			songdata_add ( list, list->tail, ftmp );
 
 		free ( file );
 		free ( dir );
@@ -245,7 +245,8 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
 
     if ( S_ISDIR ( st.st_mode ) )
     {
-      mysql_songdata_read_mp3_list_dir ( list, list->from, append ); //TODO moet nog kunnen wisselen
+      //mysql_songdata_read_mp3_list_dir ( list, list->from, append ); //TODO moet nog kunnen wisselen
+      disk_songdata_read_mp3_list_dir ( list, list->from, append ); //TODO moet nog kunnen wisselen
       sort_songs ( list );
     }
     else
@@ -346,7 +347,8 @@ songdata * songdata_init ( Config * init_conf, int init_colors[] )
 	colors = init_colors;
     log_init();
     //TODO wisselen
-    mysql_songdata_init(init_conf);
+//    mysql_songdata_init(init_conf);
+    disk_songdata_init(init_conf);
     
     
 	mp3list = ( songdata * ) malloc( sizeof ( songdata ) );
@@ -356,7 +358,8 @@ songdata * songdata_init ( Config * init_conf, int init_colors[] )
 }
 void songdata_shutdown ( void )
 {
-    mysql_songdata_shutdown(); //TODO wisselen
+ //   mysql_songdata_shutdown(); //TODO wisselen
+    disk_songdata_shutdown();
 	free ( mp3list );
 }
 
@@ -430,3 +433,5 @@ void songdata_reload_search_results(){
   window_info_update();
   window_files_update();
 }
+
+

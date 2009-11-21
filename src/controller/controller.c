@@ -291,12 +291,14 @@ songdata * controller_init (Config * init_config)
 	playlist->head = NULL;
 	songdata_clear ( playlist );
     keyboard_controller_init(playlist, conf);
+    serial_controller_init(conf);
 	return playlist;
 }
 
 void controller_shutdown ( void )
 {
   keyboard_controller_shutdown();
+  serial_controller_shutdown();
 	free ( playlist );
 }
 

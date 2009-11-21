@@ -6,13 +6,15 @@
 #include "gui/window_files.h"
 
 #include <string.h>
-
+#include <pthread.h>
 char *previous_selected;	// previous selected number
-char typed_letters[10] = "\0";	// letters previously typed when jumping
+char typed_letters[11] = "\0";	// letters previously typed when jumping
 int typed_letters_timeout = 0;	// timeout for previously typed letters
 
 songdata * playlist;
 Config * conf;
+pthread_t keyboard_thread;
+
 /* Private functions */
 static void process_return ( songdata *, int );
 
@@ -112,14 +114,15 @@ void keyboard_controller_init(songdata * init_playlist, Config * init_conf)
   playlist = init_playlist;
   conf = init_conf;
   previous_selected = strdup ( "\0" );
+
+  //Start keyboard thread
+  pthread_create(&keyboard_thread, NULL, keyboard_controller_thread, NULL);
 }
 
 
 int keyboard_controller_read_key(Window * window)
 {
   int c, alt = 0;
-  cbreak();
-  nodelay( window-> win, TRUE);
   c = wgetch ( window->win );
   if(c == ERR){
     //Nothing happend
@@ -409,4 +412,11 @@ void keyboard_controller_check_timeout()
       typed_letters[0] = '\0';
     typed_letters_timeout--;
   }
+}
+
+void * keyboard_controller_thread(void * args){
+	while(1){
+		poll_keyboard();
+	}
+
 }

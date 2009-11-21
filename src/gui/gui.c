@@ -520,16 +520,20 @@ void gui_init ( Config * init_conf,   int init_colors[], songdata * mp3list, son
 	nonl ();
 	init_ansi_pair ();
 	wbkgd ( stdscr, colors[FILE_WINDOW] );
-
 	/*
 	* malloc() for the windows and set up our initial callbacks ...
 	*/
 
 	info = window_info_init ( conf );
+	nodelay(info->win, FALSE);
 	play = window_play_init ( conf );
+	nodelay(play->win, FALSE);
 	playback = window_playback_init ( conf );
+	nodelay(playback->win, FALSE);
 	menubar = window_menubar_init ( conf );
+	nodelay(menubar->win, FALSE);
 	files = window_files_init ( conf );
+	nodelay(files->win, FALSE);
 	active = files;
 
 
@@ -644,7 +648,6 @@ void gui_shutdown ( void )
   window_play_shutdown();
     
 }
-
 
 void poll_keyboard ( void )
 {

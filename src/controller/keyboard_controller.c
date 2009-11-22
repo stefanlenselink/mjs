@@ -395,7 +395,6 @@ int keyboard_controller_read_key(Window * window)
     default:
       break;
   }
-  //doupdate ();
   return c;
 }
 

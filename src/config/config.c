@@ -55,7 +55,17 @@ config_init ( void )
     conf->play_window.title_fmt = NULL;
     conf->menubar_window.title_fmt = NULL;
     conf->playback_window.title_fmt = NULL;
-    conf->serial_device[1] = '\0';
+    conf->info_window.title_dfl = NULL;
+    conf->files_window.title_dfl = NULL;
+    conf->play_window.title_dfl = NULL;
+    conf->menubar_window.title_dfl = NULL;
+    conf->playback_window.title_dfl = NULL;
+    conf->info_window.format = NULL;
+    conf->files_window.format = NULL;
+    conf->play_window.format = NULL;
+    conf->menubar_window.format = NULL;
+    conf->playback_window.format = NULL;
+    conf->serial_device = NULL;
     conf->c_flags = 0;
     
 	strncpy ( conf->mpgpath, MPGPATH, 255 );
@@ -470,12 +480,22 @@ set_window ( WindowConfig * win, char *param, char *value )
 			p = &win->x;
 			break;
 		case 't':
-			if ( !strcasecmp ( param, "title.default" ) )
+			if ( !strcasecmp ( param, "title.default" ) ){
+				if(win->title_dfl != NULL){
+					free(win->title_dfl);
+				}
 				win->title_dfl = strdup ( value );
-			else if ( !strcasecmp ( param, "title.format" ) )
+			}else if ( !strcasecmp ( param, "title.format" ) ){
+				if(win->title_fmt != NULL){
+					free(win->title_fmt);
+				}
 				win->title_fmt = strdup ( value );
+			}
 			return;
 		case 'f':
+			if(win->format != NULL){
+				free(win->format);
+			}
 			win->format = strdup ( value );
 			return;
 		default:
@@ -498,21 +518,46 @@ set_window ( WindowConfig * win, char *param, char *value )
 static void
 set_window_defaults ( void )
 {
-	conf->files_window.height = LINES - 1, conf->files_window.width = COLS / 4, conf->files_window.y =
-	                                conf->files_window.x = 0;
-	conf->files_window.title_dfl = "MP3  Files", conf->files_window.format = "%f";
-	conf->info_window.height = 8, conf->info_window.width = 0, conf->info_window.y = 0, conf->info_window.x = COLS / 4;
-	conf->info_window.title_dfl = "MP3 Info";
-	conf->play_window.height = LINES - 9, conf->play_window.width = 0, conf->play_window.y = 8, conf->play_window.x =
-	                               COLS / 4;
-	conf->play_window.title_dfl = "Playlist", conf->play_window.format = "%f";
-	conf->menubar_window.height = 1, conf->menubar_window.width = 0, conf->menubar_window.y =
-	                                  LINES - 1, conf->menubar_window.x = 0;
-	conf->playback_window.height = 3, conf->playback_window.width = 0, conf->playback_window.y =
-	                                   6, conf->playback_window.x = COLS / 4;
-	conf->playback_window.title_dfl = "Playback Info";
-	conf->playback_window.title_fmt = "%t";
-	conf->menubar_window.title_dfl = "You don't have .mjsrc in your home dir - MP3 Jukebox System";
+	conf->files_window.height = LINES - 1;
+	conf->files_window.width = COLS / 4;
+	conf->files_window.y = 0;
+	conf->files_window.x = 0;
+	conf->files_window.title_dfl = strdup("MP3  Files");
+	conf->files_window.title_fmt = NULL;
+	conf->files_window.format = strdup("%f");
+
+	conf->info_window.height = 8;
+	conf->info_window.width = 0;
+	conf->info_window.y = 0;
+	conf->info_window.x = COLS / 4;
+	conf->info_window.title_dfl = strdup("MP3 Info");
+	conf->info_window.title_fmt = NULL;
+	conf->info_window.format = NULL;
+
+	conf->play_window.height = LINES - 9;
+	conf->play_window.width = 0;
+	conf->play_window.y = 8;
+	conf->play_window.x = COLS / 4;
+	conf->play_window.title_dfl = strdup("Playlist");
+	conf->play_window.title_fmt = NULL;
+	conf->play_window.format = strdup("%f");
+
+	conf->menubar_window.height = 1;
+	conf->menubar_window.width = 0;
+	conf->menubar_window.y = LINES - 1;
+	conf->menubar_window.x = 0;
+	conf->menubar_window.title_dfl = strdup("You don't have .mjsrc in your home dir - MP3 Jukebox System");
+	conf->menubar_window.title_fmt = NULL;
+	conf->menubar_window.format = NULL;
+
+	conf->playback_window.height = 3;
+	conf->playback_window.width = 0;
+	conf->playback_window.y = 6;
+	conf->playback_window.x = COLS / 4;
+	conf->playback_window.title_dfl = strdup("Playback Info");
+	conf->playback_window.title_fmt = strdup("%t");
+	conf->playback_window.format = NULL;
+
 
 }
 

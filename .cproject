@@ -315,6 +315,14 @@
 <useDefaultCommand>true</useDefaultCommand>
 <runAllBuilders>false</runAllBuilders>
 </target>
+<target name="dist-xz" path="" targetID="org.eclipse.linuxtools.cdt.autotools.builder1">
+<buildCommand>make</buildCommand>
+<buildArguments/>
+<buildTarget>dist-xz</buildTarget>
+<stopOnError>true</stopOnError>
+<useDefaultCommand>true</useDefaultCommand>
+<runAllBuilders>false</runAllBuilders>
+</target>
 <target name="dist-zip" path="" targetID="org.eclipse.linuxtools.cdt.autotools.builder1">
 <buildCommand>make</buildCommand>
 <buildArguments/>

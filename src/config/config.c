@@ -164,7 +164,7 @@ set_option ( Config * conf, char *option, char *value )
 	else if ( !strcasecmp ( option, "playlistpath" ) )
 		strncpy ( conf->playlistpath, value, sizeof ( conf->playlistpath ) - 1 );
 	else if ( !strcasecmp ( option, "serial_device" ) )
-		strncpy ( conf->serial_device, value, sizeof ( conf->serial_device ) - 1 );
+		conf->serial_device = strdup(value);
 	else if ( !strcasecmp ( option, "output_device" ) )
 		strncpy ( conf->output, value, sizeof ( conf->output ) - 1 );	
 	else if ( !strcasecmp ( option, "sound_system" ) )

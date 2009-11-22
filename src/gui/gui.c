@@ -651,6 +651,11 @@ void gui_shutdown ( void )
 
 void poll_keyboard ( void )
 {
+	//Stupid startup ordering bug
+	if(active == NULL){
+		sleep(1); //Not putting a sleep causes a 'poll run'
+		return;
+	}
 	active->input ( active );
 }
 

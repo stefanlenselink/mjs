@@ -95,7 +95,6 @@ int main(int argc, char *argv[]) {
 	playlist = controller_init(conf);
 	gui_init(conf, conf->colors, mp3list, playlist);
 	setitimer(ITIMER_REAL, &rttimer, &old_rttimer);
-	serial_attached = serial_init(conf->serial_device);
 	engine_jump_to("/pub/mp3/.bin/intro.mp3");
 	//log_debug("MJS Started!!");
 

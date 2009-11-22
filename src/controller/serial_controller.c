@@ -38,7 +38,7 @@ void serial_controller_init(Config * cnf) {
 	if (cnf->serial_device == NULL) {
 		return;
 	}
-	fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY);
+	fd = open(cnf->serial_device, O_RDWR | O_NOCTTY | O_NDELAY);
 	if (fd != -1) {
 		fcntl(fd, F_SETFL, 0);
 		//Start Serial thread

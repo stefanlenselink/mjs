@@ -14,7 +14,7 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
-
+#include <locale.h>
 
 
 Config *conf;
@@ -80,6 +80,9 @@ int main(int argc, char *argv[]) {
 	rttimer.it_value.tv_usec = 500000; /*  from when this is called */
 	rttimer.it_interval.tv_sec = 0; /* If the timer is not reset, the */
 	rttimer.it_interval.tv_usec = 500000; /*  signal will be sent every 250 Milisecond */
+
+	//Prevent UTF-8 BUGS
+	setlocale(LC_ALL,"");
 
 	//Make sure COLS and LINES are set
 	if (!initscr())

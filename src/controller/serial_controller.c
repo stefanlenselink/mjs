@@ -97,6 +97,6 @@ void serial_set_led(int on) {
 void * serial_controller_thread(void * arg){
 	while(1){
 		serial_poll();
-		sleep(1);
+		usleep(1000);
 	}
 }

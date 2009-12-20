@@ -670,7 +670,7 @@ int gui_ask_yes_no_question(char * question)
 {
   unsigned short c;
   print_question(question);
-  c = wgetch ( menubar->win );
+  c = wgetch ( menubar->win ); //TODO keyboard handeling -> Move to keyboard_controller some how
   window_menubar_activate();
   return ( c == 'y' ) || ( c == 'Y' );
 }
@@ -679,7 +679,7 @@ int gui_ask_question(char * question, char * answer){
   int c, i = 0;
   print_question(question);
   do{
-    c = wgetch(menubar->win);
+    c = wgetch(menubar->win); //TODO keyboard handeling -> Move to keyboard_controller some how
     if(c == KEY_BACKSPACE && i){
       i--;
       answer[i] = ' ';

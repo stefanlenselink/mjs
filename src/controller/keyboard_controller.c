@@ -130,7 +130,7 @@ int keyboard_controller_read_key(Window * window)
   }
   if ( c == 27 )
   {
-    alt = 1;
+    alt = 1; //Alt detected get the next character
     c = wgetch ( window->win );
   }
 
@@ -328,16 +328,9 @@ int keyboard_controller_read_key(Window * window)
       break;
     case KEY_F ( 10 ) : // FRWD
       engine_frwd ( conf->jump , conf->jumpExpFactor);
-	while(wgetch( window->win ) != ERR) {
-		//NOP
-	}
       break;
     case KEY_F ( 11 ) : //FFWD
       engine_ffwd ( conf->jump , conf->jumpExpFactor);
-	while(wgetch( window->win ) != ERR) {
-		//NOP
-	}
-	
       break;
     case KEY_F ( 12 ) : // Skip to next mp3 in playlist
       controller_next( playlist );

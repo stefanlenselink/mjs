@@ -38,7 +38,7 @@ my_mvwprintw ( WINDOW *win, int y, int x, int attribs, const char *format, ... )
 	wmove ( win, y, x );
 	p = buf;
 	while ( *p )
-		waddch ( win, *p++ | attribs );
+		wadd_wch ( win, *p++ | attribs );
 	return i;
 }
 
@@ -55,7 +55,7 @@ my_mvwnprintw ( WINDOW *win, int y, int x, int attribs, int n, const char *forma
 	wmove ( win, y, x );
 	p = buf;
 	while ( *p )
-		waddch ( win, *p++ | attribs );
+		wadd_wch ( win, *p++ | attribs );
 	return i;
 }
 
@@ -73,12 +73,12 @@ my_mvwnprintw2 ( WINDOW *win, int y, int x, int attribs, int n, const char *form
 	p = buf;
 	while ( *p )
 	{
-		waddch ( win, *p++ | attribs );
+		wadd_wch ( win, *p++ | attribs );
 		n--;
 	}
 	while ( n )
 	{
-		waddch ( win, ' ' | attribs );
+		wadd_wch ( win, ' ' | attribs );
 		n--;
 	}
 	return i;
@@ -96,7 +96,7 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *st
 	{
 		for ( ; *s && n; n-- )
 		{
-			waddch ( win, *s++ | attribs );
+			wadd_wch ( win, *s++ | attribs );
 		}
 		if ( offset && n && strlen ( str ) + 1 > n2 )
 		{
@@ -106,11 +106,11 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *st
 				//Overflow reset 0;
 				newOffset = 0;
 			}
-			waddch ( win, ' ' | attribs );
+			wadd_wch ( win, ' ' | attribs );
 			s = ( char * ) str;
 			for ( ; *s && n - 1; n-- ) //Don't forget to subtract 1 of the space :P
 			{
-				waddch ( win, *s++ | attribs );
+				wadd_wch ( win, *s++ | attribs );
 			}
 			return newOffset;
 		}
@@ -122,7 +122,7 @@ my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *st
 	if ( n )
 	{
 		for ( ; n; n-- )
-			waddch ( win, ' ' | attribs );
+			wadd_wch ( win, ' ' | attribs );
 		return 0;
 	}
 	return OK;
@@ -136,7 +136,7 @@ my_mvwaddstr ( WINDOW *win, int y, int x, int attribs, const char *str )
 
     if ( !str || !*str )
       return OK;
-    for ( ; *s; waddch ( win, *s++ | attribs ) );
+    for ( ; *s; wadd_wch ( win, *s++ | attribs ) );
     return OK;
 }
 
@@ -146,7 +146,7 @@ my_mvwnclear ( WINDOW *win, int y, int x, int n )
 	wmove ( win, y, x );
 	for ( ; n > 0; n-- )
 	{
-		waddch ( win, ' ' );
+		wadd_wch ( win, ' ' );
 	}
 	wmove ( win, y, x );
 }

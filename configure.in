@@ -1,7 +1,7 @@
 AC_INIT(configure.in)
 
 AM_CONFIG_HEADER(config.h)
-AM_INIT_AUTOMAKE(mjs4, 4.0rc7)
+AM_INIT_AUTOMAKE(mjs4, 4.0$Rev: 126 $)
 
 AC_LANG_C
 AC_PROG_CC
@@ -20,6 +20,8 @@ AC_CHECK_HEADER([mysql/mysql.h], [], AC_MSG_ERROR([Couldn't find libmysqlclient 
 AC_CHECK_LIB(xine, xine_init, , AC_ERROR([Couldn't find xine library]), -lxine, )
 
 AC_CHECK_LIB(ncurses, refresh, , AC_ERROR([Couldn't find ncurses library]), -lncurses, -ldl)
+
+AC_CHECK_LIB(ncursesw, wadd_wch, , AC_ERROR([Couldn't find ncursesw library]), -lncursesw, -ldl)
 
 AC_CHECK_LIB(panel, refresh, , AC_ERROR([Couldn't find panel library]), -lpanel, )
 

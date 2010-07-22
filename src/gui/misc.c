@@ -1,154 +1,138 @@
 #include "defs.h"
 #include "misc.h"
 #include "gui.h"
+#include "ncurses.h"
 
 #include <string.h>
 
 /*
- * There are 64 possible color_pairs, 0-63. This is 6 bits worth of colors,
- * and since there are only 64 possible color combos then why not use them
- * all for easy translation. So, in 8 bits, the format is as follows:
- * 00xxxyyy, where xxx is the foreground color (bits) and yyy is the background
- * color. Everything starts at zero of course, otherwise that wouldn't fit
- * naturally into our 0-63 scheme.
- * However, ncurses hard-codes the color pair zero to be what we would call
- * 56 (white on black, 7<<3), so we fix color pair 56 to be black on black
- * (what 0<<3|0 would have been). Doh.
- */
+* There are 64 possible color_pairs, 0-63. This is 6 bits worth of colors,
+* and since there are only 64 possible color combos then why not use them
+* all for easy translation. So, in 8 bits, the format is as follows:
+* 00xxxyyy, where xxx is the foreground color (bits) and yyy is the background
+* color. Everything starts at zero of course, otherwise that wouldn't fit
+* naturally into our 0-63 scheme.
+* However, ncurses hard-codes the color pair zero to be what we would call
+* 56 (white on black, 7<<3), so we fix color pair 56 to be black on black
+* (what 0<<3|0 would have been). Doh.
+*/
 
 void
 init_ansi_pair ( void )
 {
-	u_int8_t fore, back;
-	for ( fore = 0; fore < COLORS; fore++ )
-		for ( back = 0; back < COLORS; back++ )
-			init_pair ( fore<<3 | back, fore, back );
+    u_int8_t fore, back;
+    for ( fore = 0; fore < COLORS; fore++ )
+        for ( back = 0; back < COLORS; back++ )
+            init_pair ( fore<<3 | back, fore, back );
 }
 
+
+//Print formatted string
 int
 my_mvwprintw ( WINDOW *win, int y, int x, int attribs, const char *format, ... )
 {
-	u_int16_t i;
-	va_list args;
-	char buf[BUFFER_SIZE+1], *p;
-	memset ( buf, 0, BUFFER_SIZE+1 );
-	va_start ( args, format );
-	i = vsnprintf ( buf, BUFFER_SIZE, format, args );
-	va_end ( args );
-	wmove ( win, y, x );
-	p = buf;
-	while ( *p )
-		wadd_wch ( win, *p++ | attribs );
-	return i;
+    u_int16_t i;
+    va_list args;
+    char buf[BUFFER_SIZE+1], *p;
+    memset ( buf, 0, BUFFER_SIZE+1 );
+    va_start ( args, format );
+    i = vsnprintf ( buf, BUFFER_SIZE, format, args );
+    va_end ( args );
+    wmove ( win, y, x );
+    wattrset(win, attribs);
+    p = buf;
+    waddnstr(win, p, i);
+    wattrset(win, 0);
+    return i;
 }
 
+//Print formatted string up to n characters
 int
 my_mvwnprintw ( WINDOW *win, int y, int x, int attribs, int n, const char *format, ... )
 {
-	u_int16_t i;
-	va_list args;
-	char buf[n+1], *p;
-	memset ( buf, 0, n+1 );
-	va_start ( args, format );
-	i = vsnprintf ( buf, n, format, args );
-	va_end ( args );
-	wmove ( win, y, x );
-	p = buf;
-	while ( *p )
-		wadd_wch ( win, *p++ | attribs );
-	return i;
+    u_int16_t i;
+    va_list args;
+    char buf[n+1], *p;
+    memset ( buf, 0, n+1 );
+    va_start ( args, format );
+    i = vsnprintf ( buf, n, format, args );
+    va_end ( args );
+    wmove ( win, y, x );
+    wattrset(win, attribs);
+    p = buf;
+    waddnstr(win, p, n);
+    wattrset(win, 0);
+    return i;
 }
 
+//Print formatted string up to n characters with padding
 int
 my_mvwnprintw2 ( WINDOW *win, int y, int x, int attribs, int n, const char *format, ... )
 {
-	u_int16_t i;
-	va_list args;
-	char buf[n+1], *p;
-	memset ( buf, 0, n+1 );
-	va_start ( args, format );
-	i = vsnprintf ( buf, n, format, args );
-	va_end ( args );
-	wmove ( win, y, x );
-	p = buf;
-	while ( *p )
-	{
-		wadd_wch ( win, *p++ | attribs );
-		n--;
-	}
-	while ( n )
-	{
-		wadd_wch ( win, ' ' | attribs );
-		n--;
-	}
-	return i;
+    u_int16_t i;
+    va_list args;
+    char buf[n+1], *p;
+    memset ( buf, 0, n+1 );
+    va_start ( args, format );
+    i = vsnprintf ( buf, n, format, args );
+    va_end ( args );
+    wmove ( win, y, x );
+    p = buf;
+    my_mvwnaddstr( win, y, x, attribs, n, p, 0);
+    return i;
 }
 
+//Print string up to n characters with padding
 int
 my_mvwnaddstr ( WINDOW *win, int y, int x, int attribs, size_t n, const char *str, int offset )
 {
-	char *s = ( char * ) str;
-	size_t n2 = n;
-
-	wmove ( win, y, x );
-
-	if ( str && *str )
-	{
-		for ( ; *s && n; n-- )
-		{
-			wadd_wch ( win, *s++ | attribs );
-		}
-		if ( offset && n && strlen ( str ) + 1 > n2 )
-		{
-			int newOffset = offset + 1;
-			if ( n == n2 )
-			{
-				//Overflow reset 0;
-				newOffset = 0;
-			}
-			wadd_wch ( win, ' ' | attribs );
-			s = ( char * ) str;
-			for ( ; *s && n - 1; n-- ) //Don't forget to subtract 1 of the space :P
-			{
-				wadd_wch ( win, *s++ | attribs );
-			}
-			return newOffset;
-		}
-		else if ( strlen ( str ) + 1 > n2 )
-		{
-			return offset + 1;
-		}
-	}
-	if ( n )
-	{
-		for ( ; n; n-- )
-			wadd_wch ( win, ' ' | attribs );
-		return 0;
-	}
-	return OK;
-}
-
-int
-my_mvwaddstr ( WINDOW *win, int y, int x, int attribs, const char *str )
-{
-	wmove ( win, y, x );
     char *s = ( char * ) str;
-
-    if ( !str || !*str )
-      return OK;
-    for ( ; *s; wadd_wch ( win, *s++ | attribs ) );
+    size_t n2 = n;
+    
+    wmove ( win, y, x );
+    wattrset(win, attribs);
+    if ( str && *str )
+    {
+        n -= strlen(str + offset);
+        waddnstr(win, str + offset, n);
+    }
+    if ( n )
+    {
+        for ( ; n; n-- )
+        {
+            waddch ( win, ' ' );
+        }
+    }
+    wattrset(win, 0);
     return OK;
 }
 
+//Print string
+int
+my_mvwaddstr ( WINDOW *win, int y, int x, int attribs, const char *str )
+{
+    wmove ( win, y, x );
+    char *s = ( char * ) str;
+    
+    if ( !str || !*str )
+        return OK;
+    
+    wattrset(win, attribs);
+    waddstr(win, str);
+    wattrset(win, 0);
+    return OK;
+}
+
+//Clear n characters
 __inline__ void
 my_mvwnclear ( WINDOW *win, int y, int x, int n )
 {
-	wmove ( win, y, x );
-	for ( ; n > 0; n-- )
-	{
-		wadd_wch ( win, ' ' );
-	}
-	wmove ( win, y, x );
+    wmove ( win, y, x );
+    for ( ; n > 0; n-- )
+    {
+        waddch ( win, ' ' );
+    }
+    wmove ( win, y, x );
 }
 
 

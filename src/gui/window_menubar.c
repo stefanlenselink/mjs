@@ -74,7 +74,7 @@ int window_menubar_standard ( Window *window )
   currentTime = localtime ( &now2 );
   window_menubar_clear ( window );
   my_mvwaddstr ( window->win, 0, ( ( x-strlen ( window->title_dfl ) ) /2 ), config->colors[MENU_TEXT], window->title_dfl );
-  snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d v%s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour, currentTime->tm_min, VERSION );
+  snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d %s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour, currentTime->tm_min, VERSION );
   my_mvwaddstr ( window->win, 0, x - strlen ( version_str ) + 2, config->colors[MENU_TEXT], version_str );
 
   update_panels();

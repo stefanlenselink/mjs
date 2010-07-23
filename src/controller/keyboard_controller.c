@@ -61,6 +61,7 @@ static void process_return ( songdata * fileslist, int alt )
       {
         add_to_playlist_recursive ( playlist, playlist->tail, fileslist->selected );
         window_play_update();
+        doupdate();
       }
     }
 
@@ -80,6 +81,7 @@ static void process_return ( songdata * fileslist, int alt )
 //			songdata_read_mp3_list (playlist, fileslist->selected->fullpath, L_APPEND);
       add_to_playlist_recursive ( playlist, playlist->tail, fileslist->selected );
       window_play_update();
+      doupdate();
     }
 
     update_panels ();
@@ -106,6 +108,8 @@ static void process_return ( songdata * fileslist, int alt )
     }
   }
 
+      update_panels();
+      doupdate();
 }
 
 

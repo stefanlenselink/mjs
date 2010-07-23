@@ -276,6 +276,7 @@ update_info ( Window *window )
       do_scrollbar ( window );
     if ( conf->c_flags & C_FIX_BORDERS )
       redrawwin ( win );
+    gui_update_play_time();
     doupdate();
 	return 1;
 }
@@ -483,7 +484,7 @@ do_scrollbar ( Window *window )
 		if ( bottom > 0 )
 			mvwvline ( win, 1 + top + bar, x, ACS_BOARD | A_ALTCHARSET | color, bottom );
 	}
-//	update_panels();
+	update_panels();
 }
 
 char *
@@ -597,16 +598,15 @@ void gui_update_play_time ( void ) {
       remaining = engine_get_remaining();
       length = engine_get_length();
       
-      playback->update ( playback );
-  
       if(!length){
-        
+        playback->update(playback);
         my_mvwnprintw2 ( playback->win, 1, 1, color, 18, " Time  : %02d:%02d:%02d",
           (int)elapsed / 3600, //Aantal Uur
           (int)elapsed / 60, //Aantal Minuten
           ((int)elapsed) % 60 //Aantal Seconden
         );
       }else if(length > 3600){
+        playback->update(playback);
         my_mvwnprintw2 ( playback->win, 1, 1, color, 40, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
           (int)elapsed / 3600, //Uren
           (int)(elapsed % 3600) / 60, //Minuten
@@ -619,7 +619,8 @@ void gui_update_play_time ( void ) {
           (int)(length % 3600) % 60  //Seconden
         );
       }else{
-        my_mvwnprintw2 ( playback->win, 1, 1, color, 35, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
+        playback->update(playback);
+        my_mvwprintw ( playback->win, 1, 1, color, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
           (int)elapsed / 60, //Minuten
           (int)elapsed % 60, //Seconden
           (int)remaining / 60, //Minuten

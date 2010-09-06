@@ -11,7 +11,7 @@
 
 typedef struct _record{
 	char *name;
-    mp3info * tag;
+	mp3info * tag;
 	int count;
 	struct _record *next;
 } record;
@@ -51,13 +51,13 @@ void usage(int err)
 	exit(err);
 }
 
-int
+	int
 main (int argc, char *argv[])
 {
 	int lines = 10;
 	long int start_time = 0, 
-		end_time = 0,
-		days = 0;
+	     end_time = 0,
+	     days = 0;
 	char *output_file = NULL;
 	char *playlist_file = NULL;
 	char *input_file;
@@ -77,7 +77,7 @@ main (int argc, char *argv[])
 
 	if (argc==1)
 		usage(1);
-	
+
 	while ( (opt = getopt_long(argc, argv, "p:o:n:hs:e:d:t:", longopts, NULL)) != -1 ) {
 		switch ( opt ) {
 			case 'p':
@@ -96,58 +96,59 @@ main (int argc, char *argv[])
 				usage(0);
 				break;
 			case 's': {
-				struct tm tv;
-				if (strptime(optarg, "%Y-%m-%d", &tv)) {
-					tv.tm_sec = tv.tm_min = tv.tm_hour = 0;
-					start_time = mktime(&tv);
-				} else 
-					usage(2);
-				break;
-			}
+					  struct tm tv;
+					  if (strptime(optarg, "%Y-%m-%d", &tv)) {
+						  tv.tm_sec = tv.tm_min = tv.tm_hour = 0;
+						  start_time = mktime(&tv);
+					  } else 
+						  usage(2);
+					  break;
+				  }
 			case 'e': {
-				struct tm tv;
-				if (strptime(optarg, "%Y-%m-%d", &tv)) {
-					tv.tm_sec = tv.tm_min = tv.tm_hour = 0;
-					end_time = mktime(&tv);
-				} else 
-					usage(3);
-				break;
-			}
+					  struct tm tv;
+					  if (strptime(optarg, "%Y-%m-%d", &tv)) {
+						  tv.tm_sec = tv.tm_min = tv.tm_hour = 0;
+						  end_time = mktime(&tv);
+					  } else 
+						  usage(3);
+					  break;
+				  }
 			case 'd':
-				days = atoi(optarg);
-				break;
+				  days = atoi(optarg);
+				  break;
 			default:
-				usage(1);
-				break;
+				  usage(1);
+				  break;
 		}
 	}
 	if ((argc - optind) != 1)
 		usage(1);
 	input_file = argv[optind];
-	
+
 	in_file = fopen (input_file,"r");
 	if (!in_file) 
 		usage(4);
-		
+
 	if (output_file)
 		out_file = fopen(output_file, "w");
 	else
 		out_file = stdout;
-	
+
 	if (playlist_file)
 		play_file = fopen(playlist_file, "w");
-	
+
 	if (days)
 		start_time = time(NULL) - (days * 24 * 60 * 60);
-	
+
 	length = 0;
-	
+
 	while (!feof(in_file)) {
 		time_t date;
 		struct tm tv;
 		fscanf(in_file, "%24c %254[^\n] ", date_str, tmp);
-//remove the trailing .mp3
-		tmp[strlen(tmp)-4]='\0';
+//		char * bla = strdup(tmp);
+		//remove the trailing .mp3
+//		tmp[strlen(tmp)-4]='\0';
 		name = tmp;
 		if (name[0]!='/')
 			continue;
@@ -160,33 +161,34 @@ main (int argc, char *argv[])
 			if ((end_time!=0) & (date > end_time))
 				continue;
 		}
-        mp3info * tmp = malloc(sizeof(mp3info));
-        tmp->filename = strdup(name);
-        get_mp3_info(tmp, 1);
+		mp3info * tmp = malloc(sizeof(mp3info));
+		tmp->filename = strdup(name);
+		tmp->file = NULL;
+		get_mp3_info(tmp, 1);
 		for (tmpsong = songs; tmpsong; tmpsong = tmpsong->next){
-          if(tmpsong->tag->id3_isvalid && tmp->id3_isvalid){
-            //bijde MP3 tag
-            if(tmpsong->tag->id3.title[0] == tmp->id3.title[0]){
-              if(tmpsong->tag->id3.title[1] == tmp->id3.title[1]){
-                if(!strcmp(tmpsong->tag->id3.title+2, tmp->id3.title+2)){
-                  //Titel komt al wel voor nu artiest nog
-                  if(!strcmp(tmpsong->tag->id3.artist, tmp->id3.artist)){
-                    //Artiest - Titel gelijk done...
-                    break;
-                  }
-                }
-              }
-            }
-          }
+			if(tmpsong->tag->id3_isvalid && tmp->id3_isvalid){
+				//bijde MP3 tag
+				if(tmpsong->tag->id3.title[0] == tmp->id3.title[0]){
+					if(tmpsong->tag->id3.title[1] == tmp->id3.title[1]){
+						if(!strcmp(tmpsong->tag->id3.title+2, tmp->id3.title+2)){
+							//Titel komt al wel voor nu artiest nog
+							if(!strcmp(tmpsong->tag->id3.artist, tmp->id3.artist)){
+								//Artiest - Titel gelijk done...
+								break;
+							}
+						}
+					}
+				}
+			}
 			if (tmpsong->name[length]==name[length])
 				if (tmpsong->name[length+1]==name[length+1])
 					if (!strcmp(tmpsong->name+length+2, name+length+2))
 						break;
-        }
-        //Free tmp
-        free(tmp->filename);
-        free(tmp);
-        
+		}
+		//Free tmp
+		free(tmp->filename);
+		free(tmp);
+
 		if (tmpsong) {
 			tmpsong->count++;
 			if (tmpsong->count > max)
@@ -194,9 +196,10 @@ main (int argc, char *argv[])
 		} else {
 			tmpsong = calloc(1, sizeof(record));
 			tmpsong->name = strdup(name);
-            tmpsong->tag = malloc(sizeof(mp3info));
-            tmpsong->tag->filename = tmpsong->name;
-            get_mp3_info(tmpsong->tag, 1);
+			tmpsong->tag = malloc(sizeof(mp3info));
+			tmpsong->tag->filename = tmpsong->name;
+			tmpsong->tag->file = NULL;
+			get_mp3_info(tmpsong->tag, 1);
 			tmpsong->count = 1;
 			tmpsong->next = songs;
 			songs = tmpsong;
@@ -236,22 +239,22 @@ main (int argc, char *argv[])
 				count++;
 				if (play_file)
 					fprintf(play_file, "%s.mp3\n", tmpsong->name);
-		if (strlen(tmp)-1 > length)
-			name = tmp+length;
-		else
-			name = tmp;
-          
-        if(!tmpsong->tag->id3_isvalid){
-				fprintf(out_file, "%2d (%3d) %s\n", count, i, (strlen(tmpsong->name) > length ? tmpsong->name + length : tmpsong->name));
-        }else{
-          fprintf(out_file, "%2d (%3d) %s\t%s\t%s\n", count, i, tmpsong->tag->id3.artist,tmpsong->tag->id3.title, tmpsong->tag->id3.album);
-        }
+				if (strlen(tmp)-1 > length)
+					name = tmp+length;
+				else
+					name = tmp;
+
+				if(tmpsong->tag == NULL || !tmpsong->tag->id3_isvalid){
+					fprintf(out_file, "%2d (%3d) %s\n", count, i, (strlen(tmpsong->name) > length ? tmpsong->name + length : tmpsong->name));
+				}else{
+					fprintf(out_file, "%2d (%3d) %s\t%s\t%s\n", count, i, tmpsong->tag->id3.artist,tmpsong->tag->id3.title, tmpsong->tag->id3.album);
+				}
 			}
 		}
 	date = time(NULL);
 	fprintf(out_file, "\nGenerated on: %s\n", ctime(&date));
-		
+
 	return 0;
-	
+
 }
 

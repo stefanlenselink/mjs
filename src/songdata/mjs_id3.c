@@ -527,16 +527,28 @@ extern int get_mp3_info ( mp3info *mp3, int id3Only )
 	int vbr_median=-1;
 	int bitrate;
 	int counter=0;
+	int opendFile = 0;
 	mp3header header;
 	struct stat filestat;
 	off_t data_start=0;
 
 
-	stat ( mp3->filename,&filestat );
+	if(stat(mp3->filename,&filestat ) == -1){
+		return 1;
+	}
+	if(mp3->file == NULL){
+		opendFile = 1;
+		mp3->file = fopen(mp3->filename, "r");
+	}
 	mp3->datasize = filestat.st_size;
 	get_id3 ( mp3, !id3Only );
-	if ( id3Only )
+	if ( id3Only ){
+		if(opendFile){
+			fclose(mp3->file);
+		}
+		mp3->file = NULL;
 		return had_error;
+	}
 	if ( get_first_header ( mp3,0L ) )
 	{
 		data_start = ftell ( mp3->file );
@@ -569,6 +581,11 @@ extern int get_mp3_info ( mp3info *mp3, int id3Only )
 			mp3->vbr=1;
 		}
 	}
+	 if(opendFile){
+		                         fclose(mp3->file);
+					  mp3->file = NULL;
+					                 }
+
 	return had_error;
 }
 

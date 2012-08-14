@@ -5,3 +5,9 @@
 *.status
 stamp-h1
 *.log
+tracefile
+src/mjs4
+tools/src/mjscount
+*.in
+Makefile*
+config.h

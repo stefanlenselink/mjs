@@ -526,17 +526,17 @@ set_window_defaults ( void )
 	conf->files_window.title_fmt = NULL;
 	conf->files_window.format = strdup("%f");
 
-	conf->info_window.height = 8;
+	conf->info_window.height = 5;
 	conf->info_window.width = 0;
-	conf->info_window.y = 0;
+	conf->info_window.y = 6;
 	conf->info_window.x = COLS / 4;
 	conf->info_window.title_dfl = strdup("MP3 Info");
 	conf->info_window.title_fmt = NULL;
 	conf->info_window.format = NULL;
 
-	conf->play_window.height = LINES - 9;
+	conf->play_window.height = LINES - 12;
 	conf->play_window.width = 0;
-	conf->play_window.y = 8;
+	conf->play_window.y = 11;
 	conf->play_window.x = COLS / 4;
 	conf->play_window.title_dfl = strdup("Playlist");
 	conf->play_window.title_fmt = NULL;
@@ -550,15 +550,13 @@ set_window_defaults ( void )
 	conf->menubar_window.title_fmt = NULL;
 	conf->menubar_window.format = NULL;
 
-	conf->playback_window.height = 3;
+	conf->playback_window.height = 6;
 	conf->playback_window.width = 0;
-	conf->playback_window.y = 6;
+	conf->playback_window.y = 0;
 	conf->playback_window.x = COLS / 4;
 	conf->playback_window.title_dfl = strdup("Playback Info");
 	conf->playback_window.title_fmt = strdup("%t");
 	conf->playback_window.format = NULL;
-
-
 }
 
 static void

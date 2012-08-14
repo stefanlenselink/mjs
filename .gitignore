@@ -1,0 +1,7 @@
+*.o
+*.deps/
+*.a
+*.cache/
+*.status
+stamp-h1
+*.log

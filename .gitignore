@@ -8,6 +8,4 @@ stamp-h1
 tracefile
 src/mjs4
 tools/src/mjscount
-*.in
-Makefile*
 config.h

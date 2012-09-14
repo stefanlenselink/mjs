@@ -92,7 +92,7 @@ config_init ( void )
 	if ( conf->mpgpath[1]=='\0' )
 		strcpy ( conf->mpgpath,"mpg123\0" );
 	if ( conf->mp3path[1]=='\0' )
-		strcpy ( conf->mp3path,"/\0" );
+		strcpy ( conf->mp3path,"/pub/mp3/\0" );
 
 	return conf;
 }
@@ -519,7 +519,7 @@ static void
 set_window_defaults ( void )
 {
 	conf->files_window.height = LINES - 1;
-	conf->files_window.width = COLS / 4;
+	conf->files_window.width = COLS / 2;
 	conf->files_window.y = 0;
 	conf->files_window.x = 0;
 	conf->files_window.title_dfl = strdup("MP3  Files");
@@ -529,7 +529,7 @@ set_window_defaults ( void )
 	conf->info_window.height = 5;
 	conf->info_window.width = 0;
 	conf->info_window.y = 6;
-	conf->info_window.x = COLS / 4;
+	conf->info_window.x = COLS / 2;
 	conf->info_window.title_dfl = strdup("MP3 Info");
 	conf->info_window.title_fmt = NULL;
 	conf->info_window.format = NULL;
@@ -537,7 +537,7 @@ set_window_defaults ( void )
 	conf->play_window.height = LINES - 12;
 	conf->play_window.width = 0;
 	conf->play_window.y = 11;
-	conf->play_window.x = COLS / 4;
+	conf->play_window.x = COLS / 2;
 	conf->play_window.title_dfl = strdup("Playlist");
 	conf->play_window.title_fmt = NULL;
 	conf->play_window.format = strdup("%f");
@@ -553,7 +553,7 @@ set_window_defaults ( void )
 	conf->playback_window.height = 6;
 	conf->playback_window.width = 0;
 	conf->playback_window.y = 0;
-	conf->playback_window.x = COLS / 4;
+	conf->playback_window.x = COLS / 2;
 	conf->playback_window.title_dfl = strdup("Playback Info");
 	conf->playback_window.title_fmt = strdup("%t");
 	conf->playback_window.format = NULL;

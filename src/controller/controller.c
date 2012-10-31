@@ -310,7 +310,7 @@ void controller_search(char * string)
 	pid_t childpid;
     window_menubar_progress_bar_init(SEARCHING);
 	handler.sa_handler = SIG_DFL;
-	handler.sa_flags = SA_ONESHOT;
+	handler.sa_flags = SA_RESETHAND;
 	sigaction ( SIGCHLD, &handler, NULL );
 	errno = 0;
 	if ( ! ( childpid = fork () ) ){

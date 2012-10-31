@@ -69,7 +69,7 @@ typedef struct _config
 	char output[256];
 	char snd_system[256];
 	char * serial_device;
-	u_int16_t c_flags;
+	int c_flags;
 #define C_PADVANCE 	0x0001
 #define C_FADVANCE 	0x0002
 #define C_MONO	   	0x0004

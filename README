@@ -1,0 +1,75 @@
+MP3 Jukebox System (mjs)
+
+MJS is a console mp3-player with some special features not found in most
+console based mp3-players. It features a search function, playlist saving
+and loading and an easy to use interface.
+
+
+Why
+===
+
+About oktober 2000, at my students'union you could only play tapes or compact
+discs. The cds had often meny scratches on them and listening to them had
+become extermely hard. This is when I thought that maybe it was time to do
+something about it.
+
+I had this old pentium-60 lying somewhere and I had some experience with
+diskless linux-clients. So I decided to give it a try. After equiping the
+Pentium with a cheapo soundcard, nic and mda and setting up linux, I came to
+the problem of choosing an mp3-player.
+
+It had to be console based to keep it simple, but it being simple to use was a
+must. After searching a couple of days on the internet I came up with mms
+(Matt's MP3 Selector). This software fulfilled many of our wishes but missed
+some. So I decided as it was GPL licensed to have a go at it.
+
+At that time I didn't have any knowledge of C at all, so my efforts were done
+by trial and error. After about half a year I had a C++ programming class at
+the university and a few months later I had enough knowledge to begin seriously
+hacking the old program into something better fulfilling our wishes.
+
+I added a search function, that uses slocate databases, playlist loading /
+saving, somewhat more studentproof interface, easier directory navigation,
+more configuration options and so on.
+
+- Marijn
+
+
+Controlling it
+==============
+
+TAB cycles between active windows.
+ARROW KEYS are for basic navigation. pgup/pgdn, home/end also work.
+
+In ALL windows:
+   * 'F1' exit the mp3-jukebox
+   * 'F2' will clear the playlist after confirmation
+   * 'F3' lets you search files
+   * 'F4' shows your last search results
+   * 'F5' will randomize the playlist
+   * 'F6' will save your playlist (if enabled in .mjsrc)
+   * 'F7' will stop the player
+   * 'F8' will pause the player
+   * 'F9' will go back one song
+   * 'F10' will fast rewind
+   * 'F11' will fast forward
+   * 'F12' will advance one song
+
+In the files window:
+   * return adds files to the playlist and changes directory.
+   * left-arrow goes back one directory
+   * right-arrow enters directory
+   * alt-enter inserts selected file into playlist
+   * Pressing an letter will take you to the first directory starting with
+     that letter   
+
+In the playlist window is where the good stuff goes on:
+   * with + and - you can move mp3's forward or backward in the playlist 
+   * DEL will remove a song from the playlist (unless it is playing!)
+
+
+HALLO! de Bolk!
+
+13B'vo!
+
+

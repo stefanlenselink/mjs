@@ -1,0 +1,32 @@
+
+color window_active					white:black
+color window_active_title			white:black
+color window_active_scroll			grey:black
+color window_active_scroll_bar		white:black
+
+color window_inactive				grey:black
+color window_inactive_title			grey:black
+color window_inactive_scroll		grey:black
+color window_inactive_scroll_bar	white:black
+
+color files_unselected_file			white:black
+color files_selected_file			white:grey
+color files_unselected_directory	grey:black
+color files_selected_directory		black:grey
+color files_background				black
+
+color playlist_unselected			grey:black
+color playlist_selected				black:grey
+color playlist_unselected_playing	white:black
+color playlist_selected_playing		white:grey
+color playlist_background	 		black
+
+color playback_text	 				white:black
+color playback_background			black
+
+color info_text						white:black
+color info_background				black
+
+color menu_text						white:black
+color menu_background	 			black
+

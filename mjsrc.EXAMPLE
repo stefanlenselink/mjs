@@ -1,0 +1,20 @@
+# Configuration file for the MP3 Jukebox System
+
+# mp3dir: path to the base mp3 directory
+set mp3dir			/pub/mp3
+
+# logfile: path to the file in which to save played mp3 titles
+set logfile			/pub/mp3/mp3.log
+
+# statefile: path to the file in which to save te playing mp3 title
+set statefile			/pub/mp3/mp3.active
+
+# resultsfile: path to the file we grab our searchresults from
+set resultsfile			/tmp/findresults
+
+# playlistpath: path to the directory where we save our playlists
+set playlistpath		/pub/mp3/Playlists
+
+# Use directory based genre system 
+set use_genre			true
+

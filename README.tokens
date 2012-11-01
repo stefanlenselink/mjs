@@ -1,0 +1,15 @@
+Window format tokens:
+
+%t - the song title
+%a - the artist
+%f - filename
+%F - complete filename, incl path
+%p - the path
+%m - how many minutes?
+%s - "remainder" seconds (fraction of minutes)
+%S - total length in seconds
+%T - time in format [%m:%s]
+%g - genre
+%% - like with printf, insert a %
+
+

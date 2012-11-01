@@ -1,0 +1,32 @@
+
+color window_active					white:blue
+color window_active_title			white:green
+color window_active_scroll			white:blue
+color window_active_scroll_bar		yellow:blue
+
+color window_inactive				white:blue
+color window_inactive_title			white:green
+color window_inactive_scroll		white:blue
+color window_inactive_scroll_bar	yellow:blue
+
+color files_unselected_file			white:blue
+color files_selected_file			yellow:red
+color files_unselected_directory	white:blue
+color files_selected_directory		yellow:red
+color files_background				blue
+
+color playlist_unselected			white:blue
+color playlist_selected				yellow:red
+color playlist_unselected_playing	b_cyan:blue
+color playlist_selected_playing		b_cyan:red
+color playlist_background			blue
+
+color playback_text					white:blue
+color playback_background			blue
+
+color info_text						white:blue
+color info_background				blue
+
+color menu_text						b_red:blue
+color menu_background				blue
+

@@ -2,8 +2,7 @@
 
 #include "gui.h"
 #include "controller/keyboard_controller.h"
-#include "misc.h"
-#include "config/config.h"
+#include "config.h"
 
 #include <time.h>
 #include <string.h>
@@ -73,9 +72,16 @@ int window_menubar_standard ( Window *window )
   now2 = time ( NULL );
   currentTime = localtime ( &now2 );
   window_menubar_clear ( window );
-  my_mvwaddstr ( window->win, 0, ( ( x-strlen ( window->title_dfl ) ) /2 ), config->colors[MENU_TEXT], window->title_dfl );
-  snprintf ( version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d %s", currentTime->tm_mday, currentTime->tm_mon + 1, currentTime->tm_year + 1900, currentTime->tm_hour, currentTime->tm_min, VERSION );
-  my_mvwaddstr ( window->win, 0, x - strlen ( version_str ) + 2, config->colors[MENU_TEXT], version_str );
+  wattrset(menubar->win, config->colors[MENU_TEXT]);
+  mvwaddstr(window->win, 0, ( ( x-strlen ( window->title_dfl ) ) /2 ), window->title_dfl);
+  snprintf(version_str, 128, "%.2d-%.2d-%.4d %.2d:%.2d %s",
+      currentTime->tm_mday,
+      currentTime->tm_mon + 1,
+      currentTime->tm_year + 1900,
+      currentTime->tm_hour,
+      currentTime->tm_min,
+      VERSION);
+  mvwaddstr(window->win, 0, x - strlen(version_str) + 2, version_str);
 
   update_panels();
   if ( config->c_flags & C_FIX_BORDERS )
@@ -102,8 +108,9 @@ void window_menubar_progress_bar_init(char * title){
   
   window_menubar_deactivate();
   sprintf(buf, "%s [", title);
-  my_mvwaddstr ( menubar->win, 0, 0, config->colors[MENU_TEXT], buf);
-  my_mvwaddstr ( menubar->win, 0, menubar->width - 3, config->colors[MENU_TEXT], "] /");
+  wattrset(menubar->win, config->colors[MENU_TEXT]);
+  mvwaddstr(menubar->win, 0, 0, buf);
+  mvwaddstr(menubar->win, 0, menubar->width - 3, "] /");
   update_panels();
   doupdate();
 }
@@ -123,7 +130,8 @@ void window_menubar_progress_bar_animate(){
     }
     sprintf(buf, "%c", img);
     progress_animate++;
-    my_mvwaddstr ( menubar->win, 0, menubar->width - 1, config->colors[MENU_TEXT], buf);
+    wattrset(menubar->win, config->colors[MENU_TEXT]);
+    mvwaddstr(menubar->win, 0, menubar->width - 1, buf);
     update_panels();
     doupdate();
   }
@@ -137,7 +145,8 @@ void window_menubar_progress_bar_progress(int pcts){
   for(; i <= total; i++){
     sprintf(line, "%s%c", line , '*');
   }
-  my_mvwaddstr ( menubar->win, 0, (menubar->width - 4) - progress_length, config->colors[MENU_TEXT], line);
+  wattrset(menubar->win, config->colors[MENU_TEXT]);
+  mvwaddstr(menubar->win, 0, menubar->width - 4 - progress_length, line);
   update_panels();
   doupdate();
 }

@@ -7,11 +7,11 @@
 
 #include <stdlib.h>
 
-
 int	 show_list ( Window * );
 Window	*move_files_selector ( int );
 Window	*move_selector ( Window *, int );
 int	 update_info ( Window * );
+int update_border(Window *window);
 int	 update_title ( Window * );
 void	 change_active ( int );
 int	 active_win ( Window * );

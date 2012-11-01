@@ -17,10 +17,7 @@ void	 change_active ( int );
 int	 active_win ( Window * );
 int	 inactive_win ( Window * );
 
-__inline__ void	 printf_menubar ( char * );
-
 void	 do_scrollbar ( Window * );
-__inline__ void clear_info();
 
 void gui_init ( Config *,   int init_colors[], songdata * mp3list, songdata * playlist );
 void gui_shutdown ( void );

@@ -130,9 +130,8 @@ show_list ( Window *window )
 	}
 
 	update_border(window);
-	if ( window->flags & W_LIST )
-		do_scrollbar ( window );
-	update_title ( window );
+	do_scrollbar(window);
+	update_title(window);
 	update_panels();
 	doupdate();
 
@@ -264,11 +263,6 @@ update_info ( Window *window )
 
 	update_border(window);
 	update_title ( window );
-	update_panels();
-    if (window->flags & W_LIST )
-      do_scrollbar ( window );
-    if ( conf->c_flags & C_FIX_BORDERS )
-      redrawwin ( win );
     gui_update_play_time();
     doupdate();
 
@@ -518,6 +512,7 @@ init_info ( Window * window )
 {
 	WINDOW * win = window->win;
 
+	update_info(window);
 	update_panels ();
 	doupdate ();
 }
@@ -531,17 +526,15 @@ void gui_update_play_time ( void ) {
       last_elapsed = elapsed;
       remaining = engine_get_remaining();
       length = engine_get_length();
-      
+
       wattrset(playback->win, color);
       if(!length){
-        playback->update(playback);
-        mvwprintw(playback->win, 1, 1, " Time  : %02d:%02d:%02d",
+        mvwprintw(playback->win, 1, 1, " Time  : %02d:%02d:%02d                      ",
           (int)elapsed / 3600, //Aantal Uur
           (int)elapsed / 60, //Aantal Minuten
           ((int)elapsed) % 60 //Aantal Seconden
         );
       }else if(length > 3600){
-        playback->update(playback);
         mvwprintw(playback->win, 1, 1, " Time  : %02d:%02d:%02d / %02d:%02d:%02d (%02d:%02d:%02d)",
           (int)elapsed / 3600, //Uren
           (int)(elapsed % 3600) / 60, //Minuten
@@ -554,8 +547,7 @@ void gui_update_play_time ( void ) {
           (int)(length % 3600) % 60  //Seconden
         );
       }else{
-        playback->update(playback);
-        mvwprintw(playback->win, 1, 1, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)",
+        mvwprintw(playback->win, 1, 1, " Time  : %02d:%02d / %02d:%02d (%02d:%02d)         ",
           (int)elapsed / 60, //Minuten
           (int)elapsed % 60, //Seconden
           (int)remaining / 60, //Minuten

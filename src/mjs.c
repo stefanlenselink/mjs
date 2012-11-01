@@ -90,15 +90,9 @@ int main(int argc, char *argv[]) {
 	//engine_jump_to("/home/hidde/Music/intro.mp3");
 	log_debug("MJS Started!!");
 
-	struct timespec wait;
-	wait.tv_sec = 0;
-	wait.tv_nsec = 50000000;
-
 	for (;;) {
-//		if (serial_attached)
-//			serial_poll();
-		poll_keyboard();
-//		nanosleep(&wait, NULL);
+		//serial_poll();
+		gui_update_play_time();
 		sleep(1);
 	}
 	bailout(-1);

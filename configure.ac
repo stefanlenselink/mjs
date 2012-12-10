@@ -28,6 +28,9 @@ AC_CHECK_LIB(ncursesw, wadd_wch, , AC_MSG_ERROR([Couldn't find ncursesw library]
 AC_CHECK_LIB(panel, refresh, , AC_MSG_ERROR([Couldn't find panel library]), -lpanel )
 
 AC_CHECK_LIB(mysqlclient, mysql_init, , AC_MSG_ERROR([Couldn't find mysqlclient library]), -lmysqlclient -lz )
+
+AC_CHECK_LIB(microhttpd, MHD_get_version, , AC_ERROR([Couldn't find microhttpd library]), -lmicrohttpd, )
+
 AC_CONFIG_FILES(Makefile src/Makefile tools/src/Makefile)
 AC_OUTPUT
 

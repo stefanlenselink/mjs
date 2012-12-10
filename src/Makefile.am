@@ -19,5 +19,7 @@ mjs4_SOURCES = \
 	songdata/songdata.c \
 	gui/window_files.c \
 	gui/window_menubar.c \
-	gui/window_play.c
+	gui/window_play.c \
+	controller/json.c \
+	controller/http_constroller.c
 	

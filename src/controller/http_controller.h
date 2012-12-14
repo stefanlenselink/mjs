@@ -28,6 +28,8 @@
 #include <json.h>
 #include <microhttpd.h>
 
+#include "songdata/songdata.h"
+
 void http_controller_init(Config *);
 void http_controller_shutdown();
 void http_poll();
@@ -39,9 +41,12 @@ int http_controller_request(void *, struct MHD_Connection *,
 
 int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key, const char *value);
 
+char* http_get_song_uid(songdata_song *);
+
 void http_post_status(json_value *);
 
 char* http_get_index();
 char* http_get_status();
+char* http_get_playlist();
 
 #endif /*_http_controller_h */

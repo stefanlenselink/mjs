@@ -74,6 +74,10 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
         {
             page = http_get_index();
         }
+	else if (!strcmp(url, "/playlist"))
+	{
+	    page = http_get_playlist();
+	}
 	else if (!strcmp(url, "/status"))
 	{
 	    page = http_get_status();
@@ -139,6 +143,50 @@ char * http_get_status()
     return strdup("{\"status\":\"paused\"}");
 }
 
+char * http_get_playlist()
+{
+    char *builder = strdup("{\"files\":[");
+
+    songdata_song *current = playlist->head;
+    bool first = true;
+    while(current)
+    {
+	char *uid = http_get_song_uid(current);
+	char file[1024];
+	snprintf(file, 1024, "{\"uid\":\"%s\", \"location\":\"%s\"}", uid, current->fullpath);
+	free(uid);
+	uid = NULL;
+
+	char *newjson = malloc(strlen(file) + strlen(builder) + 2);
+	strcpy(newjson, builder);
+	if(!first)
+		strcat(newjson, ",");
+
+	strcat(newjson, file);
+	free(builder);
+	builder = newjson;
+
+	current = current->next;
+	first = false;
+    }
+
+    char *end = "]}";
+    char *result = malloc(strlen(builder) + strlen(end) + 1);
+    strcpy(result, builder);
+    strcat(result, end);
+    free(builder);
+    builder = NULL;
+
+    return result;
+}
+
+char * http_get_song_uid(songdata_song *song)
+{
+    char input[1024];
+    snprintf(input, 1024, "%p", song);
+    return strdup(input);
+}
+
 void http_post_status(json_value *data)
 {
     int i;
@@ -201,7 +249,7 @@ char* http_get_index()
             "Output:\n"
             "<pre>{\"files\": [{\"uid\": \"67dd3588-d684-11e1-b877-0001805c669b\", \"location\": \"/tmp/test.mp3\"}]}</pre>\n"
             "<strong>Test:</strong>\n"
-            "<a href=\"#\" onclick=\"$.getJSON('/playlist', '', function(data){$('#getplaylist').html(JSON.stringify(data)); }}); return false;\">get</a>\n"
+            "<a href=\"#\" onclick=\"$.getJSON('/playlist', '', function(data){$('#getplaylist').html(JSON.stringify(data)); }); return false;\">get</a>\n"
             "<pre id=\"getplaylist\"></pre>\n"
             "</p>\n"
             "\n"
@@ -259,7 +307,7 @@ char* http_get_index()
             " \"duration\": 136.231,\n"
             " \"position\": 45.364 }</pre>\n"
             "<strong>Test:</strong>\n"
-            "<a href=\"#\" onclick=\"$.ajax({url: '/current', success: function(data){$('#getcurrent').html(JSON.stringify(data)); }}); return false;\">get</a>\n"
+            "<a href=\"#\" onclick=\"$.getJSON('/current', '', function(data){$('#getcurrent').html(JSON.stringify(data)); }); return false;\">get</a>\n"
             "<pre id=\"getcurrent\"></pre>\n"
             "</p>\n"
             "\n"

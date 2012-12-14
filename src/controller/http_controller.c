@@ -216,8 +216,6 @@ void http_post_status(json_value *data)
     strncpy(str, (*nextstatus).u.string.ptr, (*nextstatus).u.string.length);
     str[(*nextstatus).u.string.length] = 0;
 
-    fprintf(stderr, "action: %s\n\r", str);
-
     if(!strcmp(str, "next"))
         controller_next();
 
@@ -228,10 +226,12 @@ void http_post_status(json_value *data)
         controller_stop();
 
     if(!strcmp(str, "playing"))
-        controller_play_pause();
+	if(!playlist->playing || !engine_is_playing())
+	        controller_play_pause();
 
     if(!strcmp(str, "paused"))
-        controller_play_pause();
+	if(playlist->playing && engine_is_playing())
+	        controller_play_pause();
 }
 
 void http_delete_playlist()

@@ -42,5 +42,6 @@ int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key,
 void http_post_status(json_value *);
 
 char* http_get_index();
+char* http_get_status();
 
 #endif /*_http_controller_h */

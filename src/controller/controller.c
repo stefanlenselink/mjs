@@ -17,7 +17,6 @@
 
 
 Config * conf;
-songdata * playlist;
 
 static struct sigaction handler;
 
@@ -294,6 +293,7 @@ songdata * controller_init (Config * init_config)
 	songdata_clear ( playlist );
     keyboard_controller_init(playlist, conf);
     serial_controller_init(conf);
+    http_controller_init(conf);
 	return playlist;
 }
 

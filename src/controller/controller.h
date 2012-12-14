@@ -17,6 +17,8 @@
 
 
 
+songdata * playlist;
+
 int	 playback_title ( Window * );
 
 void	add_to_playlist_recursive ( songdata *, songdata_song *, songdata_song * );

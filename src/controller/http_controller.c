@@ -74,6 +74,10 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
         {
             page = http_get_index();
         }
+	else if (!strcmp(url, "/status"))
+	{
+	    page = http_get_status();
+	}
     } else if(!strcmp(method, "POST"))
     {
         //BUG: POSTs seem to be aborted, no data is sent back. Functions get executed though not very tidy
@@ -122,6 +126,17 @@ int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key,
         return MHD_NO;
     }
     return MHD_YES;
+}
+
+char * http_get_status()
+{
+    if(!playlist->playing)
+        return strdup("{\"status\":\"stopped\"}");
+
+    if(engine_is_playing())
+        return strdup("{\"status\":\"playing\"}");
+
+    return strdup("{\"status\":\"paused\"}");
 }
 
 void http_post_status(json_value *data)
@@ -269,7 +284,7 @@ char* http_get_index()
             "Output:\n"
             "<pre>{ \"state\": \"playing\" }</pre>\n"
             "<strong>Test:</strong>\n"
-            "<a href=\"#\" onclick=\"$.ajax({url: '/status', success: function(data){$('#getstatus').html(JSON.stringify(data)); }}); return false;\">get</a>\n"
+            "<a href=\"#\" onclick=\"$.getJSON('/status', '', function(data){$('#getstatus').html(JSON.stringify(data)); }); return false;\">get</a>\n"
             "<pre id=\"getstatus\"></pre>\n"
             "</p>\n"
             "\n"

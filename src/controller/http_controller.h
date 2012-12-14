@@ -49,4 +49,6 @@ char* http_get_index();
 char* http_get_status();
 char* http_get_playlist();
 
+void http_delete_playlist();
+
 #endif /*_http_controller_h */

@@ -84,8 +84,6 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	}
     } else if(!strcmp(method, "POST"))
     {
-        //BUG: POSTs seem to be aborted, no data is sent back. Functions get executed though not very tidy
-
         //Calculate content_length
         int content_length = 0;
         MHD_get_connection_values(connection, MHD_HEADER_KIND, http_controller_headers, &content_length);
@@ -93,19 +91,34 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
         //We need more post data
         if(content_length > *upload_data_size)
             return MHD_YES;
+	
+	//Create string from upload_data
+	char *strdata = malloc(content_length + 1);
+	strncpy(strdata, upload_data, content_length + 1);
+	fprintf(stderr, "%s", strdata);
 
         //Parse JSON
-        json_value *data = json_parse(upload_data);
+        json_value *data = json_parse(strdata);
+	free(strdata);
+	strdata = NULL;
 
-        fprintf(stderr, "POST %s (%s)\n\r", url, upload_data);
+	//Ignore malformed JSON
+	if(data)
+	{
+            fprintf(stderr, "POST %s (%s)\n\r", url, strdata);
 
-        //Execute commands
-        if(!strcmp(url, "/status"))
-        {
-            http_post_status(data);
-        }
+            //Execute commands
+            if(!strcmp(url, "/status"))
+            {
+                http_post_status(data);
+            }
 
-        json_value_free(data);
+            json_value_free(data);
+	}
+    } else if(!strcmp(method, "DELETE"))
+    {
+	if(!strcmp(url, "/playlist"))
+		http_delete_playlist();
     }
 
     if(page == NULL)
@@ -191,6 +204,8 @@ void http_post_status(json_value *data)
 {
     int i;
     json_value * nextstatus = NULL;
+
+    fprintf(stderr, "len: %d", (*data).u.object.length);
     
     for(i = 0; i < (*data).u.object.length; i++)
     {
@@ -222,6 +237,11 @@ void http_post_status(json_value *data)
 
     if(!strcmp(str, "paused"))
         controller_play_pause();
+}
+
+void http_delete_playlist()
+{
+
 }
 
 char* http_get_index()

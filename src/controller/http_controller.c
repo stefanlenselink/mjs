@@ -95,7 +95,6 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	//Create string from upload_data
 	char *strdata = malloc(content_length + 1);
 	strncpy(strdata, upload_data, content_length + 1);
-	fprintf(stderr, "%s", strdata);
 
         //Parse JSON
         json_value *data = json_parse(strdata);
@@ -105,8 +104,6 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	//Ignore malformed JSON
 	if(data)
 	{
-            fprintf(stderr, "POST %s (%s)\n\r", url, strdata);
-
             //Execute commands
             if(!strcmp(url, "/status"))
             {
@@ -205,8 +202,6 @@ void http_post_status(json_value *data)
     int i;
     json_value * nextstatus = NULL;
 
-    fprintf(stderr, "len: %d", (*data).u.object.length);
-    
     for(i = 0; i < (*data).u.object.length; i++)
     {
         if(!strcmp((*data).u.object.values[i].name, "status"))

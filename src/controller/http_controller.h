@@ -42,12 +42,16 @@ int http_controller_request(void *, struct MHD_Connection *,
 int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key, const char *value);
 
 char* http_get_song_uid(songdata_song *);
+char* http_get_song_json(songdata_song *);
 
-void http_post_status(json_value *);
+char* http_post_status(json_value *);
+char* http_post_playlist(json_value *);
+char* http_post_current(json_value *);
 
 char* http_get_index();
 char* http_get_status();
 char* http_get_playlist();
+char* http_get_current();
 
 void http_delete_playlist();
 

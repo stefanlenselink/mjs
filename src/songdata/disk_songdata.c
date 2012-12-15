@@ -8,10 +8,7 @@
 #include <dirent.h>
 
 Config * conf;
-static char *  split_filename ( char **s );
 
-
-static
     char *
     split_filename ( char **s )
 {

@@ -4,6 +4,7 @@
 #include "songdata.h"
 #include "config/config.h"
 
+char * split_filename ( char ** );
 void disk_songdata_read_mp3_list_dir ( songdata *, const char *, int );
 
 void disk_songdata_init(Config * conf);

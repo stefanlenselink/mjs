@@ -81,6 +81,12 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	    page = http_get_status();
 	else if (!strcmp(url, "/current"))
 	    page = http_get_current();
+	else if (!strncmp(url, "/playlist/", 10))
+	{
+	    char *request = strdup(url);
+	    page = http_get_playlist_item(request);
+	    free(request);
+	}
 
     } else if(!strcmp(method, "POST"))
     {
@@ -107,18 +113,32 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	{
             //Execute commands
             if(!strcmp(url, "/status"))
-                http_post_status(data);
+                page = http_post_status(data);
 	    else if(!strcmp(url, "/current"))
-		http_post_current(data);
+		page = http_post_current(data);
 	    else if(!strcmp(url, "/playlist"))
-		http_post_playlist(data);
+		page = http_post_playlist(data);
+	    else if (!strncmp(url, "/playlist/", 10))
+	    {
+	        char *request = strdup(url);
+	        page = http_post_playlist_item(request, data);
+	        free(request);
+	    }
 
             json_value_free(data);
+            window_play_update();
 	}
     } else if(!strcmp(method, "DELETE"))
     {
 	if(!strcmp(url, "/playlist"))
 	    http_delete_playlist();
+	else if(!strncmp(url, "/playlist/", 10))
+	{
+	    char *request = strdup(url);
+	    page = http_delete_playlist_item(request);
+	    free(request);
+	}
+        window_play_update();
     }
 
     if(page == NULL)
@@ -143,6 +163,17 @@ int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key,
         return MHD_NO;
     }
     return MHD_YES;
+}
+
+char * http_get_playlist_item(char *url)
+{
+    char *uid = url + 10;
+
+    songdata_song *song = http_song_by_uid(uid);
+    if(song == NULL)
+	    return NULL;
+
+    return http_get_song_json(song);
 }
 
 char * http_get_current()
@@ -220,7 +251,6 @@ songdata_song * http_song_by_uid(char *uid)
     songdata_song *current = playlist->head;
     while(current != NULL)
     {
-	fprintf(stderr, "%s==%s\n", uid, http_get_song_uid(current));
 	if(!strcmp(http_get_song_uid(current), uid))
 	    return current;
 	current = current->next;
@@ -238,24 +268,75 @@ char * http_get_song_json(songdata_song *song)
     return strdup(file);
 }
 
-char * http_post_status(json_value *data)
+char * http_json_extract(json_value *data, char * attribute)
 {
     int i;
-    json_value * nextstatus = NULL;
+    json_value * value = NULL;
 
     for(i = 0; i < (*data).u.object.length; i++)
     {
-        if(!strcmp((*data).u.object.values[i].name, "status"))
+        if(!strcmp((*data).u.object.values[i].name, attribute))
         {
-            nextstatus = (*data).u.object.values[i].value;
+            value = (*data).u.object.values[i].value;
         }
     }
 
-    if(nextstatus == NULL)
-        return;
-    char * str = malloc((*nextstatus).u.string.length + 1);
-    strncpy(str, (*nextstatus).u.string.ptr, (*nextstatus).u.string.length);
-    str[(*nextstatus).u.string.length] = 0;
+    if(value == NULL)
+        return NULL;
+
+    int length = (*value).u.string.length;
+    char * str = malloc(length + 1);
+    strncpy(str, (*value).u.string.ptr, length);
+    str[length] = 0;
+
+    return str;
+}
+
+char * http_delete_playlist_item(char *url)
+{
+    char *uid = url + 10; //Skip /playlist/
+
+    songdata_song *song = http_song_by_uid(uid);
+    if(song == NULL)
+	    return NULL;
+
+    songdata_del(playlist, song);
+
+    return strdup("");
+}
+
+char * http_post_playlist_item(char *url, json_value *data)
+{
+    char *location = http_json_extract(data, "location");
+    if(location == NULL)
+	    return NULL;
+
+    char *uid = url + 10; //Skip /playlist/
+
+    songdata_song *song = http_song_by_uid(uid);
+    if(song == NULL)
+	    return NULL;
+
+    char *filename = strdup(location);
+    char *path = split_filename(&filename);
+    
+    songdata_song *newsong = new_songdata_song();
+    newsong->fullpath = strdup(location);;
+    newsong->filename = strdup(filename);
+    newsong->path = strdup(path);
+    newsong->title = strdup(filename);
+
+    free(location);
+    location = NULL;
+
+    songdata_add(playlist, song, newsong);
+
+    return NULL;
+}
+
+char * http_post_status(json_value *data)
+{
+    char * str = http_json_extract(data, "status");
 
     if(!strcmp(str, "next"))
         controller_next();
@@ -279,24 +360,7 @@ char * http_post_status(json_value *data)
 
 char * http_post_current(json_value *data)
 {
-    int i;
-    json_value * nextid = NULL;
-
-    for(i = 0; i < (*data).u.object.length; i++)
-    {
-        if(!strcmp((*data).u.object.values[i].name, "uid"))
-        {
-            nextid = (*data).u.object.values[i].value;
-        }
-    }
-
-    if(nextid == NULL)
-        return;
-
-    size_t length = (*nextid).u.string.length;
-    char *uid = malloc(length + 1);
-    strncpy(uid, (*nextid).u.string.ptr, length);
-    uid[length] = 0;
+    char *uid = http_json_extract(data, "uid");
 
     songdata_song *entry = http_song_by_uid(uid);
     if(!entry)
@@ -306,26 +370,7 @@ char * http_post_current(json_value *data)
 
 char * http_post_playlist(json_value *data)
 {
-    int i;
-    json_value * newfile = NULL;
-
-    for(i = 0; i < (*data).u.object.length; i++)
-    {
-        if(!strcmp((*data).u.object.values[i].name, "location"))
-        {
-            newfile = (*data).u.object.values[i].value;
-	}
-    }
-
-    if(newfile == NULL)
-	return;
-
-    size_t length = (*newfile).u.string.length;
-    char *fullpath = malloc(length + 1);
-    strncpy(fullpath, (*newfile).u.string.ptr, length);
-    fullpath[length] = 0;
-
-    fprintf(stderr, "%s", fullpath);
+    char *fullpath = http_json_extract(data, "location");
 
     char *filename = strdup(fullpath);
     char *path = split_filename(&filename);

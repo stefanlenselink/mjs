@@ -50,6 +50,8 @@ config_init ( void )
 
     conf->output[1]='\0';
     conf->snd_system[1]='\0';
+    conf->mpgpath[1] = '\0';
+    conf->mp3path[1] = '\0';
     conf->info_window.title_fmt = NULL;
     conf->files_window.title_fmt = NULL;
     conf->play_window.title_fmt = NULL;
@@ -92,7 +94,7 @@ config_init ( void )
 	if ( conf->mpgpath[1]=='\0' )
 		strcpy ( conf->mpgpath,"mpg123\0" );
 	if ( conf->mp3path[1]=='\0' )
-		strcpy ( conf->mp3path,"/pub/mp3/\0" );
+		strcpy ( conf->mp3path,"/home/stefan/mp3/\0" );
 
 	return conf;
 }

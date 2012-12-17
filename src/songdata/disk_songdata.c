@@ -191,7 +191,7 @@ songdata_song *
             ftmp->title = strdup ( tag.title );
             ftmp->artist = strdup ( tag.artist );
             ftmp->album = strdup ( tag.album );
-            ftmp->track_id = ( int ) tag.track;
+            ftmp->track_id = *tag.track;
             ftmp->length = mp3.seconds;
             ftmp->genre = strdup ( id3_findstyle ( tag.genre[0] ) );
             ftmp->has_id3 = 1;
@@ -257,7 +257,10 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
 
   songdata_clear ( list );
 
-  chdir ( dir );
+  if(chdir ( dir ) != 0){
+    free(dir);
+    return;
+  }
 
 
   if ( ( strncmp ( dir, conf->mp3path, strlen ( conf->mp3path )-1 ) ) && ( strcmp ( dir, conf->playlistpath ) ) )
@@ -278,10 +281,10 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
   dptr = opendir ( dir );
   while ( ( dent = readdir ( dptr ) ) )
   {
-    if ( *dent->d_name == '.' )
+    if ( *dent->d_name == '.' || dent->d_name == NULL)
       continue;
 
-    if ( ( ftmp = mp3_info ( dir, dent->d_name, NULL, 0 ) ) ){
+    if ( ( ftmp = mp3_info ( dir, *dent->d_name, NULL, 0 ) ) ){
       songdata_add ( list, list->tail, ftmp );
 	}
   }

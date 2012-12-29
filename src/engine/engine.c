@@ -12,8 +12,7 @@
 #include <unistd.h>
 
 #include "controller/controller.h"
-#include "gui/window_menubar.h"
-#include "gui/window_play.h"
+#include "gui/gui.h"
 #include "log.h"
 
 xine_t * engine; // Main libxine object
@@ -136,9 +135,9 @@ static void event_callback ( void *user_data, const xine_event_t *event )
   }else if(event->type == XINE_EVENT_PROGRESS){
     xine_progress_data_t * prog = event->data;
     if(prog->percent == 0){
-      window_menubar_progress_bar_init((char *)prog->description);
+      gui_progress_start((char *)prog->description);
     }else if(prog->percent == 100){
-      window_menubar_progress_bar_remove();
+      gui_progress_stop();
     }else{
       int pcts = prog->percent;
       if(pcts < 0){
@@ -146,11 +145,9 @@ static void event_callback ( void *user_data, const xine_event_t *event )
       }else if(pcts > 100){
         pcts = 100;
       }
-      window_menubar_progress_bar_animate();
-      window_menubar_progress_bar_progress(pcts);
+      gui_progress_animate();
+      gui_progress_value(pcts);
     }
-  }else if(event->type == XINE_EVENT_UI_SET_TITLE){
-    window_play_notify_title_changed();
   }
 }
 

@@ -3,12 +3,7 @@
 #include "disk_songdata.h"
 #include "log.h"
 
-
-
-#include "gui/window_info.h"
-#include "gui/window_files.h"
-
-
+#include "gui/gui.h"
 
 #include <unistd.h>
 #include <string.h>
@@ -16,8 +11,6 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <ncurses.h>
-
-#include "gui/window_menubar.h"
 
 
 /* 	path -> path including trailing slash
@@ -74,9 +67,8 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 	while ( !feof ( fp ) )
 	{
 		lines++;
-		if(fgets ( buf, 1024, fp )){
-          window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
-		}
+		fgets ( buf, 1024, fp );
+        gui_progress_animate(); //TODO moet eigenlijk met timer van uit main...
 	}
 	fclose ( fp );
 	errno = 0;
@@ -130,8 +122,8 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
         pcts = 100;
       }
 		n++;
-        window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
-        window_menubar_progress_bar_progress(pcts);
+        gui_progress_animate(); //TODO moet eigenlijk met timer van uit main...
+        gui_progress_value(pcts);
 
 		if ( !fgets ( buf, 1024, fp ) )
 		{
@@ -168,7 +160,7 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 	if ( playlistname )
 		free ( playlistname );
     
-    window_menubar_progress_bar_remove();
+    gui_progress_stop();
 	return;
 }
 
@@ -256,16 +248,15 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
       switch ( append )
       {
         case L_SEARCH:
-          window_menubar_progress_bar_init(SEARCHING);
+          gui_progress_start(SEARCHING);
           break;
         default:
-          window_menubar_progress_bar_init(READING);
-          break;
+          gui_progress_start(READING);
       }
       read_mp3_list_file ( list, list->from, append );
       if ( ( append & L_SEARCH ) && ( list->head ) )
         sort_songs ( list );
-      window_menubar_activate();
+      gui_progress_stop();
     }
   }
   return;
@@ -433,8 +424,8 @@ void songdata_reload_search_results(){
   if ( ! ( mp3list->flags & F_VIRTUAL ) && mp3list->selected != NULL)
     dirstack_push (mp3list->from, mp3list->selected->filename );
   songdata_read_mp3_list ( mp3list, conf->resultsfile, L_SEARCH );
-  window_info_update();
-  window_files_update();
+  gui_update_info();
+  gui_update_filelist();
 }
 
 

@@ -4,12 +4,7 @@ mjs4_SOURCES = \
 	engine/engine.c \
 	config/config.c \
 	songdata/dirstack.c \
-	controller/keyboard_controller.c \
-	gui/misc.c \
 	songdata/song.c \
-	gui/tokens.c \
-	gui/window_info.c \
-	gui/window_playback.c \
 	controller/controller.c \
 	songdata/disk_songdata.c \
 	gui/gui.c \
@@ -17,9 +12,11 @@ mjs4_SOURCES = \
 	songdata/mjs_id3.c \
 	controller/serial_controller.c \
 	songdata/songdata.c \
-	gui/window_files.c \
-	gui/window_menubar.c \
-	gui/window_play.c \
 	controller/json.c \
-	controller/http_constroller.c
-	
+	controller/http_constroller.c \
+	gui/window.c \
+        gui/filelist.c \
+	gui/playlist.c \
+        gui/info.c \
+	gui/playback.c \
+	gui/bar.c

@@ -3,13 +3,8 @@
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "gui/gui.h"
-#include "gui/window_play.h"
-#include "gui/window_info.h"
-#include "gui/window_playback.h"
-#include "gui/window_menubar.h"
 #include "mjs.h"
 #include "log.h"
-#include "keyboard_controller.h"
 
 #include <string.h>
 #include <sys/types.h>
@@ -86,9 +81,9 @@ char * controller_process_to_next_song ( void )
    //  return_path = playlist->playing->next->fullpath;
    // }
 	/* GUI stuff */
-	window_play_update();
-	window_info_update();
-	window_playback_update();
+	gui_update_playlist();
+	gui_update_info();
+	gui_update_playback();
 
 	controller_update_whereplaying();
 	controller_update_statefile();
@@ -117,9 +112,9 @@ void controller_jump_to_song ( songdata_song *next )
     engine_jump_to(current);
 
 	/* GUI stuff */
-	window_play_update();
-	window_info_update();
-	window_playback_update();
+	gui_update_playlist();
+	gui_update_info();
+	gui_update_playback();
 
 	controller_update_whereplaying();
 	controller_update_statefile();
@@ -140,9 +135,9 @@ void controller_play_pause(void)
     controller_jump_to_song ( playlist->selected ); // Play
   }
   /* GUI stuff */
-  window_play_update();
-  window_info_update();
-  window_playback_update();
+  gui_update_playlist();
+  gui_update_info();
+  gui_update_playback();
 }
 
 void controller_stop()
@@ -151,37 +146,37 @@ void controller_stop()
 	{
 		playlist->playing->flags &= ~F_PAUSED;
 		playlist->playing = NULL;
-		window_play_update();
+		gui_update_playlist();
 	}
 	engine_stop();
-	window_playback_update();
+	gui_update_playback();
 	controller_update_statefile();
 }
 void controller_clear_playlist()
 {
-  if (gui_ask_yes_no_question(CLEARPLAYLIST))
+  if (gui_ask_yes_no(CLEARPLAYLIST))
   {
     controller_stop();
 
     songdata_clear ( playlist );
 
-    window_play_update();
+    gui_update_playlist();
     
-    window_info_update();
+    gui_update_info();
     
     update_panels ();
   }
 }
 void controller_shuffle_playlist(){
-  if (gui_ask_yes_no_question(SHUFFLE))
+  if (gui_ask_yes_no(SHUFFLE))
   {
     songdata_randomize(playlist);
-    window_play_update();
-    window_info_update();
+    gui_update_playlist();
+    gui_update_info();
   }
 }
 void controller_exit(){
-  if (gui_ask_yes_no_question(EXITPROGRAM))
+  if (gui_ask_yes_no(EXITPROGRAM))
   {
     bailout ( 0 );
   }
@@ -291,7 +286,6 @@ songdata * controller_init (Config * init_config)
     memset(playlist, 0, sizeof(songdata));
 	playlist->head = NULL;
 	songdata_clear ( playlist );
-    keyboard_controller_init(playlist, conf);
     serial_controller_init(conf);
     http_controller_init(conf);
 	return playlist;
@@ -299,7 +293,6 @@ songdata * controller_init (Config * init_config)
 
 void controller_shutdown ( void )
 {
-  keyboard_controller_shutdown();
   serial_controller_shutdown();
 	free ( playlist );
 }
@@ -308,7 +301,7 @@ void controller_shutdown ( void )
 void controller_search(char * string)
 {
 	pid_t childpid;
-    window_menubar_progress_bar_init(SEARCHING);
+    gui_progress_start(SEARCHING);
 	handler.sa_handler = SIG_DFL;
 	handler.sa_flags = SA_RESETHAND;
 	sigaction ( SIGCHLD, &handler, NULL );
@@ -321,9 +314,6 @@ void controller_search(char * string)
 	if ( errno )
 		exit ( 3 );
 	waitpid ( childpid, NULL, 0 );
-	handler.sa_handler = ( SIGHANDLER ) unsuspend;
-	handler.sa_flags = SA_RESTART;
-	sigaction ( SIGCONT, &handler, NULL );
 
     controller_reload_search_results();
 }

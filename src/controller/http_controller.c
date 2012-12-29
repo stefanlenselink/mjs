@@ -126,7 +126,7 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	    }
 
             json_value_free(data);
-            window_play_update();
+            gui_update_playlist();
 	}
     } else if(!strcmp(method, "DELETE"))
     {
@@ -138,7 +138,7 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
 	    page = http_delete_playlist_item(request);
 	    free(request);
 	}
-        window_play_update();
+        gui_update_playlist();
     }
 
     if(page == NULL)
@@ -390,8 +390,8 @@ void http_delete_playlist()
 {
     controller_stop();
     songdata_clear ( playlist );
-    window_play_update();
-    window_info_update();
+    gui_update_playlist();
+    gui_update_info();
     update_panels ();
 }
 

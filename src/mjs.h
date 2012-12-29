@@ -1,14 +1,15 @@
 #ifndef _mjs_h
 #define _mjs_h
 
-#include "engine/engine.h"
-#include "gui/gui.h"
+#include "defs.h"
+#include "config.h"
+#include "config/config.h"
+#include "songdata/songdata.h"
 
-void	bailout ( int );
-void	unsuspend ( int );
+Config *conf;
+songdata *mp3list;
+songdata *playlist;
 
-void	update_status ( void );
-
-void    refresh_window ( int );
+void bailout(int sig);
 
 #endif /* _mjs_h */

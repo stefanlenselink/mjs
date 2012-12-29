@@ -254,10 +254,7 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
 
   songdata_clear ( list );
 
-  if(chdir ( dir ) != 0){
-    free(dir);
-    return;
-  }
+  //chdir ( dir ); TODO check met kees of dit klopt
 
 
   if ( ( strncmp ( dir, conf->mp3path, strlen ( conf->mp3path )-1 ) ) && ( strcmp ( dir, conf->playlistpath ) ) )

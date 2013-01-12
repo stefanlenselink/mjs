@@ -1,14 +1,13 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([mjs], [4.1])
 AM_INIT_AUTOMAKE
+LT_INIT[dlopen]
 
 AC_PREREQ(2.59)
-AC_INIT(mjs4, 1.0)
-
 
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([subdir-objects foreign])
-
+AC_LANG_C
 AC_PROG_CC
 
 AC_PREFIX_DEFAULT(/usr)
@@ -23,4 +22,3 @@ AC_CHECK_LIB(microhttpd, MHD_get_version, , AC_ERROR([Couldn't find microhttpd l
 
 AC_CONFIG_FILES(Makefile src/Makefile tools/src/Makefile)
 AC_OUTPUT
-

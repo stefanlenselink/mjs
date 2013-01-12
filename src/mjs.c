@@ -13,6 +13,7 @@
 
 #include <time.h>
 #include <locale.h>
+#include <dlfcn.h>
 
 static struct sigaction handler;
 
@@ -51,9 +52,11 @@ int main(int argc, char *argv[]) {
 	engine_init(conf);
 	mp3list = songdata_init(conf, conf->colors);
 	playlist = controller_init(conf);
-	gui_init();
+	gui_init();	
+	plugin_init();
+	
 	//engine_jump_to("/home/hidde/Music/intro.mp3");
-	log_debug("MJS Started!!");
+	log_debug("MJS started!!\n");
 	gui_loop();
 	
 	bailout(-1);
@@ -73,10 +76,11 @@ void bailout(int sig) {
 		break;
 	}
 
+	plugin_shutdown();
+	gui_shutdown();	
 	engine_shutdown();
 	songdata_shutdown();
 	controller_shutdown();
-	gui_shutdown();
 	config_shutdown();
 	log_shutdown();
 

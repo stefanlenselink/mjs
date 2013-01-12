@@ -1,0 +1,11 @@
+#!/bin/sh
+MP3DB=/pub/mp3/mp3.db
+
+LOCATE=locate
+
+# FreeBSD support
+if which glocate > /dev/null; then
+	LOCATE=glocate
+fi
+
+${LOCATE} -d ${MP3DB} -i $1 > $2

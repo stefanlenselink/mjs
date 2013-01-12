@@ -308,7 +308,7 @@ void controller_search(char * string)
 	errno = 0;
 	if ( ! ( childpid = fork () ) ){
 		errno = 0;
-        execlp ( "findmp3", "findmp3", string, conf->resultsfile, ( char * ) NULL );
+        execlp ( "mjsfind", "mjsfind", string, conf->resultsfile, ( char * ) NULL );
 		exit ( 3 );
 	}
 	if ( errno )

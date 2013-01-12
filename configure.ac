@@ -1,4 +1,6 @@
 dnl Process this file with autoconf to produce a configure script.
+AC_INIT([mjs], [4.1])
+AM_INIT_AUTOMAKE
 
 AC_PREREQ(2.59)
 AC_INIT(mjs4, 1.0)

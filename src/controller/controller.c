@@ -286,14 +286,12 @@ songdata * controller_init (Config * init_config)
     memset(playlist, 0, sizeof(songdata));
 	playlist->head = NULL;
 	songdata_clear ( playlist );
-    serial_controller_init(conf);
     http_controller_init(conf);
 	return playlist;
 }
 
 void controller_shutdown ( void )
 {
-  serial_controller_shutdown();
 	free ( playlist );
 }
 

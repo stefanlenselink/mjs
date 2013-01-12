@@ -17,13 +17,7 @@
 
 static struct sigaction handler;
 
-//Threads
-
-pthread_t serial_thread;
-//pthread_t thread;
-
 int main(int argc, char *argv[]) {
-	int serial_attached;
 	srand(time(NULL));
 
 	memset(&handler, 0, sizeof(struct sigaction));

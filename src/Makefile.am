@@ -10,7 +10,7 @@ mjs4_SOURCES = \
 	gui/gui.c \
 	log.c \
 	songdata/mjs_id3.c \
-	controller/serial_controller.c \
+	controller/f12automaat.c \
 	songdata/songdata.c \
 	controller/json.c \
 	controller/http_constroller.c \

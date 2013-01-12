@@ -6,5 +6,6 @@ libplugin_a_SOURCES = plugin.c
 
 
 plugindir = $(libdir)/mjs
-plugin_LTLIBRARIES = dummy.la
+plugin_LTLIBRARIES = dummy.la f12automaat.la
 dummy_la_LDFLAGS = -module -export-symbols-regex '^_plugin_(init|shutdown)'
+f12automaat_la_LDFLAGS = -module -export-symbols-regex '^_plugin_(init|shutdown)'

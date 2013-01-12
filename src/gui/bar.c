@@ -72,7 +72,9 @@ int gui_ask_yes_no(char *question) {
 	int c;
 	
 	gui_draw_question(question);
+	halfdelay(50);
 	c = wgetch(bar_window->win);
+	halfdelay(10);
 	gui_draw_bar();
 	
 	return c == 'y' || c == 'Y';

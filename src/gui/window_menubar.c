@@ -3,7 +3,7 @@
 #include "gui.h"
 #include "controller/keyboard_controller.h"
 #include "misc.h"
-#include "config.h"
+#include "config/config.h"
 
 #include <time.h>
 #include <string.h>

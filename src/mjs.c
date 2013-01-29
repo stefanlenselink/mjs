@@ -6,7 +6,7 @@
 #include "gui/window_menubar.h"
 #include "songdata/songdata.h"
 #include "engine/engine.h"
-#include "config.h"
+#include "config/config.h"
 #include "log.h"
 
 #include <string.h>

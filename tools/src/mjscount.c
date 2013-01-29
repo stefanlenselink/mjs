@@ -5,7 +5,7 @@
 #define __USE_XOPEN /* glibc2 needs this */
 #include <time.h>
 #undef __USE_XOPEN
-#include "mjs_id3.h"
+#include "../../src/songdata/mjs_id3.h"
 #include <string.h>
 
 

@@ -1,13 +1,24 @@
-bin_PROGRAMS = mjs4
-mjs4_SOURCES = log.c mjs.c
-
-# set the include path found by configure
-INCLUDES = $(all_includes)
-
-# the library search path.
-mjs4_LDFLAGS = $(all_libraries)
-SUBDIRS = config controller engine gui songdata
-mjs4_LDADD = $(top_builddir)/src/config/libconfig.a $(top_builddir)/src/controller/libcontroller.a \
-	$(top_builddir)/src/engine/libengine.a $(top_builddir)/src/gui/libgui.a \
-	$(top_builddir)/src/songdata/libsongdata.a
-noinst_HEADERS = defs.h log.h mjs.h
+bin_PROGRAMS=mjs4
+mjs4_SOURCES = \
+	mjs.c \
+	engine/engine.c \
+	config/config.c \
+	songdata/dirstack.c \ 
+	controller/keyboard_controller.c \
+	gui/misc.c \
+	songdata/mysql_songdata.c \
+	songdata/song.c \
+	gui/tokens.c \
+	gui/window_info.c \
+	gui/window_playback.c \
+	controller/controller.c \
+	songdata/disk_songdata.c \
+	gui/gui.c \
+	log.c \
+	songdata/mjs_id3.c \
+	controller/serial_controller.c \
+	songdata/songdata.c \
+	gui/window_files.c \
+	gui/window_menubar.c \
+	gui/window_play.c
+	

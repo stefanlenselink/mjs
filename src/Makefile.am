@@ -3,7 +3,7 @@ mjs4_SOURCES = \
 	mjs.c \
 	engine/engine.c \
 	config/config.c \
-	songdata/dirstack.c \ 
+	songdata/dirstack.c \
 	controller/keyboard_controller.c \
 	gui/misc.c \
 	songdata/mysql_songdata.c \

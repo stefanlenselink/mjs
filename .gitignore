@@ -2,16 +2,10 @@
 *.deps/
 *.a
 *.cache/
-*.status
-stamp-h1
-*.log
 *.dirstamp
 tracefile
 src/mjs4
 tools/src/mjscount
-config.h
 .autotools
 .project
 .cproject
-Makefile
-src/Makefile

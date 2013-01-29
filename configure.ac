@@ -5,7 +5,7 @@ AC_INIT(mjs4, 1.0)
 
 
 AC_CANONICAL_SYSTEM
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE([subdir-objects foreign])
 
 AC_PROG_CC
 

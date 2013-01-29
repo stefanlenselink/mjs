@@ -13,3 +13,5 @@ config.h
 .autotools
 .project
 .cproject
+Makefile
+src/Makefile

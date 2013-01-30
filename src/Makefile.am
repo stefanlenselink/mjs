@@ -6,7 +6,6 @@ mjs4_SOURCES = \
 	songdata/dirstack.c \
 	controller/keyboard_controller.c \
 	gui/misc.c \
-	songdata/mysql_songdata.c \
 	songdata/song.c \
 	gui/tokens.c \
 	gui/window_info.c \

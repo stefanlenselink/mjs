@@ -284,7 +284,7 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
     if ( *dent->d_name == '.' || dent->d_name == NULL)
       continue;
 
-    if ( ( ftmp = mp3_info ( dir, *dent->d_name, NULL, 0 ) ) ){
+    if ( ( ftmp = mp3_info ( dir, dent->d_name, NULL, 0 ) ) ){
       songdata_add ( list, list->tail, ftmp );
 	}
   }

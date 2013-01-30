@@ -414,5 +414,5 @@ void * keyboard_controller_thread(void * args){
 	while(1){
 		poll_keyboard();
 	}
-
+	return 0;
 }

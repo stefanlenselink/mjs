@@ -16,7 +16,6 @@
 #include <time.h>
 #include <locale.h>
 
-
 Config *conf;
 static struct sigaction handler;
 songdata * mp3list, *playlist;
@@ -65,17 +64,7 @@ int main(int argc, char *argv[]) {
 	handler.sa_flags = SA_RESTART;
 	sigaction(SIGCONT, &handler, NULL);
 
-	/*
-
-	 obsolete by new engine system?
-
-	 handler.sa_handler = (SIGHANDLER) restart_mpg_child;
-	 handler.sa_flags = SA_NOCLDSTOP | SA_RESTART;
-	 sigaction (SIGCHLD, &handler, NULL);*/
-
-	/*Uitgezet door Bug tijdens de Owee*/
-
-	//signal(SIGALRM, timer_handler);
+	signal(SIGALRM, timer_handler);
 	rttimer.it_value.tv_sec = 0; /* A signal will be sent 250 Milisecond*/
 	rttimer.it_value.tv_usec = 500000; /*  from when this is called */
 	rttimer.it_interval.tv_sec = 0; /* If the timer is not reset, the */
@@ -97,7 +86,7 @@ int main(int argc, char *argv[]) {
 	mp3list = songdata_init(conf, conf->colors);
 	playlist = controller_init(conf);
 	gui_init(conf, conf->colors, mp3list, playlist);
-	//setitimer(ITIMER_REAL, &rttimer, &old_rttimer);
+	setitimer(ITIMER_REAL, &rttimer, &old_rttimer);
 	//engine_jump_to("/home/hidde/Music/intro.mp3");
 	log_debug("MJS Started!!");
 

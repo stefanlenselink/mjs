@@ -1,7 +1,6 @@
 #include "defs.h"
 #include "songdata.h"
 #include "disk_songdata.h"
-#include "mysql_songdata.h"
 #include "log.h"
 
 
@@ -75,15 +74,18 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 	while ( !feof ( fp ) )
 	{
 		lines++;
-		fgets ( buf, 1024, fp );
-        window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
+		if(fgets ( buf, 1024, fp )){
+          window_menubar_progress_bar_animate(); //TODO moet eigenlijk met timer van uit main...
+		}
 	}
 	fclose ( fp );
 	errno = 0;
 	if ( ! ( fp = fopen ( filename, "r" ) ) )
 		return;
 
-	fgets ( buf, 1024, fp );
+	if(!fgets ( buf, 1024, fp )){
+		return;
+	}
 	if ( !strncmp ( "Playlist for mjs", buf, 16 ) )
 		playlist = 1;
 
@@ -258,6 +260,7 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
           break;
         default:
           window_menubar_progress_bar_init(READING);
+          break;
       }
       read_mp3_list_file ( list, list->from, append );
       if ( ( append & L_SEARCH ) && ( list->head ) )

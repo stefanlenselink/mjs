@@ -243,8 +243,7 @@ static int get_first_header ( mp3info *, long );
 static int get_header ( FILE *,mp3header * );
 static int frame_length ( mp3header * );
 static int sameConstant ( mp3header *, mp3header * );
-static int get_id3 ( mp3info *, int withBHID );
-static void searchBHID ( mp3info * );
+static int get_id3 ( mp3info *);
 
 static int isvalid ( const char * field, int checkSpaces )
 {
@@ -340,6 +339,7 @@ static int get_next_header ( mp3info *mp3 )
 			return 0;
 		}
 	}
+	return 0;
 }
 /* Get next MP3 frame header.
    Return codes:
@@ -418,7 +418,7 @@ static int sameConstant ( mp3header *h1, mp3header *h2 )
 	else return 0;
 }
 
-static int get_id3 ( mp3info *mp3, int withBHID )
+static int get_id3 ( mp3info *mp3 )
 {
 	int retcode=0;
 	char fbuf[4];
@@ -432,28 +432,45 @@ static int get_id3 ( mp3info *mp3, int withBHID )
 		}
 		else
 		{
-			fread ( fbuf,1,3,mp3->file ); fbuf[3] = '\0';
+			if(fread ( fbuf,1,3,mp3->file ) < 3){
+				//TODO log
+				return retcode | 4;
+			}
+			fbuf[3] = '\0';
 			mp3->id3.genre[0]=255;
 
 
 			if ( !strcmp ( ( const char * ) "TAG", ( const char * ) fbuf ) )
 			{
-				mp3->id3.bhid = -1;
-				mp3->bhid_isvalid = 0;
-				if ( withBHID )
-				{
-					fseek ( mp3->file, -136, SEEK_END );
-					searchBHID ( mp3 );
-				}
 				fseek ( mp3->file, -125, SEEK_END );
 				mp3->datasize -= 128;
 				mp3->id3_isvalid=1;
 				//fseek(mp3->file, -125, SEEK_END);
-				fread ( mp3->id3.title,1,30,mp3->file ); mp3->id3.title[30] = '\0';
-				fread ( mp3->id3.artist,1,30,mp3->file ); mp3->id3.artist[30] = '\0';
-				fread ( mp3->id3.album,1,30,mp3->file ); mp3->id3.album[30] = '\0';
-				fread ( mp3->id3.year,1,4,mp3->file ); mp3->id3.year[4] = '\0';
-				fread ( mp3->id3.comment,1,30,mp3->file ); mp3->id3.comment[30] = '\0';
+				if(fread ( mp3->id3.title,1,30,mp3->file ) < 30){
+					//TODO log
+					return retcode | 4;
+				}
+				mp3->id3.title[30] = '\0';
+				if(fread ( mp3->id3.artist,1,30,mp3->file ) < 30){
+					//TODO log
+					return retcode | 4;
+				}
+				mp3->id3.artist[30] = '\0';
+				if(fread ( mp3->id3.album,1,30,mp3->file ) < 30){
+					//TODO log
+					return retcode | 4;
+				}
+				mp3->id3.album[30] = '\0';
+				if(fread ( mp3->id3.year,1,4,mp3->file ) < 4){
+					//TODO log
+					return retcode | 4;
+				}
+				mp3->id3.year[4] = '\0';
+				if(fread ( mp3->id3.comment,1,30,mp3->file ) < 30){
+					//TODO log
+					return retcode | 4;
+				}
+				mp3->id3.comment[30] = '\0';
 				if ( mp3->id3.comment[28] == '\0' )
 				{
 					mp3->id3.track[0] = mp3->id3.comment[29];
@@ -463,61 +480,22 @@ static int get_id3 ( mp3info *mp3, int withBHID )
 					mp3->id3.track[0] = 0;
 				}
 				// Moet hier niet nog een track-nummer
-				fread ( mp3->id3.genre,1,1,mp3->file );
+				if(!fread ( mp3->id3.genre,1,1,mp3->file )){
+					//TODO log
+					return retcode | 4;
+				}
 				unpad ( mp3->id3.title );
 				unpad ( mp3->id3.artist );
 				unpad ( mp3->id3.album );
 				unpad ( mp3->id3.year );
 				unpad ( mp3->id3.comment );
 			}
-			else if ( withBHID )
-			{
-				fseek ( mp3->file, -8, SEEK_END );
-				searchBHID ( mp3 );
-			}
-
 		}
 	}
 	return retcode;
 
 }
-static void searchBHID ( mp3info * mp3 )
-{
-	int bytescounter = 0;
-	int intBuff;
-	char Buff[4];
-	mp3->datasize -= 8;
-	fread ( mp3->id3.bhtag,1,4,mp3->file );
-	mp3->id3.bhtag[4] = '\0';
-	if ( !strcmp ( ( const char * ) "BHID",mp3->id3.bhtag ) )
-	{
-		mp3->bhid_isvalid = 1;
-		fread ( Buff,1,4,mp3->file );
-		intBuff = Buff[0] << 24;
-		intBuff |= Buff[1] << 16;
-		intBuff |= Buff[2] << 8;
-		intBuff |= Buff[3];
-		mp3->id3.bhid = ( int ) intBuff;
-		return;
-	}
-	while ( strcmp ( ( const char * ) "BHID",mp3->id3.bhtag ) && bytescounter < 1024 )
-	{
-		fseek ( mp3->file, -5, SEEK_CUR );
-		fread ( mp3->id3.bhtag,1,4,mp3->file );
-		bytescounter++;
-	}
-	if ( bytescounter < 1024 )
-	{
-		mp3->id3.bhtag[4] = '\0';
-		fread ( Buff,1,4,mp3->file );
-		intBuff = Buff[0] << 24;
-		intBuff |= Buff[1] << 16;
-		intBuff |= Buff[2] << 8;
-		intBuff |= Buff[3];
-		mp3->id3.bhid = ( int ) intBuff;
-		mp3->bhid_isvalid = 1;
-	}
-}
+//TODO id3Only used??
 extern int get_mp3_info ( mp3info *mp3, int id3Only )
 {
 	int had_error = 0;
@@ -541,7 +519,7 @@ extern int get_mp3_info ( mp3info *mp3, int id3Only )
 		mp3->file = fopen(mp3->filename, "r");
 	}
 	mp3->datasize = filestat.st_size;
-	get_id3 ( mp3, !id3Only );
+	get_id3 ( mp3);
 	if ( id3Only ){
 		if(opendFile){
 			fclose(mp3->file);

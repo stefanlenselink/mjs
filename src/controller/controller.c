@@ -220,7 +220,9 @@ add_to_playlist_recursive ( songdata *list, songdata_song *position, songdata_so
 
 	songdata_clear ( templist );
 	free ( templist );
-	chdir ( prevpwd );
+	if(chdir ( prevpwd ) != 0){
+		//TODO Log this error
+	}
 	free ( prevpwd );
 }
 

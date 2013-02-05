@@ -10,13 +10,14 @@ mjs4_SOURCES = \
 	gui/gui.c \
 	log.c \
 	songdata/mjs_id3.c \
-	controller/f12automaat.c \
 	songdata/songdata.c \
 	controller/json.c \
-	controller/http_constroller.c \
+	controller/http_controller.c \
 	gui/window.c \
-        gui/filelist.c \
+	gui/filelist.c \
 	gui/playlist.c \
-        gui/info.c \
+	gui/info.c \
 	gui/playback.c \
-	gui/bar.c
+	gui/bar.c \
+	plugin/plugin.c \
+	plugin/f12automaat.c

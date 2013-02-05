@@ -67,7 +67,9 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 	while ( !feof ( fp ) )
 	{
 		lines++;
-		fgets ( buf, 1024, fp );
+		if(!fgets ( buf, 1024, fp )){
+			break;
+		}
         gui_progress_animate(); //TODO moet eigenlijk met timer van uit main...
 	}
 	fclose ( fp );
@@ -252,6 +254,7 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
           break;
         default:
           gui_progress_start(READING);
+          break;
       }
       read_mp3_list_file ( list, list->from, append );
       if ( ( append & L_SEARCH ) && ( list->head ) )

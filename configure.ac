@@ -5,7 +5,6 @@ LT_INIT[dlopen]
 
 AC_PREREQ(2.59)
 
-AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE([subdir-objects foreign])
 AC_LANG_C
 AC_PROG_CC

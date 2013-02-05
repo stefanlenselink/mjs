@@ -25,7 +25,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include <json.h>
+#include "json.h"
 #include <microhttpd.h>
 
 #include "songdata/songdata.h"

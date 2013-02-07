@@ -30,13 +30,31 @@ static void set_color_defaults ( void );
 static void set_window ( WindowConfig *, char *, char * );
 static int break_line ( const char *, char *, char *, char * );
 static void parseConfig ( Config * conf, char * fname );
-
+static void config_shutdown_window(WindowConfig);
 int * colors;
 
 Config * conf;
+
+static void config_shutdown_window(WindowConfig win)
+{
+	if(win.format){
+		free(win.format);
+	}
+	if(win.title_dfl){
+		free(win.title_dfl);
+	}
+	if(win.title_fmt){
+		free(win.title_fmt);
+	}
+}
+
 void config_shutdown ()
 {
-	//TODO free the stdups from :475 etc..
+	config_shutdown_window(conf->files_window);
+	config_shutdown_window(conf->info_window);
+	config_shutdown_window(conf->play_window);
+	config_shutdown_window(conf->menubar_window);
+	config_shutdown_window(conf->playback_window);
 	free ( conf );
 }
 Config *

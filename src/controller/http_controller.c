@@ -327,6 +327,7 @@ char * http_post_playlist_item(char *url, json_value *data)
     newsong->title = strdup(filename);
 
     free(location);
+    free(path);
     location = NULL;
 
     songdata_add(playlist, song, newsong);

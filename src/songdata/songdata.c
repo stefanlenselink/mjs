@@ -232,12 +232,18 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
       n = readlink ( from, tempdir, sizeof ( tempdir ) );
       tempdir[n]='\0';
 
+      if(list->from){
+          	  free(list->from);
+      }
       list->from = strdup ( tempdir );
       stat ( list->from, &st );
     }
-    else
+    else{
+      if(list->from){
+    	  free(list->from);
+      }
       list->from = strdup ( from );
-
+    }
 
     if ( S_ISDIR ( st.st_mode ) )
     {
@@ -357,6 +363,7 @@ void songdata_shutdown ( void )
 {
  //   mysql_songdata_shutdown(); //TODO wisselen
     disk_songdata_shutdown();
+    free(mp3list->from);
 	free ( mp3list );
 }
 

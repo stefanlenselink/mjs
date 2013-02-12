@@ -63,4 +63,5 @@ void plugin_shutdown(void) {
 		
 		dlclose(plugins[i].handle);
 	}
+	free(plugins);
 }

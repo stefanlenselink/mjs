@@ -225,4 +225,5 @@ void gui_input_filelist(int c) {
 
 void gui_shutdown_filelist(void) {
 	window_free(filelist_window);
+	free(previous_selected);
 }

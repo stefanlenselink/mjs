@@ -349,11 +349,9 @@ songdata * songdata_init ( Config * init_conf, int init_colors[] )
 	conf = init_conf;
 	colors = init_colors;
     log_init();
-    //TODO wisselen
-//    mysql_songdata_init(init_conf);
+
     disk_songdata_init(init_conf);
-    
-    
+
 	mp3list = ( songdata * ) malloc( sizeof ( songdata ) );
     memset(mp3list, 0, sizeof(songdata));
 	songdata_read_mp3_list ( mp3list, conf->mp3path, L_NEW );
@@ -361,7 +359,6 @@ songdata * songdata_init ( Config * init_conf, int init_colors[] )
 }
 void songdata_shutdown ( void )
 {
- //   mysql_songdata_shutdown(); //TODO wisselen
     disk_songdata_shutdown();
     free(mp3list->from);
 	free ( mp3list );
@@ -406,7 +403,7 @@ void songdata_randomize(songdata * list)
   free ( farray );
 }
 
-
+//TODO move to song.c
 songdata_song * new_songdata_song(void)
 {
   songdata_song * newfile = malloc( sizeof ( songdata_song ) );

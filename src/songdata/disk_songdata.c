@@ -73,17 +73,19 @@ songdata_song *
 
   fullpath = calloc ( strlen ( abspath ) + filename_len + 2, sizeof ( char ) );
   sprintf ( fullpath, "%s/%s", abspath, filename );
-  if ( ( length = strlen ( conf->mp3path ) ) == strlen ( abspath ) + 1 )
-    path = "\0";
+  int jmp = 0;
+  if ( ( length = strlen ( conf->mp3path ) ) == strlen ( abspath ) + 1 ){
+    path = strdup("\0");
+  }
   else
   {
-		//TODO is dit nog steeds correct?
-    path = strdup ( abspath );
-    path += strlen ( conf->mp3path );
-  }
-  if ( path[0]=='/' )
-    path++;
+		jmp = strlen ( conf->mp3path );
+	  if ( abspath[jmp]=='/' ){
+		  jmp++;
+	  }
 
+	  path = strdup(abspath + jmp);
+  }
   if ( filename[0]=='.' )
   {
     ftmp = new_songdata_song();
@@ -93,6 +95,7 @@ songdata_song *
     ftmp->path = strdup ( path );
     ftmp->relpath = strdup ( path );
     free(fullpath);
+    free(path);
     return ftmp;
   }
 
@@ -122,6 +125,7 @@ songdata_song *
     {
       if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3) && strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 )){
     	  free(fullpath);
+    	  free(path);
         return NULL;
       }
 
@@ -167,6 +171,7 @@ songdata_song *
         FILE * file = fopen ( fullpath, "r" );
         if(!file){
         	free(fullpath);
+        	free(path);
         	return NULL;
         }
 
@@ -243,6 +248,7 @@ songdata_song *
     }
   }
   free ( fullpath );
+  free(path);
   return ftmp;
 
 }

@@ -57,6 +57,7 @@ void http_controller_init(Config * cnf) {
 }
 
 void http_controller_shutdown(void) {
+	MHD_stop_daemon(http_daemon);
 }
 
 void http_poll(void) {

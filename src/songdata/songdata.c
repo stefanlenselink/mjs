@@ -361,7 +361,8 @@ void songdata_shutdown ( void )
 {
     disk_songdata_shutdown();
     free(mp3list->from);
-	free ( mp3list );
+    songdata_clear(mp3list);
+    free ( mp3list );
 }
 
 void songdata_randomize(songdata * list)

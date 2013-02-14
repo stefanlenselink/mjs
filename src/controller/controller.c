@@ -292,6 +292,7 @@ songdata * controller_init (Config * init_config)
 
 void controller_shutdown ( void )
 {
+	http_controller_shutdown();
 	free ( playlist );
 }
 

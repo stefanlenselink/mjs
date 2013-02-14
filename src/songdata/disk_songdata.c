@@ -92,6 +92,7 @@ songdata_song *
     ftmp->fullpath = strdup ( "../" );
     ftmp->path = strdup ( path );
     ftmp->relpath = strdup ( path );
+    free(fullpath);
     return ftmp;
   }
 
@@ -120,6 +121,7 @@ songdata_song *
     else if ( S_ISREG ( st.st_mode ) )
     {
       if ( !engine_extention_is_supported(strrchr ( filename, '\0' ) - 3) && strncasecmp ( ".mjs", strchr ( filename, '\0' ) - 4, 4 )){
+    	  free(fullpath);
         return NULL;
       }
 
@@ -163,7 +165,10 @@ songdata_song *
         ftmp->title = strdup ( ftmp->filename );
 				//id3tag_t tag;
         FILE * file = fopen ( fullpath, "r" );
-        if(!file) return NULL;
+        if(!file){
+        	free(fullpath);
+        	return NULL;
+        }
 
         mp3info mp3;
         memset ( &mp3,0,sizeof ( mp3info ) );

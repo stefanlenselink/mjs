@@ -44,8 +44,10 @@ static void event_callback ( void *, const xine_event_t *);
 
 int engine_extention_is_supported(char * ext)
 {
-	//TODO xine_get_file_extensions needs free
-  return strcasestr("mp3 ogg flac acc wav voc",ext) && strcasestr(xine_get_file_extensions(engine), ext);
+	char * xine_file_extensions = xine_get_file_extensions(engine);
+	int res = strcasestr("mp3 ogg flac acc wav voc", ext) && strcasestr(xine_file_extensions, ext);
+	free(xine_file_extensions);
+	return res;
 }
 
 static int is_safe(char c)

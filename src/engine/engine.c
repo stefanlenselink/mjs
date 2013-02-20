@@ -17,12 +17,9 @@
 
 xine_t * engine; // Main libxine object
 xine_audio_port_t * ap; // The audio driver
-xine_video_port_t * vp; // The video driver
 xine_stream_t * stream; // Stream object
 
 xine_stream_t * meta_stream; // Meta Stream object
-xine_audio_port_t * meta_ap; // The audio driver
-xine_video_port_t * meta_vp; // The video driver
 
 xine_event_queue_t * queue; // The event queue running on the stream object.
 
@@ -47,6 +44,7 @@ static void event_callback ( void *, const xine_event_t *);
 
 int engine_extention_is_supported(char * ext)
 {
+	//TODO xine_get_file_extensions needs free
   return strcasestr("mp3 ogg flac acc wav voc",ext) && strcasestr(xine_get_file_extensions(engine), ext);
 }
 
@@ -156,32 +154,22 @@ static void event_callback ( void *user_data, const xine_event_t *event )
 void engine_init ( Config * init_conf)
 {
 	conf = init_conf;
+
 	// Create our libxine engine, and initialise it
 	engine = xine_new();
-	xine_config_load(engine, "/tmp/xine.config");
 	xine_init ( engine );
-
-	// We don't need a video driver
-	vp = xine_open_video_driver ( engine, NULL, XINE_VISUAL_TYPE_NONE, NULL );
 
 	// Automatically choose an audio driver
 	ap = xine_open_audio_driver ( engine, NULL, NULL );
 
 	// Create a new stream object
-	stream = xine_stream_new ( engine, ap, vp );
+	stream = xine_stream_new ( engine, ap, NULL );
 
- 	// We don't need a video driver
-	meta_vp = xine_open_video_driver ( engine, NULL, XINE_VISUAL_TYPE_NONE, NULL );
-
-	// Automatically choose an audio driver
-	meta_ap = xine_open_audio_driver ( engine, NULL, NULL );
-
-	meta_stream = xine_stream_new ( engine, meta_ap, meta_vp );
+	meta_stream = xine_stream_new ( engine, NULL, NULL );
 
 	//TODO in CFG zetten??
 	xine_set_param ( stream, XINE_PARAM_EARLY_FINISHED_EVENT, 1 );
 
-	//TODO Free Queue
 	queue = xine_event_new_queue ( stream );
 
 	xine_event_create_listener_thread ( queue, event_callback, NULL );
@@ -340,21 +328,21 @@ void engine_volume_down ( int ammount )
 void engine_shutdown ( void )
 {
 	// Stop playing and close down the stream
-	xine_close ( stream );
-	xine_close( meta_stream );
+	xine_stop( stream );
+	xine_stop( meta_stream );
 
 	xine_event_dispose_queue(queue);
+
+	xine_close(stream);
+	xine_close(meta_stream);
 
 	xine_dispose(stream);
 	xine_dispose(meta_stream);
 
 	// Now shut down cleanly
 	xine_close_audio_driver ( engine, ap );
-	xine_close_video_driver ( engine, vp );
 
     // Now shut down cleanly
-   	xine_close_audio_driver ( engine, meta_ap );
-    xine_close_video_driver ( engine, meta_vp );
 	xine_exit ( engine );
 }
 
@@ -409,15 +397,19 @@ void engine_load_current_meta_info(songdata_song * file){
 }
 
 void engine_load_meta_info(songdata_song * file){
-  char tmp3[1024] = "", tmp2[1024] = "";
+  char * tmp3 = calloc(1024, sizeof(char));
+  char * tmp2 = calloc(1024, sizeof(char));
   if(file->fullpath[0] == '/'){
     url_encode(file->fullpath, tmp3);
     sprintf(tmp2, "file:/%s", tmp3);
   }else{
+    free(tmp3);
+    free(tmp2);
     return; //We only handle files!
   }
-
   xine_open ( meta_stream, tmp2);
   engine_load_meta_info_from_stream(file, meta_stream);
+  xine_close(meta_stream);
+  free(tmp3);
+  free(tmp2);
 }
-

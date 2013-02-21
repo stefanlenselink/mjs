@@ -319,7 +319,7 @@ char * http_post_playlist_item(char *url, json_value *data)
 	    return NULL;
 
     char *filename = strdup(location);
-    char *path = split_filename(&filename);
+    char *path = split_filename(filename);
     
     songdata_song *newsong = new_songdata_song();
     newsong->fullpath = strdup(location);;
@@ -375,7 +375,7 @@ char * http_post_playlist(json_value *data)
     char *fullpath = http_json_extract(data, "location");
 
     char *filename = strdup(fullpath);
-    char *path = split_filename(&filename);
+    char *path = split_filename(filename);
     
     songdata_song *newsong = new_songdata_song();
     newsong->fullpath = fullpath;

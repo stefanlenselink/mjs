@@ -9,25 +9,30 @@
 
 Config * conf;
 
-    char *
-    split_filename ( char **s )
-{
-  char *part;
-  char *end;
-  int length;
-  if ( !*s )
-    return NULL;
-  if ( ( *s ) [0]=='/' )
-    ( *s ) ++;
-  if ( ( end = strchr ( *s, '/' ) ) )
-    length = end - *s;
-  else
-    length = strlen ( *s );
-  part = calloc ( length + 1, sizeof ( char ) );
-  strncpy ( part, *s, length );
-  part[length] = '\0';
-  *s = end;
-  return part;
+char *
+split_filename(char * filename) {
+	char *part;
+	char *end;
+	char * s;
+	int length;
+	if (!filename) {
+		return NULL;
+	}
+	if (filename[0] == '/') {
+		s = strdup(filename + 1);
+	} else {
+		s = strdup(filename);
+	}
+	if ((end = strchr(s, '/'))) {
+		length = end - s;
+	} else {
+		length = strlen(s);
+	}
+	part = calloc(length + 1, sizeof(char));
+	strncpy(part, s, length);
+	part[length] = '\0';
+	free(s);
+	return part;
 }
 
 songdata_song *
@@ -138,9 +143,9 @@ songdata_song *
       {
 // suppored-file
         if ( conf->c_flags & C_USE_GENRE )
-          ftmp->genre = split_filename ( &path );
+          ftmp->genre = split_filename ( path );
 
-        ftmp->artist = split_filename ( &path );
+        ftmp->artist = split_filename ( path );
 
         if ( playlistname )
         {

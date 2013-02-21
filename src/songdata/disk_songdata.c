@@ -210,6 +210,9 @@ songdata_song *
                   //Other formats Meta info...
           engine_load_meta_info(ftmp);
           if(ftmp->title && ftmp->artist){
+        	  if(ftmp->filename != NULL){
+        		  free(ftmp->filename);
+        	  }
             ftmp->filename = calloc ( strlen ( ftmp->title ) + strlen ( ftmp->artist ) + 4, sizeof ( char ) );
             sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
           }

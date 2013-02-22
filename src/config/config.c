@@ -90,6 +90,7 @@ config_init ( void )
 	conf->plugin_dir = NULL;
     conf->serial_device = NULL;
     conf->c_flags = 0;
+    conf->statefile[1] = '\0';
     
 	strncpy ( conf->mpgpath, MPGPATH, 255 );
 	colors = conf->colors;
@@ -116,6 +117,8 @@ config_init ( void )
 		strcpy ( conf->mpgpath,"mpg123\0" );
 	if ( conf->mp3path[1]=='\0' )
 		strcpy ( conf->mp3path,"/home/stefan/mp3/\0" );
+	if(conf->statefile[1]=='\0')
+		strcpy(conf->statefile, "");
 
 	return conf;
 }

@@ -46,3 +46,4 @@ src/Makefile
 src/Makefile.in
 tools/src/Makefile
 tools/src/Makefile.in
+.settings

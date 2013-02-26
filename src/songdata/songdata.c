@@ -247,8 +247,7 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
 
     if ( S_ISDIR ( st.st_mode ) )
     {
-      //mysql_songdata_read_mp3_list_dir ( list, list->from, append ); //TODO moet nog kunnen wisselen
-      disk_songdata_read_mp3_list_dir ( list, list->from, append ); //TODO moet nog kunnen wisselen
+      disk_songdata_read_mp3_list_dir ( list, list->from, append );
       sort_songs ( list );
     }
     else

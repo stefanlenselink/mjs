@@ -6,6 +6,7 @@
 #include "engine/engine.h"
 
 #include <curses.h>
+#include <term.h>
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
@@ -180,4 +181,5 @@ void gui_shutdown(void) {
 	wclear(stdscr);
 	refresh();
 	endwin();
+	del_curterm(cur_term);
 }

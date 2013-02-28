@@ -1,8 +1,7 @@
 Quick installation
 ==================
 
-1) Run "./bootstrap", if you got the source from git. (or autoreconf && automake --add-missing)
- 1053  ./configure 
+1) Run ".or autoreconf && automake --add-missing", if you got the source from git.
 2) Run "./configure".
 3) Run "make".
 4) Run "make install" as root.

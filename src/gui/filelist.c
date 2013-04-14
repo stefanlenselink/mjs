@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-static char *previous_selected; // previous selected number
+songdata_song *previous_selected;
 static char typed_letters[11] = "\0"; // letters previously typed when jumping
 static time_t typed_letters_last_activity; // timeout for previously typed letters
 
@@ -23,8 +23,7 @@ void gui_init_filelist(void) {
 		conf->files_window.width = COLS - conf->files_window.x;
 	}
 	window_init(filelist_window, WINDOW_NAME_FILELIST, &conf->files_window);
-	
-	previous_selected = strdup("");
+
 	time(&typed_letters_last_activity);
 }
 
@@ -59,6 +58,7 @@ void gui_input_filelist(int c) {
 	int alt = 0;
 	int n;
 	songdata_song *ftmp;
+    songdata_song *selected = mp3list->selected;
 
 	if (c == 27) {
 		alt = 1;
@@ -90,9 +90,6 @@ void gui_input_filelist(int c) {
 					gui_update_filelist();
 				} else {
 					// add songs from directory
-					if (previous_selected)
-						free(previous_selected);
-					previous_selected = strdup(mp3list->selected->fullpath);
 					if ((!(mp3list->flags & F_VIRTUAL)) & (strcmp("../", mp3list->selected->fullpath))) {
 						add_to_playlist_recursive(playlist, playlist->tail, mp3list->selected);
 						gui_update_playlist();
@@ -107,21 +104,18 @@ void gui_input_filelist(int c) {
 					add_to_playlist_recursive(playlist, playlist->tail, mp3list->selected);
 					gui_update_playlist();
 				}
-			} else // normal mp3
-				if (strcmp(previous_selected, mp3list->selected->fullpath)) {
-				if (previous_selected)
-					free(previous_selected);
-				previous_selected = strdup(mp3list->selected->fullpath);
-
-				if (!alt)
-					add_to_playlist(playlist, playlist->tail, mp3list->selected);
-				else
-					add_to_playlist(playlist, playlist->selected, mp3list->selected);
-				gui_update_playlist();
-				if (conf->c_flags & C_FADVANCE) {
-					window_input(filelist_window, KEY_DOWN);
-				}
-			}
+			} else { // normal mp3
+				if (mp3list->selected != previous_selected) {
+                    if (!alt)
+                        add_to_playlist(playlist, playlist->tail, mp3list->selected);
+                    else
+                        add_to_playlist(playlist, playlist->selected, mp3list->selected);
+                    gui_update_playlist();
+                    if (conf->c_flags & C_FADVANCE) {
+                        window_input(filelist_window, KEY_DOWN);
+                    }
+                }
+            }
 			break;
 		case KEY_LEFT:
 			// leave directory
@@ -157,12 +151,7 @@ void gui_input_filelist(int c) {
 			break;
 		case KEY_IC:
 			if (!((mp3list->selected->flags & F_DIR) | (mp3list->selected->flags & F_PLAYLIST)))
-				if (strcmp(previous_selected, mp3list->selected->fullpath)) {
-					// we dont want to add the last file multiple times
-					if (previous_selected)
-						free(previous_selected);
-					previous_selected = strdup(mp3list->selected->fullpath);
-
+				if (mp3list->selected != previous_selected) {
 					if (playlist->playing)
 						add_to_playlist(playlist, playlist->playing, mp3list->selected);
 					else
@@ -221,9 +210,10 @@ void gui_input_filelist(int c) {
 			window_input(filelist_window, c);
 			break;
 	}
+    
+    previous_selected = selected;
 }
 
 void gui_shutdown_filelist(void) {
 	window_free(filelist_window);
-	free(previous_selected);
 }

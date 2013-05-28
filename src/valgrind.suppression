@@ -6,15 +6,6 @@
    fun:xine_init
 }
 {
-   xine_2
-   Memcheck:Leak
-   ...
-   obj:/usr/lib/libxine.so.2.2.0
-   ...
-   fun:engine_init
-   fun:main
-}
-{
    xine_3
    Memcheck:Cond
    ...

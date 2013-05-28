@@ -13,7 +13,6 @@
 
 #include <time.h>
 #include <locale.h>
-#include <dlfcn.h>
 
 static struct sigaction handler;
 

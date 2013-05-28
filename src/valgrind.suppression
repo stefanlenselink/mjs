@@ -30,35 +30,3 @@
    obj:/usr/lib/libxine.so.2.2.0
    ...
 }
-{
-   xine_5
-   Memcheck:Leak
-   fun:malloc
-   fun:pa_xmalloc
-   obj:/usr/lib/x86_64-linux-gnu/libpulse.so.0.14.3
-   fun:pa_context_subscribe
-   obj:/usr/lib/xine/plugins/2.2/xineplug_ao_out_pulseaudio.so
-   obj:/usr/lib/xine/plugins/2.2/xineplug_ao_out_pulseaudio.so
-   obj:/usr/lib/libxine.so.2.2.0
-   obj:/usr/lib/libxine.so.2.2.0
-   obj:/usr/lib/xine/plugins/2.2/xineplug_decode_mad.so
-   obj:/usr/lib/libxine.so.2.2.0
-   fun:start_thread
-}
-{
-   xine_6
-   Memcheck:Leak
-   fun:malloc
-   fun:pa_xmalloc
-   obj:/usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-2.1.so
-   fun:pa_log_set_ident
-   obj:/usr/lib/x86_64-linux-gnu/pulseaudio/libpulsecommon-2.1.so
-   fun:pa_log_levelv_meta
-   fun:pa_log_level_meta
-   fun:pa_mempool_new
-   fun:pa_context_new_with_proplist
-   obj:/usr/lib/xine/plugins/2.2/xineplug_ao_out_pulseaudio.so
-   obj:/usr/lib/xine/plugins/2.2/xineplug_ao_out_pulseaudio.so
-   obj:/usr/lib/libxine.so.2.2.0
-}
-

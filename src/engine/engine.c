@@ -394,10 +394,6 @@ static void engine_load_meta_info_from_stream(songdata_song * file, xine_stream_
 
 }
 
-void engine_load_current_meta_info(songdata_song * file){
-  engine_load_meta_info_from_stream(file, stream);
-}
-
 void engine_load_meta_info(songdata_song * file){
   char * tmp3 = calloc(1024, sizeof(char));
   char * tmp2 = calloc(1024, sizeof(char));

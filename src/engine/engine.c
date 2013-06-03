@@ -390,7 +390,7 @@ static char * rtrim(char *s)
 static char * engine_load_meta_info_update_field(char * old, xine_stream_t *stream, int info){
   const char * tmp = xine_get_meta_info(stream, info);
   if(tmp == NULL || !strlen(tmp)){
-    return;
+    return NULL;
   }
   char * edit = strdup(tmp);
   char * clean = ltrim(rtrim(edit));
@@ -403,10 +403,22 @@ static char * engine_load_meta_info_update_field(char * old, xine_stream_t *stre
 }
 
 static void engine_load_meta_info_from_stream(songdata_song * file, xine_stream_t * str){
-  file->title = engine_load_meta_info_update_field(file->title, str, XINE_META_INFO_TITLE);
-  file->artist = engine_load_meta_info_update_field(file->artist, str, XINE_META_INFO_ARTIST);
-  file->album = engine_load_meta_info_update_field(file->album, str, XINE_META_INFO_ALBUM);
-  file->genre =  engine_load_meta_info_update_field(file->genre, str, XINE_META_INFO_GENRE);
+  char * tmp = engine_load_meta_info_update_field(file->title, str, XINE_META_INFO_TITLE);
+  if(tmp){
+    file->title = tmp;
+  }
+  tmp = engine_load_meta_info_update_field(file->artist, str, XINE_META_INFO_ARTIST);
+  if(tmp){
+    file->artist = tmp;
+  }
+  tmp = engine_load_meta_info_update_field(file->album, str, XINE_META_INFO_ALBUM);
+  if(tmp){
+    file->album = tmp;
+  }
+  tmp = engine_load_meta_info_update_field(file->genre, str, XINE_META_INFO_GENRE);
+  if(tmp){
+    file->genre = tmp;
+  }
 }
 
 void engine_load_meta_info(songdata_song * file){
@@ -420,7 +432,11 @@ void engine_load_meta_info(songdata_song * file){
     free(tmp2);
     return; //We only handle files!
   }
-  xine_open ( meta_stream, tmp2);
+  if(!xine_open ( meta_stream, tmp2)){
+    free(tmp3);
+    free(tmp2);
+    return;
+  }
   engine_load_meta_info_from_stream(file, meta_stream);
   xine_close(meta_stream);
   free(tmp3);

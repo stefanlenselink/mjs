@@ -417,7 +417,6 @@ songdata_song * new_songdata_song(void)
   newfile->artist = NULL;
   newfile->genre = NULL;
   newfile->title = NULL;
-  newfile->has_id3 = 0;
   newfile->track_id = 0;
   newfile->length = 0;
   newfile->catalog_id = 1;

@@ -265,7 +265,6 @@ add_to_playlist ( songdata *list, songdata_song *position, songdata_song *file )
 	if ( file->title )
 		newfile->title = strdup ( file->title );
 
-	newfile->has_id3 = file->has_id3;
 	newfile->track_id = file->track_id;
 	newfile->length = file->length;
 

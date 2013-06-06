@@ -26,7 +26,6 @@ typedef struct _songdata_song
 	char *artist;
 	char *genre;
 	char *title;
-	int has_id3;
 	int track_id;
 	int length;
     int catalog_id;

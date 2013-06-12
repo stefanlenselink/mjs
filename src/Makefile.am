@@ -9,7 +9,6 @@ mjs4_SOURCES = \
 	songdata/disk_songdata.c \
 	gui/gui.c \
 	log.c \
-	songdata/mjs_id3.c \
 	songdata/songdata.c \
 	controller/json.c \
 	controller/http_controller.c \
@@ -21,3 +20,4 @@ mjs4_SOURCES = \
 	gui/bar.c \
 	plugin/plugin.c \
 	plugin/f12automaat.c
+mjs4_CFLAGS=$(apreq_includes)

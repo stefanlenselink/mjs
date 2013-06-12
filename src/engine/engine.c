@@ -11,6 +11,8 @@
 
 #include <unistd.h>
 
+#include <apreq_util.h>
+
 #include "controller/controller.h"
 #include "gui/gui.h"
 #include "log.h"
@@ -37,7 +39,6 @@ Config * conf;
 char * current_song;
 
 /* Private internal functions */
-static int is_safe(char);
 static void url_encode(char *, char *);
 static void xine_open_and_play(char *);
 static void event_callback ( void *, const xine_event_t *);
@@ -50,52 +51,37 @@ int engine_extention_is_supported(char * ext)
 	return res;
 }
 
-static int is_safe(char c)
-{
-  #define SAFE_LEN 18
-  const char SAFE[SAFE_LEN] = ";?:@&=+$,-_.!~*'()";
-  int i;
-      if( ('a' <= c && c <= 'z')
-      || ('A' <= c && c <= 'Z')
-      || ('0' <= c && c <= '9') ){
-    return 1;
-      }else{
-        for(i = 0; i < SAFE_LEN; i++)
-        {
-          if(c == SAFE[i]){
-            return 1;
-          }
-        }
-      }
-      return 0;
-}
-
 static void url_encode(char * src, char * dest)
 {
-  int length = strlen(src);
+  char * apreq_encoded_dest = malloc(sizeof(char) * ((3* strlen(src)) + 1));
+  char * start_loc = apreq_encoded_dest;
+  apreq_encode(apreq_encoded_dest, src, strlen(src));
   int i;
-  const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
-  for(i = 0; i < length; ++src)
+  int length = strlen(apreq_encoded_dest);
+  for(i = 0; i < length; ++apreq_encoded_dest)
   {
     i++;
-    if (is_safe(*src))
-      *dest++ = *src;
-    else
-    {
+    if (*apreq_encoded_dest != '+'){
+      *dest++ = *apreq_encoded_dest;
+    }else{
          // escape this char
       *dest++ = '%';
-      *dest++ = DEC2HEX[*src >> 4];
-      *dest++ = DEC2HEX[*src & 0x0F];
+      *dest++ = '2';
+      *dest++ = '0';
     }
   }
+  //Add termination char as last always.
+  *dest++ = '\0';
+  free(start_loc);
 }
 static void xine_open_and_play(char * file)
 {
   int tmp;
-  char tmp3[1024] = "", tmp2[1024] = "";
   if(file == NULL){
     return;
   }
+  char * tmp3 = malloc(((sizeof(char) * strlen(file) * 3)) + 1);
+  char * tmp2 = malloc(((sizeof(char) * strlen(file) * 3)) + 7);
   if(file[0] == '/'){
     url_encode(file, tmp3);
     sprintf(tmp2, "file:/%s", tmp3);
@@ -103,19 +89,16 @@ static void xine_open_and_play(char * file)
     sprintf(tmp2, "%s", file);
   }
   xine_close ( stream );
+  log_debug(tmp2);
+  free(tmp3);
   if(!xine_open ( stream, tmp2)){
-    char buf[512];
-    sprintf(buf,"xine-open faild: %d", xine_get_error(stream) );
-    //log_debug(buf);
     return;
   }
+  free(tmp2);
   if(!xine_play ( stream, 0, 0 )){
-    char buf[512];
-    sprintf(buf,"xine-play faild: %d", xine_get_error(stream) );
-    //log_debug(buf);
     return;
   }
- int count = 0;
+  int count = 0;
   while ( !xine_get_pos_length ( stream, &tmp, &tmp, &length ) ) // The header file states: "probably because it's not known yet... try again later"
   {
 	sleepTS.tv_sec = 0;
@@ -422,23 +405,19 @@ static void engine_load_meta_info_from_stream(songdata_song * file, xine_stream_
 }
 
 void engine_load_meta_info(songdata_song * file){
-  char * tmp3 = calloc(1024, sizeof(char));
-  char * tmp2 = calloc(1024, sizeof(char));
-  if(file->fullpath[0] == '/'){
-    url_encode(file->fullpath, tmp3);
-    sprintf(tmp2, "file:/%s", tmp3);
-  }else{
-    free(tmp3);
-    free(tmp2);
-    return; //We only handle files!
+  if(file->fullpath[0] != '/'){
+	  return;
   }
+  char * tmp3 = calloc((strlen(file->fullpath) * 3) + 1, sizeof(char));
+  url_encode(file->fullpath, tmp3);
+  char * tmp2 = calloc(strlen(tmp3) + 7, sizeof(char));
+  sprintf(tmp2, "file:/%s", tmp3);
+  free(tmp3);
   if(!xine_open ( meta_stream, tmp2)){
-    free(tmp3);
     free(tmp2);
     return;
   }
   engine_load_meta_info_from_stream(file, meta_stream);
   xine_close(meta_stream);
-  free(tmp3);
   free(tmp2);
 }

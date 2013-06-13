@@ -263,9 +263,16 @@ char * http_get_song_json(songdata_song *song)
 {
     char *uid = http_get_song_uid(song);
     char file[1024];
-    snprintf(file, 1024, "{\"uid\":\"%s\", \"location\":\"%s\"}", uid, song->fullpath);
+
+    char *tag = song->tag;
+    if(tag == NULL)
+	    tag = strdup("");
+
+    snprintf(file, 1024, "{\"uid\":\"%s\", \"location\":\"%s\", \"tag\":\"%s\"}", uid, song->fullpath, tag);
     free(uid);
+    free(tag);
     uid = NULL;
+    tag = NULL;
     return strdup(file);
 }
 
@@ -309,8 +316,11 @@ char * http_delete_playlist_item(char *url)
 char * http_post_playlist_item(char *url, json_value *data)
 {
     char *location = http_json_extract(data, "location");
+    char *tag = http_json_extract(data, "tag");
     if(location == NULL)
 	    return NULL;
+    if(tag == NULL)
+	    tag = strdup("");
 
     char *uid = url + 10; //Skip /playlist/
 
@@ -326,11 +336,13 @@ char * http_post_playlist_item(char *url, json_value *data)
     newsong->filename = strdup(filename);
     newsong->path = strdup(path);
     newsong->title = strdup(filename);
+    newsong->tag = tag;
 
     free(location);
-    free(path);
     location = NULL;
 
+    free(path);
+    path = NULL;
     songdata_add(playlist, song, newsong);
 
     return NULL;
@@ -373,6 +385,11 @@ char * http_post_current(json_value *data)
 char * http_post_playlist(json_value *data)
 {
     char *fullpath = http_json_extract(data, "location");
+    char *tag = http_json_extract(data, "tag");
+    if(fullpath == NULL)
+	return;
+    if(tag == NULL)
+	tag = strdup("");
 
     char *filename = strdup(fullpath);
     char *path = split_filename(filename);
@@ -382,6 +399,7 @@ char * http_post_playlist(json_value *data)
     newsong->filename = strdup(filename);
     newsong->path = strdup(path);
     newsong->title = strdup(filename);
+    newsong->tag = tag;
 
     free(path);
 
@@ -428,10 +446,10 @@ char* http_get_index()
             "\n"
             "<h3>POST /playlist</h3>\n"
             "<p><pre>Content-type: application/json\n"
-            "{ \"location\": \"/path/to/file.mp3\" }</pre>\n"
-            "Creates a new file at the end of the playlist and redirects to the created file.<br>\n"
-            "<strong>Test:</strong><br><input type=\"text\" id=\"postplaylistinput\">\n"
-            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist', data: JSON.stringify({'location':$('#postplaylistinput').val() }), contentType: 'application/json'}); return false;\">post</a>\n"
+            "{ \"location\": \"/path/to/file.mp3\", \"tag\": \"tag1\" }</pre>\n"
+            "Creates a new file at the end of the playlist.<br>\n"
+            "<strong>Test:</strong><br><input type=\"text\" id=\"postplaylistinput\">, tag: <input type=\"text\" id=\"postplaylisttag\">\n"
+            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist', data: JSON.stringify({'location':$('#postplaylistinput').val(), 'tag':$('#postplaylisttag').val()}), contentType: 'application/json'}); return false;\">post</a>\n"
             "</p>\n"
             "\n"
             "<h3>DELETE /playlist</h3>\n"
@@ -463,11 +481,11 @@ char* http_get_index()
             "\n"
             "<h3>POST /playlist/<strong><em>uid</em></strong></h3>\n"
             "<p><pre>Content-type: application/json\n"
-            "{ \"location\": \"/path/to/file.mp3\" }</pre>\n"
+            "{ \"location\": \"/path/to/file.mp3\", \"tag\":\"tag2\" }</pre>\n"
             "Inserts a file before the selected file and redirects to the new resource.<br>\n"
             "URL example: /playlist/67dd3588-d684-11e1-b877-0001805c669b<br>\n"
-            "<strong>Test:</strong><br><input type=\"text\" id=\"postfileinput1\">, path: <input type=\"text\" id=\"postfileinput2\">\n"
-            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist/' + $('#postfileinput1').val(), data: JSON.stringify({'location':$('#postfileinput2').val() }), contentType: 'application/json'}); return false;\">post</a>\n"
+            "<strong>Test:</strong><br><input type=\"text\" id=\"postfileinput1\">, path: <input type=\"text\" id=\"postfileinput2\">, tag: <input type=\"text\" id=\"postfileinput3\">\n"
+            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist/' + $('#postfileinput1').val(), data: JSON.stringify({'location':$('#postfileinput2').val() , 'tag':$('#postfileinput3').val() }), contentType: 'application/json'}); return false;\">post</a>\n"
             "</p>\n"
             "\n"
             "<h2>Current file</h2>\n"

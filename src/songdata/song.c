@@ -138,4 +138,6 @@ static void
     free ( file->genre );
   if ( file->title )
     free ( file->title );
+  if ( file->tag )
+    free ( file->tag );
 }

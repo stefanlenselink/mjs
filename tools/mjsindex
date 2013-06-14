@@ -1,0 +1,4 @@
+#!/bin/sh
+MP3DIR=${MP3DIR:=/pub/mp3}
+
+updatedb -l 0 -o ${MP3DIR}/mp3.db -U ${MP3DIR}

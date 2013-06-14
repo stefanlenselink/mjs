@@ -5,7 +5,7 @@
 #define __USE_XOPEN /* glibc2 needs this */
 #include <time.h>
 #undef __USE_XOPEN
-#include "../../src/songdata/mjs_id3.h"
+#include "../src/songdata/mjs_id3.h"
 #include <string.h>
 
 
@@ -55,7 +55,7 @@ void usage(int err)
 main (int argc, char *argv[])
 {
 	int lines = 10;
-	long int start_time = 0, 
+	long int start_time = 0,
 	     end_time = 0,
 	     days = 0;
 	char *output_file = NULL;
@@ -100,7 +100,7 @@ main (int argc, char *argv[])
 					  if (strptime(optarg, "%Y-%m-%d", &tv)) {
 						  tv.tm_sec = tv.tm_min = tv.tm_hour = 0;
 						  start_time = mktime(&tv);
-					  } else 
+					  } else
 						  usage(2);
 					  break;
 				  }
@@ -109,7 +109,7 @@ main (int argc, char *argv[])
 					  if (strptime(optarg, "%Y-%m-%d", &tv)) {
 						  tv.tm_sec = tv.tm_min = tv.tm_hour = 0;
 						  end_time = mktime(&tv);
-					  } else 
+					  } else
 						  usage(3);
 					  break;
 				  }
@@ -126,7 +126,7 @@ main (int argc, char *argv[])
 	input_file = argv[optind];
 
 	in_file = fopen (input_file,"r");
-	if (!in_file) 
+	if (!in_file)
 		usage(4);
 
 	if (output_file)

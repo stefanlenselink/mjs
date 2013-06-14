@@ -27,7 +27,7 @@ Makefile.in
 /configure.scan
 tracefile
 src/mjs4
-tools/src/mjscount
+tools/mjscount
 .autotools
 .project
 .cproject
@@ -42,8 +42,4 @@ configure
 depcomp
 install-sh
 missing
-src/Makefile
-src/Makefile.in
-tools/src/Makefile
-tools/src/Makefile.in
 .settings

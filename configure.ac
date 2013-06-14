@@ -24,5 +24,5 @@ AC_CHECK_LIB(microhttpd, MHD_start_daemon, , AC_ERROR([Couldn't find microhttpd 
 AC_CHECK_LIB(pthread, pthread_create, , AC_ERROR([Couldn't find pthread library]), -lpthread, )
 AC_CHECK_LIB(dl, dlclose, , AC_ERROR([Couldn't find dlfcn library]), -ldl, )
 
-AC_CONFIG_FILES(Makefile src/Makefile tools/src/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile tools/Makefile)
 AC_OUTPUT

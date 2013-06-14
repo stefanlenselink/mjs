@@ -1,11 +1,4 @@
 #!/bin/sh
-MP3DB=/pub/mp3/mp3.db
+MP3DIR=${MP3DIR:=/pub/mp3}
 
-LOCATE=locate
-
-# FreeBSD support
-if which glocate > /dev/null; then
-	LOCATE=glocate
-fi
-
-${LOCATE} -d ${MP3DB} -i $1 > $2
+locate -d ${MP3DIR}/mp3.db -i -n 150 $1 | grep '.mp3$' > $2

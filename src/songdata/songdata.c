@@ -235,7 +235,7 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
 
       char * tmp_from = strdup(from);
       char * original_dirname = dirname(tmp_from);
-      char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 1));
+      char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 2));
       sprintf(new_full_path, "%s/%s", original_dirname, tempdir);
       free(tmp_from);
 

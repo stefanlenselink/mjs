@@ -368,6 +368,8 @@ char * http_post_current(json_value *data)
     if(!entry)
 	controller_jump_to_song(entry);
     free(uid);
+    //TODO no result returned...
+    return NULL;
 }
 
 char * http_post_playlist(json_value *data)
@@ -386,6 +388,8 @@ char * http_post_playlist(json_value *data)
     free(path);
 
     songdata_add(playlist, playlist->tail, newsong);
+    //TODO no result returned...
+    return NULL;
 }
 
 void http_delete_playlist()

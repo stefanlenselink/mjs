@@ -24,6 +24,7 @@ char *
     return dirstack_top->fullpath;
   else
     abort();
+  return NULL; //This will never happen
 }
 
 char *
@@ -33,6 +34,7 @@ char *
     return dirstack_top->filename;
   else
     abort();
+  return NULL; //This will never happen
 }
 
 int

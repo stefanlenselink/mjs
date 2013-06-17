@@ -1,6 +1,5 @@
 #include "disk_songdata.h"
 #include "songdata.h"
-#include "mjs_id3.h"
 #include "engine/engine.h"
 #include <sys/stat.h>
 #include <string.h>
@@ -172,55 +171,19 @@ songdata_song *
             ftmp->album = NULL;
         }
         ftmp->title = strdup ( ftmp->filename );
-				//id3tag_t tag;
         FILE * file = fopen ( fullpath, "r" );
         if(!file){
         	free(fullpath);
         	free(path);
         	return NULL;
         }
-
-        mp3info mp3;
-        memset ( &mp3,0,sizeof ( mp3info ) );
-        mp3.filename = fullpath;
-        mp3.file = file;
-        if ( get_mp3_info ( &mp3, 1 ) == 0 && mp3.id3_isvalid == 1 )
-        {
-          id3tag tag = mp3.id3;
-          if ( tag.title != NULL && tag.artist != NULL && strcmp ( tag.title, "" ) != 0 && strcmp ( tag.artist, "" ) != 0 && id3_isvalidtag ( tag ) )
-          {
-            if ( ftmp->title != NULL )
-              free ( ftmp->title );
-            if ( ftmp->artist != NULL )
-              free ( ftmp->artist );
-            if ( ftmp->album != NULL )
-              free ( ftmp->album );
-            if ( ftmp->genre != NULL )
-              free ( ftmp->genre );
-            if(ftmp->filename != NULL)
-              free(ftmp->filename);
-
-            ftmp->title = strdup ( tag.title );
-            ftmp->artist = strdup ( tag.artist );
-            ftmp->album = strdup ( tag.album );
-            ftmp->track_id = *tag.track;
-            ftmp->length = mp3.seconds;
-            ftmp->genre = strdup ( id3_findstyle ( tag.genre[0] ) );
-            ftmp->has_id3 = 1;
-            ftmp->filename = calloc ( strlen ( ftmp->title ) + strlen ( ftmp->artist ) + 4, sizeof ( char ) );
-            sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
-
+        engine_load_meta_info(ftmp);
+        if(ftmp->title && ftmp->artist){
+          if(ftmp->filename != NULL){
+            free(ftmp->filename);
           }
-        }else{
-                  //Other formats Meta info...
-          engine_load_meta_info(ftmp);
-          if(ftmp->title && ftmp->artist){
-        	  if(ftmp->filename != NULL){
-        		  free(ftmp->filename);
-        	  }
-            ftmp->filename = calloc ( strlen ( ftmp->title ) + strlen ( ftmp->artist ) + 4, sizeof ( char ) );
-            sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
-          }
+          ftmp->filename = calloc ( strlen ( ftmp->title ) + strlen ( ftmp->artist ) + 4, sizeof ( char ) );
+          sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
         }
         fclose ( file );
       }
@@ -234,7 +197,6 @@ songdata_song *
         ftmp->title = strdup ( ftmp->filename );
         ftmp->album = NULL;
         ftmp->artist = NULL;
-        ftmp->has_id3 = 0;
       }
     }
   }

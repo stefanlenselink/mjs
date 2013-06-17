@@ -1,4 +1,4 @@
-bin_PROGRAMS = mjscount
+#bin_PROGRAMS = mjscount
 bin_SCRIPTS = mjsindex mjsfind
 mjscount_SOURCES = \
 	mjscount.c \

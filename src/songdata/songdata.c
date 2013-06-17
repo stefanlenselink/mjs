@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <stdlib.h>
 #include <ncurses.h>
+#include <libgen.h>
 
 
 /* 	path -> path including trailing slash
@@ -161,7 +162,7 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 	free ( buf );
 	if ( playlistname )
 		free ( playlistname );
-    
+
     gui_progress_stop();
 	return;
 }
@@ -227,15 +228,21 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
 
     if ( S_ISLNK ( st.st_mode ) )
     {
-      char tempdir[256];
+      char tempdir[st.st_size + 1];
       int n;
-      n = readlink ( from, tempdir, sizeof ( tempdir ) );
-      tempdir[n]='\0';
+      n = readlink ( from, tempdir, st.st_size + 1);
+      tempdir[st.st_size]='\0';
+
+      char * tmp_from = strdup(from);
+      char * original_dirname = dirname(tmp_from);
+      char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 1));
+      sprintf(new_full_path, "%s/%s", original_dirname, tempdir);
+      free(tmp_from);
 
       if(list->from){
           	  free(list->from);
       }
-      list->from = strdup ( tempdir );
+      list->from = new_full_path;
       stat ( list->from, &st );
     }
     else{
@@ -418,7 +425,6 @@ songdata_song * new_songdata_song(void)
   newfile->genre = NULL;
   newfile->title = NULL;
   newfile->tag = NULL;
-  newfile->has_id3 = 0;
   newfile->track_id = 0;
   newfile->length = 0;
   newfile->catalog_id = 1;

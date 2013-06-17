@@ -13,7 +13,7 @@ void log_init(void)
 void log_debug(char * msg)
 {
   //syslog(LOG_ERR, "%s", msg);
-  fprintf(logfile, "%s", msg);
+  fprintf(logfile, "%s\n", msg);
 }
 
 void log_debug_format(const char *format, va_list ap)

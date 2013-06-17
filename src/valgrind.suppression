@@ -6,25 +6,8 @@
    fun:xine_init
 }
 {
-   xine_2
-   Memcheck:Leak
-   ...
-   obj:/usr/lib/libxine.so.2.2.0
-   ...
-   fun:engine_init
-   fun:main
-}
-{
    xine_3
    Memcheck:Cond
-   ...
-   obj:/usr/lib/xine/plugins/2.2/xineplug_dmx_audio.so
-   obj:/usr/lib/libxine.so.2.2.0
-   ...
-}
-{
-   xine_4
-   Memcheck:Leak
    ...
    obj:/usr/lib/xine/plugins/2.2/xineplug_dmx_audio.so
    obj:/usr/lib/libxine.so.2.2.0

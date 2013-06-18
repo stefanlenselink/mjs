@@ -185,6 +185,7 @@ songdata_song *
           ftmp->filename = calloc ( strlen ( ftmp->title ) + strlen ( ftmp->artist ) + 4, sizeof ( char ) );
           sprintf ( ftmp->filename, "%s - %s", ftmp->artist, ftmp->title );
         }
+        gui_update_filelist();
         fclose ( file );
       }
       else

@@ -37,6 +37,7 @@ void gui_update_filelist(void) {
 	window_draw_scrollbar(filelist_window);
 	window_draw_list(filelist_window);
 	window_update(filelist_window);
+	gui_update();
 }
 
 void gui_activate_filelist(void) {

@@ -24,6 +24,10 @@ void gui_update_playlist(void) {
 	window_draw_scrollbar(playlist_window);
 	window_draw_list(playlist_window);
 	window_update(playlist_window);
+
+	gui_update_info();
+
+	gui_update();
 }
 
 void gui_activate_playlist(void) {

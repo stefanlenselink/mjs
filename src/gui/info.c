@@ -16,6 +16,9 @@ void gui_init_info(void) {
 
 void gui_update_info(void) {
 	info_window->file = active_window->list->selected;
+	if(!info_window){
+		return;
+	}
 	window_draw_info(info_window);
 	window_update(info_window);
 }

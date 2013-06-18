@@ -244,12 +244,12 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
 		/*chdir (conf->mp3path);
     dir = strdup(conf->mp3path);*/
     ftmp = mp3_info ( dir, "../", NULL, 0 );
-    songdata_add ( list, list->tail, ftmp );
+    songdata_add_ordered ( list, ftmp );
   }
   else if ( !dirstack_empty() )
   {
     ftmp = mp3_info ( dir, "../", NULL, 0 );
-    songdata_add ( list, list->tail, ftmp );
+    songdata_add_ordered ( list, ftmp );
   }
 
 
@@ -260,7 +260,7 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
       continue;
 
     if ( ( ftmp = mp3_info ( dir, dent->d_name, NULL, 0 ) ) ){
-      songdata_add ( list, list->tail, ftmp );
+      songdata_add_ordered ( list, ftmp );
 	}
   }
   closedir ( dptr );

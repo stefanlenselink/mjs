@@ -19,14 +19,17 @@ void gui_init_playlist(void) {
 }
 
 void gui_update_playlist(void) {
+	if(!playlist_window){
+		return;
+	}
 	window_draw_border(playlist_window);
 	window_draw_title(playlist_window);
 	window_draw_scrollbar(playlist_window);
 	window_draw_list(playlist_window);
 	window_update(playlist_window);
 
+	//Update the displayed info in the info window.
 	gui_update_info();
-
 	gui_update();
 }
 

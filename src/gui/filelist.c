@@ -29,6 +29,9 @@ void gui_init_filelist(void) {
 }
 
 void gui_update_filelist(void) {
+	if(!filelist_window){
+		return;
+	}
 	window_draw_border(filelist_window);
 	window_draw_title(filelist_window);
 	window_draw_scrollbar(filelist_window);

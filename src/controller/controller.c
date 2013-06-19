@@ -199,7 +199,7 @@ add_to_playlist_recursive ( songdata *list, songdata_song *position, songdata_so
 	prevpwd = getcwd ( NULL, 0 );
 
 	songdata_read_mp3_list ( templist, file->fullpath, L_NEW );
-	if ( !strncmp ( templist->selected->filename, "../", 3 ) )
+	if (templist->selected && !strncmp ( templist->selected->filename, "../", 3 ) )
 		templist->selected = templist->head->next; // skip ../ entry
 
 	while ( templist->selected )

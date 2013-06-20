@@ -218,8 +218,6 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
           break;
       }
       read_mp3_list_file ( list, list->from, append );
-//      if ( ( append & L_SEARCH ) && ( list->head ) )
-//        sort_songs ( list );
       gui_progress_stop();
     }
   }

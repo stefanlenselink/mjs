@@ -109,31 +109,38 @@ static void xine_open_and_play(char * file)
     //log_debug("Sleeping");
   }
 }
-static void event_callback ( void *user_data, const xine_event_t *event )
-{
-  if ( event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  controller_has_next_song() ){
-      current_song = controller_process_to_next_song();
-      xine_set_param ( event->stream, XINE_PARAM_GAPLESS_SWITCH, 1 );
-      xine_open_and_play(current_song);
-  }else if(event->type == XINE_EVENT_UI_PLAYBACK_FINISHED &&  !controller_has_next_song()){
-    engine_state = engine_stoped;
-  }else if(event->type == XINE_EVENT_PROGRESS){
-    xine_progress_data_t * prog = event->data;
-    if(prog->percent == 0){
-      gui_progress_start((char *)prog->description);
-    }else if(prog->percent == 100){
-      gui_progress_stop();
-    }else{
-      int pcts = prog->percent;
-      if(pcts < 0){
-        pcts = 0;
-      }else if(pcts > 100){
-        pcts = 100;
-      }
-      gui_progress_animate();
-      gui_progress_value(pcts);
-    }
-  }
+
+static void event_callback(void *user_data, const xine_event_t *event) {
+	xine_progress_data_t *prog;
+
+	switch (event->type) {
+	case XINE_EVENT_UI_PLAYBACK_FINISHED:
+		current_song = controller_process_to_next_song();
+		if (current_song == NULL ) {
+			engine_state = engine_stoped;
+		} else {
+			xine_set_param(event->stream, XINE_PARAM_GAPLESS_SWITCH, 1);
+			xine_open_and_play(current_song);
+		}
+		break;
+	case XINE_EVENT_PROGRESS:
+		prog = event->data;
+		if (prog->percent == 0) {
+			gui_progress_start((char *) prog->description);
+		} else if (prog->percent == 100) {
+			gui_progress_stop();
+		} else {
+			int pcts = prog->percent;
+			if (pcts < 0) {
+				pcts = 0;
+			} else if (pcts > 100) {
+				pcts = 100;
+			}
+			gui_progress_animate();
+			gui_progress_value(pcts);
+		}
+		break;
+	}
 }
 
 void engine_init ( Config * init_conf)

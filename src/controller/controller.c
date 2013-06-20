@@ -6,14 +6,17 @@
 #include "mjs.h"
 #include "log.h"
 
+#include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <time.h>
 
 
 Config * conf;
 
 static struct sigaction handler;
+static FILE *logfile;
 
 static void controller_update_whereplaying ( void );
 static void controller_update_statefile ( void );
@@ -72,6 +75,14 @@ static void controller_update_statefile ( void )
  
 char * controller_process_to_next_song ( void )
 {
+	time_t timevalue;
+
+	if (logfile) {
+		timevalue = time(NULL);
+		fprintf(logfile, "%.24s %s\n", ctime(&timevalue), playlist->playing->fullpath);
+		fsync(logfile);
+	}
+
     if ( !playlist->playing->next )
 		return NULL;
     char * return_path = playlist->playing->next->fullpath;
@@ -286,6 +297,10 @@ songdata * controller_init (Config * init_config)
 	playlist->head = NULL;
 	songdata_clear ( playlist );
     http_controller_init(conf);
+
+    if (conf->logfile)
+    	logfile = fopen(conf->logfile, "a");
+
 	return playlist;
 }
 
@@ -294,6 +309,9 @@ void controller_shutdown ( void )
 	http_controller_shutdown();
 	songdata_clear(playlist);
 	free ( playlist );
+
+	if (logfile)
+		fclose(logfile);
 }
 
 

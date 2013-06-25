@@ -47,3 +47,4 @@ src/Makefile.in
 tools/src/Makefile
 tools/src/Makefile.in
 .settings
+m4/

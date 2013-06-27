@@ -1,6 +1,5 @@
-bin_PROGRAMS=mjs4
-mjs4_SOURCES = \
-	mjs.c \
+lib_LTLIBRARIES = libmjs.la
+libmjs_la_SOURCES = \
 	engine/engine.c \
 	config/config.c \
 	songdata/dirstack.c \
@@ -19,5 +18,12 @@ mjs4_SOURCES = \
 	gui/playback.c \
 	gui/bar.c \
 	plugin/plugin.c \
-	plugin/f12automaat.c
+	plugin/f12automaat.c \
+	mjs.c
+libmjs_la_CFLAGS=$(apreq_includes)
+
+bin_PROGRAMS=mjs4
+mjs4_SOURCES = \
+	mjs.c
 mjs4_CFLAGS=$(apreq_includes)
+mjs4_LDADD=libmjs.la

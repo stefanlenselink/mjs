@@ -60,9 +60,6 @@ void songdata_add ( songdata *list, songdata_song *position, songdata_song *new 
   {
     after = list->head;
     list->selected = list->head= new;
-    if(list->tail == list->head){
-      list->tail = after;
-    }
     after->prev = new;
     new->next = after;
     new->prev = NULL;

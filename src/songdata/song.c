@@ -22,7 +22,7 @@ static int sort_songdata_song ( songdata_song *first, songdata_song *second )
 void songdata_add_ordered ( songdata *list, songdata_song *new )
 {
 	songdata_song *ftmp = NULL;
-	songdata_song *prev = list->tail;
+	songdata_song *prev = NULL;
 	for ( ftmp = list->head; ftmp; ftmp = ftmp->next ){
 		if(sort_songdata_song(ftmp, new) < 0){
 			//before ftmp so use prev as 'after' reference
@@ -46,12 +46,26 @@ void songdata_add ( songdata *list, songdata_song *position, songdata_song *new 
   if ( !list )
     abort();
 
+  list->length++;
+  if ( list->selected == NULL )   //list was empty
+  {
+    list->head = list->tail = list->selected = new;
+    list->where = 1;
+    new->prev = new->next = NULL;
+    return;
+  }
+
 	// if position == NULL add to front
   if ( position == NULL )
   {
-    list->head = new;
-    list->tail = new;
-    new->prev = new->next = NULL;
+    after = list->head;
+    list->selected = list->head= new;
+    if(list->tail == list->head){
+      list->tail = after;
+    }
+    after->prev = new;
+    new->next = after;
+    new->prev = NULL;
   }
   else 	if ( position == list->tail )
   {
@@ -68,13 +82,6 @@ void songdata_add ( songdata *list, songdata_song *position, songdata_song *new 
     after->prev = new;
     position->next = new;
   }
-
-  if ( list->selected == NULL )   //list was empty
-  {
-    list->head = list->tail = list->selected = new;
-    list->where = 1;
-  }
-  list->length++;
 }
 
 void

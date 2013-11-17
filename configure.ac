@@ -1,14 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([mjs], [4.1])
+AC_INIT([mjs],[4.1])
 AM_INIT_AUTOMAKE
 LT_INIT[dlopen]
 
-AC_PREREQ(2.59)
+AC_PREREQ([2.69])
 
 AM_INIT_AUTOMAKE([subdir-objects foreign])
-AC_LANG_C
+AC_LANG([C])
 AC_PROG_CC
-AC_PROG_LIBTOOL
+LT_INIT
 
 # This macro is defined in check.m4 and tests if check.h and
 # libcheck.a are installed in your system. It sets CHECK_CFLAGS and
@@ -46,5 +46,5 @@ AC_CHECK_LIB(apreq2, apreq_encode, , AC_MSG_ERROR([Couldn't find apreq2 library]
 # Checks for library functions.
 AC_FUNC_MALLOC
 
-AC_CONFIG_FILES(Makefile src/Makefile tools/src/Makefile tests/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile tools/Makefile tests/Makefile)
 AC_OUTPUT

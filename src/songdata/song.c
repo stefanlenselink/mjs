@@ -177,9 +177,6 @@ static void
     free ( file->genre );
   if ( file->title )
     free ( file->title );
-<<<<<<< HEAD
   if ( file->tag )
     free ( file->tag );
-=======
->>>>>>> e84fbd13acc49b52352a3eb929d17403217bc321
 }

@@ -8,7 +8,7 @@
 #include <xine.h>
 #include <curses.h>
 #include <math.h>
-
+#include <time.h>
 #include <unistd.h>
 
 #include <apreq_util.h>

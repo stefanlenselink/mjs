@@ -89,7 +89,7 @@ config_init ( void )
 	conf->plugins_num = 0;
 	conf->plugin_dir = NULL;
     conf->serial_device = NULL;
-    conf->c_flags = 0;
+    conf->c_flags = C_FADVANCE;
     conf->statefile[1] = '\0';
     
 	strncpy ( conf->mpgpath, MPGPATH, 255 );

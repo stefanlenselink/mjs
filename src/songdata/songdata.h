@@ -68,6 +68,7 @@ int songdata_check_file ( songdata_song * );
 songdata_song	*songdata_next_valid ( songdata *, songdata_song *, int );
 
 void 	songdata_add ( songdata *, songdata_song *, songdata_song * );
+void 	songdata_add_ordered ( songdata *, songdata_song * );
 void 	songdata_del ( songdata *, songdata_song * );
 void 	songdata_clear ( songdata * );
 void	dirstack_push ( const char *, const char * );

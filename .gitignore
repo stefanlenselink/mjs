@@ -43,3 +43,4 @@ depcomp
 install-sh
 missing
 .settings
+m4/

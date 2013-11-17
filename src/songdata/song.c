@@ -3,7 +3,42 @@
 // these are NOT for external use, use songdata_clear instead
 static void	free_list ( songdata_song * );
 static void	free_songdata_song ( songdata_song * );
+static int sort_songdata_song ( songdata_song *, songdata_song * );
 
+/* sort directories first, then files. alphabetically of course. */
+static int sort_songdata_song ( songdata_song *first, songdata_song *second )
+{
+	if ( first->filename[0] == '.' )
+		return 1;
+	if ( ( first->flags & ( F_DIR|F_PLAYLIST ) ) && ! ( second->flags & ( F_DIR|F_PLAYLIST ) ) )
+		return 1;
+	else if ( ! ( first->flags & ( F_DIR|F_PLAYLIST ) ) && ( second->flags & ( F_DIR|F_PLAYLIST ) ) )
+		return -1;
+	else
+		return strcmp ( second->fullpath, first->fullpath );
+}
+
+
+void songdata_add_ordered ( songdata *list, songdata_song *new )
+{
+	songdata_song *ftmp = NULL;
+	songdata_song *prev = NULL;
+	for ( ftmp = list->head; ftmp; ftmp = ftmp->next ){
+		if(sort_songdata_song(ftmp, new) < 0){
+			//before ftmp so use prev as 'after' reference
+			songdata_add(list, prev, new);
+			return;
+		}else{
+			//After or the same, continue to find the correct prev
+			prev = ftmp;
+		}
+	}
+	if(!prev){
+		//No prev found so use tail (last entry)
+		prev = list->tail;
+	}
+	songdata_add(list, prev, new);
+}
 
 void songdata_add ( songdata *list, songdata_song *position, songdata_song *new )
 {
@@ -11,12 +46,23 @@ void songdata_add ( songdata *list, songdata_song *position, songdata_song *new 
   if ( !list )
     abort();
 
+  list->length++;
+  if ( list->selected == NULL )   //list was empty
+  {
+    list->head = list->tail = list->selected = new;
+    list->where = 1;
+    new->prev = new->next = NULL;
+    return;
+  }
+
 	// if position == NULL add to front
   if ( position == NULL )
   {
-    list->head = new;
-    list->tail = new;
-    new->prev = new->next = NULL;
+    after = list->head;
+    list->selected = list->head= new;
+    after->prev = new;
+    new->next = after;
+    new->prev = NULL;
   }
   else 	if ( position == list->tail )
   {
@@ -33,13 +79,6 @@ void songdata_add ( songdata *list, songdata_song *position, songdata_song *new 
     after->prev = new;
     position->next = new;
   }
-
-  if ( list->selected == NULL )   //list was empty
-  {
-    list->head = list->tail = list->selected = new;
-    list->where = 1;
-  }
-  list->length++;
 }
 
 void
@@ -138,6 +177,9 @@ static void
     free ( file->genre );
   if ( file->title )
     free ( file->title );
+<<<<<<< HEAD
   if ( file->tag )
     free ( file->tag );
+=======
+>>>>>>> e84fbd13acc49b52352a3eb929d17403217bc321
 }

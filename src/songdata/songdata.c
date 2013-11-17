@@ -43,10 +43,7 @@ int * colors;
 
 songdata *mp3list;
 
-static int sort_mp3 ( const void *, const void * );
-static songdata	*sort_songs ( songdata * );
 static void	read_mp3_list_file ( songdata *, const char *, int );
-
 
 static void
 read_mp3_list_file ( songdata * list, const char *filename, int append )
@@ -153,7 +150,7 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 
 /* TODO What happens?? */
 		if ( ( ftmp = mp3_info ( dir, file, playlistname, n ) ) )
-			songdata_add ( list, list->tail, ftmp );
+			songdata_add_ordered( list, ftmp );
 
 		free ( file );
 		free ( dir );
@@ -165,57 +162,6 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 
     gui_progress_stop();
 	return;
-}
-
-/* sort directories first, then files. alphabetically of course. */
-static songdata *
-sort_songs ( songdata * sort )
-{
-	int i = 0, j;
-	songdata_song *ftmp = NULL, *nesongdata = NULL, **fsort;
-
-	for ( ftmp = sort->head; ftmp; ftmp = ftmp->next )
-		i++;
-	fsort = ( songdata_song ** ) calloc ( i, sizeof ( songdata_song * ) );
-	for ( ftmp = sort->head, j = 0; ftmp; ftmp = ftmp->next, j++ )
-		fsort[j] = ftmp;
-
-	qsort ( ( void * ) fsort, i, sizeof ( songdata_song * ), sort_mp3 );
-	sort->tail = nesongdata = fsort[0];
-    if(!nesongdata){
-      return sort;
-    }
-	nesongdata->next = NULL;
-
-	for ( j = 1; j < i; j++ )
-	{
-		ftmp = fsort[j];
-		ftmp->next = nesongdata;
-		nesongdata->prev = ftmp;
-		nesongdata = ftmp;
-	}
-    if(fsort != NULL)
-	 free ( fsort );
-	nesongdata->prev = NULL;
-	sort->head = sort->top = sort->selected = nesongdata;
-	return sort;
-}
-
-/* Private Functions */
-
-static int sort_mp3 ( const void *a, const void *b )
-{
-	const songdata_song *first = * ( const songdata_song ** ) a;
-	const songdata_song *second = * ( const songdata_song ** ) b;
-
-	if ( first->filename[0] == '.' )
-		return 1;
-	if ( ( first->flags & ( F_DIR|F_PLAYLIST ) ) && ! ( second->flags & ( F_DIR|F_PLAYLIST ) ) )
-		return 1;
-	else if ( ! ( first->flags & ( F_DIR|F_PLAYLIST ) ) && ( second->flags & ( F_DIR|F_PLAYLIST ) ) )
-		return -1;
-	else
-		return strcmp ( second->fullpath, first->fullpath );
 }
 
 /* Public functions */
@@ -233,16 +179,20 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
       n = readlink ( from, tempdir, st.st_size + 1);
       tempdir[st.st_size]='\0';
 
-      char * tmp_from = strdup(from);
-      char * original_dirname = dirname(tmp_from);
-      char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 1));
-      sprintf(new_full_path, "%s/%s", original_dirname, tempdir);
-      free(tmp_from);
-
       if(list->from){
           	  free(list->from);
       }
-      list->from = new_full_path;
+
+      if(tempdir[0] == '/'){
+    	  list->from = strdup(tempdir);
+      }else{
+		  char * tmp_from = strdup(from);
+		  char * original_dirname = dirname(tmp_from);
+		  char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 2));
+		  sprintf(new_full_path, "%s/%s", original_dirname, tempdir);
+		  free(tmp_from);
+		  list->from = new_full_path;
+      }
       stat ( list->from, &st );
     }
     else{
@@ -255,7 +205,6 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
     if ( S_ISDIR ( st.st_mode ) )
     {
       disk_songdata_read_mp3_list_dir ( list, list->from, append );
-      sort_songs ( list );
     }
     else
     {
@@ -269,8 +218,6 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
           break;
       }
       read_mp3_list_file ( list, list->from, append );
-      if ( ( append & L_SEARCH ) && ( list->head ) )
-        sort_songs ( list );
       gui_progress_stop();
     }
   }

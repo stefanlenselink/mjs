@@ -118,7 +118,7 @@ void gui_read(void) {
 			break;
 		case KEY_F(6):
 			// Save Playlist
-			if (conf->c_flags & C_ALLOW_P_SAVE && playlist->head &&
+			if ((conf->c_flags & C_ALLOW_P_SAVE) && playlist->head &&
 					gui_ask("Save as: ", buf)) {
 				controller_save_playlist(buf);
 			}

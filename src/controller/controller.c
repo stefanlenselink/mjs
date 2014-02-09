@@ -80,7 +80,7 @@ char * controller_process_to_next_song ( void )
 	if (logfile) {
 		timevalue = time(NULL);
 		fprintf(logfile, "%.24s %s\n", ctime(&timevalue), playlist->playing->fullpath);
-		fsync(logfile);
+		fsync(fileno(logfile));
 	}
 
     if ( !playlist->playing->next )

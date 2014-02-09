@@ -1,6 +1,7 @@
 #include "disk_songdata.h"
 #include "songdata.h"
 #include "engine/engine.h"
+#include "gui/gui.h"
 #include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
@@ -148,7 +149,6 @@ songdata_song *
 
         if ( playlistname )
         {
-          int l;
           ftmp->album = strdup ( playlistname );
 					// get rid of old tracknumber add new tracknumber
           if ( ( filename[0] >= '0' ) & ( filename[0] <= '9' ) )
@@ -156,7 +156,7 @@ songdata_song *
           filename_len = strlen ( filename ) - 4;
           ftmp->filename = malloc ( filename_len + 6 );
           memset(ftmp->filename, 0, filename_len + 6);
-          l = snprintf ( ftmp->filename, 6, "%02.0f ", ( float ) count );
+          snprintf ( ftmp->filename, 6, "%02.0f ", ( float ) count );
           strncat ( ftmp->filename, filename, filename_len );
         }
         else

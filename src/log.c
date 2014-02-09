@@ -2,6 +2,7 @@
 
 #include <syslog.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 FILE * logfile;
 void log_init(void)
@@ -16,10 +17,13 @@ void log_debug(char * msg)
   fprintf(logfile, "%s\n", msg);
 }
 
-void log_debug_format(const char *format, va_list ap)
+void log_debug_format(const char *format, ...)
 {
   //syslog(LOG_ERR, format, ap);
-  fprintf(logfile, format, ap);
+  va_list argp;
+  va_start( argp, format );
+  vfprintf(logfile, format, argp);
+  va_end(argp);
 }
 
 void log_shutdown(void)

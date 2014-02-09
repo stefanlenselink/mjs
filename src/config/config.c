@@ -93,8 +93,9 @@ config_init ( void )
     conf->statefile[1] = '\0';
     
 	strncpy ( conf->mpgpath, MPGPATH, 255 );
+
 	colors = conf->colors;
-	memset ( colors, 0, sizeof ( colors ) );
+	memset ( colors, 0, sizeof ( int ) * NUM_COLORS );
 	set_window_defaults ();
 	set_color_defaults ();
 	memset ( fname, 0, sizeof ( fname ) );

@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -84,7 +84,7 @@ printtime(const time_t *time)
 
 	tv = localtime(time);
 	strftime(time_str, 11, "%Y-%m-%d", tv);
-	printf(time_str);
+	printf("%s",time_str);
 }
 
 int
@@ -173,6 +173,8 @@ main(int argc, char *argv[])
 
 	input = argv[optind];
 
+#pragma GCC diagnostic ignored "-Wunused-result"
+	//TODO: handle result and possible failure.
 	if (input != NULL)
 		freopen(input, "r", stdin);
 

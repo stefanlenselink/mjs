@@ -175,8 +175,8 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
     if ( S_ISLNK ( st.st_mode ) )
     {
       char tempdir[st.st_size + 1];
-      int n;
-      n = readlink ( from, tempdir, st.st_size + 1);
+      
+      readlink ( from, tempdir, st.st_size + 1);
       tempdir[st.st_size]='\0';
 
       if(list->from){

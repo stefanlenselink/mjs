@@ -2,6 +2,8 @@
 #include "window.h"
 #include "songdata/songdata.h"
 
+#include "gui.h"
+
 #include <string.h>
 
 Window *window_new(void) {
@@ -316,7 +318,6 @@ void window_draw_scrollbar(Window *window) {
 
 void window_draw_info(Window *window) {
 	WINDOW *win = window->win;
-	int i = window->width;
 	songdata_song *file = window->file;
 
 	char *title = "";

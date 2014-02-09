@@ -19,6 +19,7 @@ void gui_progress_animate(void);
 void gui_progress_value(int pcts);
 void gui_progress_stop(void);
 void gui_shutdown(void);
+void gui_update(void);
 
 // private
 Window *active_window;

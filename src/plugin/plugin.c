@@ -1,7 +1,9 @@
 #include "mjs.h"
 #include "plugin.h"
+#include "log.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <dlfcn.h>
 
 static int plugins_num;

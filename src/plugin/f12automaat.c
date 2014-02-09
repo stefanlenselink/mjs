@@ -21,6 +21,7 @@
 #include "mjs.h"
 #include "plugin/plugin.h"
 #include "controller/controller.h"
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>

@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "controller/controller.h"
 
 void gui_init_playlist(void) {
 	playlist_window = window_new();

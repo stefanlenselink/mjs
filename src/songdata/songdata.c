@@ -175,7 +175,9 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
     if ( S_ISLNK ( st.st_mode ) )
     {
       char tempdir[st.st_size + 1];
-      
+
+//TODO: properly handle return value and potential failure.
+#pragma GCC diagnostic ignored "-Wunused-result"
       readlink ( from, tempdir, st.st_size + 1);
       tempdir[st.st_size]='\0';
 

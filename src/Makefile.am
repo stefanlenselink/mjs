@@ -20,10 +20,10 @@ libmjs_la_SOURCES = \
 	plugin/plugin.c \
 	plugin/f12automaat.c \
 	mjs.c
-libmjs_la_CFLAGS=$(apreq_includes) -Wall -Werror -Wno-unused-result -Wno-unused-but-set-variable -D_GNU_SOURCE
+libmjs_la_CFLAGS=$(apreq_includes) -Wall -Werror -D_GNU_SOURCE
 
 bin_PROGRAMS=mjs4
 mjs4_SOURCES = \
 	mjs.c
-mjs4_CFLAGS=$(apreq_includes) -Wall -Werror -Wno-unused-result -Wno-unused-but-set-variable -D_GNU_SOURCE
+mjs4_CFLAGS=$(apreq_includes) -Wall -Werror -D_GNU_SOURCE
 mjs4_LDADD=libmjs.la

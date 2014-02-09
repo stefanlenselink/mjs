@@ -94,6 +94,8 @@ void window_deactivate(Window *window) {
 }
 
 void window_input_list(Window *window, int c) {
+	//TODO: find better workaround to keep GCC happy.
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"	
 	int j, maxx, maxy, length;
 	songdata_song *file;
 

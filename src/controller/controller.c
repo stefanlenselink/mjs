@@ -5,6 +5,7 @@
 #include "gui/gui.h"
 #include "mjs.h"
 #include "log.h"
+#include "http_controller.h"
 
 #include <stdio.h>
 #include <string.h>

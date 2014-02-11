@@ -101,7 +101,8 @@ void window_input_list(Window *window, int c) {
 
 	getmaxyx(window->win, maxy, maxx);
 	length = maxy - 1;
-	
+
+#pragma GCC diagnostic pop	
 	if (!window->list->selected) {
 		return;
 	}

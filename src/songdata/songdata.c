@@ -186,6 +186,7 @@ void songdata_read_mp3_list ( songdata * list, const char * from, int append )
 #pragma GCC diagnostic ignored "-Wunused-result"
 			readlink ( from, tempdir, st.st_size + 1);
 	  		tempdir[st.st_size]='\0';
+#pragma GCC diagnostic pop
 
 			if(list->from)
 				free(list->from);

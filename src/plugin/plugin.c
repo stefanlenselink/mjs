@@ -26,6 +26,8 @@ void plugin_init(void) {
 		} else {
 			asprintf(&filename, "%s.so", conf->plugins[i]);
 		}
+#pragma GCC diagnostic pop
+
 		plugins[i].handle = dlopen(filename, RTLD_NOW);
 		free(filename);
 		if (plugins[i].handle == NULL) {

@@ -180,6 +180,7 @@ main(int argc, char *argv[])
 
 	if (output != NULL)
 		freopen(output, "w", stdout);
+#pragma GCC diagnostic pop
 
 	if (playlist)
 		playlistfile = fopen(playlist, "w");
@@ -191,7 +192,10 @@ main(int argc, char *argv[])
 	songs[songcount] = NULL;
 
 	while (!feof(stdin)) {
+#pragma GCC diagnostic ignored "-Wunused-result"
+		//TODO: handle error case.
 		fscanf(stdin, "%24c %254[^\n] ", date_str, name);
+#pragma GCC diagostic pop
 		date_str[24]='\0';
 		date = scanlocaltime(date_str);
 

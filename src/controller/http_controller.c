@@ -19,7 +19,6 @@
  ***************************************************************************/
 
 #include "http_controller.h"
-#include "controller/controller.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,8 +43,10 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
-#include <controller/json.h>
-#include <songdata/disk_songdata.h>
+#include "controller/json.h"
+#include "controller/controller.h"
+#include "engine/engine.h"
+#include "songdata/disk_songdata.h"
 #include <microhttpd.h>
 
 struct MHD_Daemon *http_daemon;
@@ -389,9 +390,10 @@ char * http_post_playlist(json_value *data)
     char *fullpath = http_json_extract(data, "location");
     char *tag = http_json_extract(data, "tag");
     if(fullpath == NULL)
-	return;
+		return NULL;
+
     if(tag == NULL)
-	tag = strdup("");
+		tag = strdup("");
 
     char *filename = strdup(fullpath);
     char *path = split_filename(filename);

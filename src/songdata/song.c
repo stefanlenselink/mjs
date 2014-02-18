@@ -1,5 +1,7 @@
 #include "songdata.h"
 
+#include <string.h>
+
 // these are NOT for external use, use songdata_clear instead
 static void	free_list ( songdata_song * );
 static void	free_songdata_song ( songdata_song * );

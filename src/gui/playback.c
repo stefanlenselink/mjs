@@ -1,4 +1,5 @@
 #include "gui.h"
+#include "engine/engine.h"
 
 static int last_elapsed = 1; //Foull the guys
 

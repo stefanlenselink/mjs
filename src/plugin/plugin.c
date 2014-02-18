@@ -1,7 +1,9 @@
 #include "mjs.h"
 #include "plugin.h"
+#include "log.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <dlfcn.h>
 
 static int plugins_num;
@@ -16,12 +18,16 @@ void plugin_init(void) {
 	
 	for (i = 0; i < plugins_num; i++) {
 		log_debug_format("Loading plugin: %s\n", conf->plugins[i]);
-		
+	
+		//TODO: find better workaround to keep GCC happy.
+#pragma GCC diagnostic ignored "-Wunused-result"
 		if (conf->plugin_dir != NULL) {
 			asprintf(&filename, "%s/%s.so", conf->plugin_dir, conf->plugins[i]);
 		} else {
 			asprintf(&filename, "%s.so", conf->plugins[i]);
 		}
+#pragma GCC diagnostic pop
+
 		plugins[i].handle = dlopen(filename, RTLD_NOW);
 		free(filename);
 		if (plugins[i].handle == NULL) {

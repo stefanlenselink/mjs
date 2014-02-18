@@ -1,11 +1,10 @@
 dnl Process this file with autoconf to produce a configure script.
 AC_INIT([mjs],[4.1])
-AM_INIT_AUTOMAKE
 LT_INIT[dlopen]
 
 AC_PREREQ([2.69])
 
-AM_INIT_AUTOMAKE([subdir-objects foreign])
+AM_INIT_AUTOMAKE([-Wall -Wno-extra-portability -Werror subdir-objects foreign])
 AC_LANG([C])
 AC_PROG_CC
 LT_INIT

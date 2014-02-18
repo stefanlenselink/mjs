@@ -2,6 +2,8 @@
 #include "window.h"
 #include "songdata/songdata.h"
 
+#include "gui.h"
+
 #include <string.h>
 
 Window *window_new(void) {
@@ -92,12 +94,15 @@ void window_deactivate(Window *window) {
 }
 
 void window_input_list(Window *window, int c) {
+	//TODO: find better workaround to keep GCC happy.
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"	
 	int j, maxx, maxy, length;
 	songdata_song *file;
 
 	getmaxyx(window->win, maxy, maxx);
 	length = maxy - 1;
-	
+
+#pragma GCC diagnostic pop	
 	if (!window->list->selected) {
 		return;
 	}
@@ -316,7 +321,6 @@ void window_draw_scrollbar(Window *window) {
 
 void window_draw_info(Window *window) {
 	WINDOW *win = window->win;
-	int i = window->width;
 	songdata_song *file = window->file;
 
 	char *title = "";

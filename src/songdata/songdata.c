@@ -45,8 +45,7 @@ songdata *mp3list;
 
 static void	read_mp3_list_file ( songdata *, const char *, int );
 
-static void
-read_mp3_list_file ( songdata * list, const char *filename, int append )
+static void read_mp3_list_file ( songdata * list, const char *filename, int append )
 {
 	char *buf = NULL;
 	char *file = NULL;
@@ -68,16 +67,16 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 		if(!fgets ( buf, 1024, fp )){
 			break;
 		}
-        gui_progress_animate(); //TODO moet eigenlijk met timer van uit main...
+		gui_progress_animate(); //TODO moet eigenlijk met timer van uit main...
 	}
 	fclose ( fp );
 	errno = 0;
 	if ( ! ( fp = fopen ( filename, "r" ) ) )
 		return;
 
-	if(!fgets ( buf, 1024, fp )){
+	if(!fgets ( buf, 1024, fp ))
 		return;
-	}
+	
 	if ( !strncmp ( "Playlist for mjs", buf, 16 ) )
 		playlist = 1;
 
@@ -110,17 +109,22 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 		songdata_add ( list, list->tail, ftmp );
 	}
 	else
+	{
 		list->flags |= F_VIRTUAL;
+	}
 
 
 	while ( !feof ( fp ) )
 	{
-      int pcts = (100 * n) / lines;
-      if(pcts < 0){
-        pcts = 0;
-      }else if(pcts > 100){
-        pcts = 100;
-      }
+		int pcts = (100 * n) / lines;
+		if(pcts < 0)
+		{
+			pcts = 0;
+		} 
+		else if (pcts > 100)
+		{
+        	pcts = 100;
+      	}
 		n++;
         gui_progress_animate(); //TODO moet eigenlijk met timer van uit main...
         gui_progress_value(pcts);
@@ -138,10 +142,13 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 		length = strrchr ( buf, '/' ) - buf;
 		if(length <= 0) continue;
 		buf[strlen ( buf ) - 1] = '\0';	// Get rid off trailing newline
+		
 		dir = malloc ( length + 1 );
-        	memset(dir, 0, length + 1);
+        memset(dir, 0, length + 1);
+		
 		file = malloc ( strlen ( buf ) - length );
-        	memset(file, 0, strlen(buf) - length);
+        memset(file, 0, strlen(buf) - length);
+		
 		strncpy ( dir, buf, length );
 		dir[length] = '\0';
 		strcpy ( file, buf + length + 1 );
@@ -168,133 +175,142 @@ read_mp3_list_file ( songdata * list, const char *filename, int append )
 
 void songdata_read_mp3_list ( songdata * list, const char * from, int append )
 {
-  struct stat st;
-  if ( !lstat ( from, &st ) )
-  {
+	struct stat st;
+	if ( !lstat ( from, &st ) )
+	{
+		if ( S_ISLNK ( st.st_mode ) )
+		{
+			char tempdir[st.st_size + 1];
 
-    if ( S_ISLNK ( st.st_mode ) )
-    {
-      char tempdir[st.st_size + 1];
-      int n;
-      n = readlink ( from, tempdir, st.st_size + 1);
-      tempdir[st.st_size]='\0';
+			//TODO: properly handle return value and potential failure.
+#pragma GCC diagnostic ignored "-Wunused-result"
+			readlink ( from, tempdir, st.st_size + 1);
+	  		tempdir[st.st_size]='\0';
+#pragma GCC diagnostic pop
 
-      if(list->from){
-          	  free(list->from);
-      }
+			if(list->from)
+				free(list->from);
 
-      if(tempdir[0] == '/'){
-    	  list->from = strdup(tempdir);
-      }else{
-		  char * tmp_from = strdup(from);
-		  char * original_dirname = dirname(tmp_from);
-		  char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 2));
-		  sprintf(new_full_path, "%s/%s", original_dirname, tempdir);
-		  free(tmp_from);
-		  list->from = new_full_path;
-      }
-      stat ( list->from, &st );
-    }
-    else{
-      if(list->from){
-    	  free(list->from);
-      }
-      list->from = strdup ( from );
-    }
+			if(tempdir[0] == '/')
+			{
+    	  		list->from = strdup(tempdir);
+			} 
+			else
+			{
+				char * tmp_from = strdup(from);
+				char * original_dirname = dirname(tmp_from);
+				char * new_full_path = malloc(sizeof(char) * ( strlen(original_dirname) + strlen(tempdir) + 2));
+				sprintf(new_full_path, "%s/%s", original_dirname, tempdir);
+				free(tmp_from);
+				list->from = new_full_path;
+			}	
+			stat ( list->from, &st );
+		}
+    	else
+		{
+			if(list->from){
+				free(list->from);
+			}
+			list->from = strdup ( from );
+		}
 
-    if ( S_ISDIR ( st.st_mode ) )
-    {
-      disk_songdata_read_mp3_list_dir ( list, list->from, append );
-    }
-    else
-    {
-      switch ( append )
-      {
-        case L_SEARCH:
-          gui_progress_start(SEARCHING);
-          break;
-        default:
-          gui_progress_start(READING);
-          break;
-      }
-      read_mp3_list_file ( list, list->from, append );
-      gui_progress_stop();
-    }
-  }
-  return;
+		if ( S_ISDIR ( st.st_mode ) )
+		{
+			disk_songdata_read_mp3_list_dir ( list, list->from, append );
+		}
+    	else
+    	{
+			switch ( append )
+			{
+			case L_SEARCH:
+          		gui_progress_start(SEARCHING);
+				break;
+			default:
+				gui_progress_start(READING);
+				break;
+      		}
+      		read_mp3_list_file ( list, list->from, append );
+      		gui_progress_stop();
+    	}
+	}
+	return;
 }
 
-int
-songdata_save_playlist ( songdata * list, char *filename )
+int songdata_save_playlist ( songdata * list, char *filename )
 {
-  FILE *fp;
-  songdata_song *ftmp;
+	FILE *fp;
+	songdata_song *ftmp;
 
-  if ( ! ( fp = fopen ( filename, "w" ) ) )
-    return 1;
-  fprintf ( fp, "Playlist for mjs\n" );
-  for ( ftmp = list->head; ftmp; ftmp = ftmp->next )
-    fprintf ( fp, "%s\n", ftmp->fullpath );
-  fclose ( fp );
-  return 0;
+	if ( ! ( fp = fopen ( filename, "w" ) ) )
+		return 1;
+	
+	fprintf ( fp, "Playlist for mjs\n" );
+	
+	for ( ftmp = list->head; ftmp; ftmp = ftmp->next )
+		fprintf ( fp, "%s\n", ftmp->fullpath );
+  
+	fclose ( fp );
+	return 0;
 }
 
-int
-songdata_check_file ( songdata_song * file )
+int songdata_check_file ( songdata_song * file )
 {
 	struct stat sb;
 
-    if(!file){
-      return 1;
-    }
+    if(!file)
+		return 1;
+
 	if ( !strncasecmp ( file->fullpath, "http", 4 ) )
 		return 1;
-	if ( stat ( file->fullpath, &sb ) == -1 ){
-      char buf[1024];
-      sprintf(buf, "Oeps: %s\n", file->fullpath);
-      log_debug(buf);
+	
+	if ( stat ( file->fullpath, &sb ) == -1 )
+	{
+		char buf[1024];
+		sprintf(buf, "Oeps: %s\n", file->fullpath);
+		log_debug(buf);
 		return 0;
     }
 	else
+	{
 		return 1;
+	}
 }
 
 /* find the next valid entry in the search direction */
 
-songdata_song *
-songdata_next_valid ( songdata * list, songdata_song * file, int c )
+songdata_song * songdata_next_valid ( songdata * list, songdata_song * file, int c )
 {
 	songdata_song *ftmp = NULL;
 	if ( !file )
 		return NULL;
 	switch ( c )
 	{
-		case KEY_HOME:
-		case KEY_DOWN:
-		case KEY_NPAGE:
-			while ( !songdata_check_file ( file ) )
-			{
-                if(!file->next){
-                  break;
-                }
-				ftmp = file->next;
-				songdata_del ( list, file );
-				file = songdata_next_valid ( list, ftmp, c );
-			}
-			break;
-		case KEY_END:
-		case KEY_UP:
-		case KEY_PPAGE:
-			while ( !songdata_check_file ( file ) )
-			{
-				ftmp = file->prev;
-				songdata_del ( list, file );
-				file = songdata_next_valid ( list, ftmp, c );
-			}
-			break;
+	case KEY_HOME:
+	case KEY_DOWN:
+	case KEY_NPAGE:
+		while ( !songdata_check_file ( file ) )
+		{
+			if(!file->next) 
+				break;
+            
+			ftmp = file->next;
+			songdata_del ( list, file );
+			file = songdata_next_valid ( list, ftmp, c );
+		}
+		break;
+	case KEY_END:
+	case KEY_UP:
+	case KEY_PPAGE:
+		while ( !songdata_check_file ( file ) )
+		{
+			ftmp = file->prev;
+			songdata_del ( list, file );
+			file = songdata_next_valid ( list, ftmp, c );
+		}
+		break;
 	}
+	
 	return file;
-
 }
 
 songdata * songdata_init ( Config * init_conf, int init_colors[] )
@@ -320,73 +336,82 @@ void songdata_shutdown ( void )
 
 void songdata_randomize(songdata * list)
 {
-  int i = list->length, j, k;
-  songdata_song *ftmp = NULL, *nesongdata = NULL, **farray = NULL;
+	int i = list->length, j, k;
+	songdata_song *ftmp = NULL, *nesongdata = NULL, **farray = NULL;
 
-  if ( i < 2 )
-    return;
-  if ( ! ( farray = ( songdata_song ** ) calloc ( i, sizeof ( songdata_song * ) ) ) )
-    return;
-  for ( ftmp = list->head, j = 0; ftmp; ftmp = ftmp->next, j++ )
-    farray[j] = ftmp;
-  k = ( int ) ( ( float ) i--*rand() / ( RAND_MAX+1.0 ) );
-  nesongdata = farray[k];
-  nesongdata->prev = NULL;
-  farray[k] = NULL;
-  list->head = list->top = nesongdata;
-  for ( ftmp = NULL; i; i-- )
-  {
-    k = ( int ) ( ( float ) i*rand() / ( RAND_MAX+1.0 ) );
-    for ( j = 0; j <= k; j++ )
-      if ( farray[j] == NULL )
-        k++;
-    ftmp = farray[k];
-    farray[k] = NULL;
-    nesongdata->next = ftmp;
-    if ( ftmp )
-    {
-      ftmp->prev = nesongdata;
-      nesongdata = ftmp;
-    }
-  }
-  list->selected = list->head;
-  list->where = 1;
-  list->wheretop = 0;
-  list->tail = nesongdata;
-  nesongdata->next = NULL;
-  free ( farray );
+	if ( i < 2 )
+		return;
+	
+	if ( ! ( farray = ( songdata_song ** ) calloc ( i, sizeof ( songdata_song * ) ) ) )
+		return;
+	
+	for ( ftmp = list->head, j = 0; ftmp; ftmp = ftmp->next, j++ )
+		farray[j] = ftmp;
+
+	k = ( int ) ( ( float ) i--*rand() / ( RAND_MAX+1.0 ) );
+	nesongdata = farray[k];
+	nesongdata->prev = NULL;
+	farray[k] = NULL;
+	list->head = list->top = nesongdata;
+
+	for ( ftmp = NULL; i; i-- )
+	{
+		k = ( int ) ( ( float ) i*rand() / ( RAND_MAX+1.0 ) );
+		for ( j = 0; j <= k; j++ )
+		{
+			if ( farray[j] == NULL )
+				k++;
+		}
+
+		ftmp = farray[k];
+		farray[k] = NULL;
+		nesongdata->next = ftmp;
+		if ( ftmp )
+		{
+			ftmp->prev = nesongdata;
+			nesongdata = ftmp;
+		}
+	}
+	
+	list->selected = list->head;
+	list->where = 1;
+	list->wheretop = 0;
+	list->tail = nesongdata;
+	nesongdata->next = NULL;
+	free ( farray );
 }
 
 //TODO move to song.c
 songdata_song * new_songdata_song(void)
 {
-  songdata_song * newfile = malloc( sizeof ( songdata_song ) );
-  memset(newfile, 0, sizeof(songdata_song));
-  newfile->flags = 0;
-  newfile->album = NULL;
-  newfile->filename = NULL;		// filename without path
-  newfile->path = NULL;		// path without filename without mp3path
-  newfile->fullpath = NULL;		// the fullpath
-  newfile->relpath = NULL;
-  newfile->artist = NULL;
-  newfile->genre = NULL;
-  newfile->title = NULL;
-  newfile->tag = NULL;
-  newfile->track_id = 0;
-  newfile->length = 0;
-  newfile->catalog_id = 1;
-  newfile->next = NULL;
-  newfile->prev = NULL;
-  return newfile;
+	songdata_song * newfile = malloc( sizeof ( songdata_song ) );
+	memset(newfile, 0, sizeof(songdata_song));
+	newfile->flags = 0;
+	newfile->album = NULL;
+	newfile->filename = NULL;		// filename without path
+	newfile->path = NULL;		// path without filename without mp3path
+	newfile->fullpath = NULL;		// the fullpath
+	newfile->relpath = NULL;
+	newfile->artist = NULL;
+	newfile->genre = NULL;
+	newfile->title = NULL;
+	newfile->tag = NULL;
+	newfile->track_id = 0;
+	newfile->length = 0;
+	newfile->catalog_id = 1;
+	newfile->next = NULL;
+	newfile->prev = NULL;
+	return newfile;
 }
 
 
 void songdata_reload_search_results(){
-  if ( ! ( mp3list->flags & F_VIRTUAL ) && mp3list->selected != NULL)
-    dirstack_push (mp3list->from, mp3list->selected->filename );
-  songdata_read_mp3_list ( mp3list, conf->resultsfile, L_SEARCH );
-  gui_update_info();
-  gui_update_filelist();
+	if ( ! ( mp3list->flags & F_VIRTUAL ) && mp3list->selected != NULL)
+		dirstack_push (mp3list->from, mp3list->selected->filename );
+
+	songdata_read_mp3_list ( mp3list, conf->resultsfile, L_SEARCH );
+	gui_update_info();
+	gui_update_filelist();
 }
 
 

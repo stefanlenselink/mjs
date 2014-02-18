@@ -5,7 +5,7 @@
 
 void log_init(void);
 void log_debug(char *);
-void log_debug_format(const char *format, va_list ap);
+void log_debug_format(const char *format, ...);
 void log_shutdown(void);
 
 #endif /*_log_h*/

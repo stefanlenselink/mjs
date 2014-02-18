@@ -6,6 +6,7 @@
 #include "engine/engine.h"
 #include "config/config.h"
 #include "log.h"
+#include "plugin/plugin.h"
 
 #include <string.h>
 #include <signal.h>
@@ -53,6 +54,8 @@ int main(int argc, char *argv[]) {
 	gui_loop();
 	
 	bailout(-1);
+
+	return 0;
 }
 
 void bailout(int sig) {	

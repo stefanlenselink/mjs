@@ -1,4 +1,6 @@
 #include "gui.h"
+#include "window.h"
+#include "controller/controller.h"
 
 #include <string.h>
 #include <time.h>

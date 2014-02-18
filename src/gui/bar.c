@@ -81,8 +81,6 @@ int gui_ask_yes_no(char *question) {
 }
 
 int gui_ask(char *question, char *answer) {
-	int c;
-	
 	gui_draw_question(question);
 	echo();
 	wgetnstr(bar_window->win, answer, 512);

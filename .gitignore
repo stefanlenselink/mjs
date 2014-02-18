@@ -9,6 +9,9 @@
 *.cache/
 *.dirstamp
 .libs/
+tags
+/ar-lib
+/test-driver
 /aclocal.m4
 /depcomp
 /install-sh

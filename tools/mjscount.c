@@ -1,4 +1,4 @@
-#define _XOPEN_SOURCE
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <getopt.h>
 #include <stdlib.h>
@@ -84,7 +84,7 @@ printtime(const time_t *time)
 
 	tv = localtime(time);
 	strftime(time_str, 11, "%Y-%m-%d", tv);
-	printf(time_str);
+	printf("%s",time_str);
 }
 
 int
@@ -173,11 +173,14 @@ main(int argc, char *argv[])
 
 	input = argv[optind];
 
+#pragma GCC diagnostic ignored "-Wunused-result"
+	//TODO: handle result and possible failure.
 	if (input != NULL)
 		freopen(input, "r", stdin);
 
 	if (output != NULL)
 		freopen(output, "w", stdout);
+#pragma GCC diagnostic pop
 
 	if (playlist)
 		playlistfile = fopen(playlist, "w");
@@ -189,7 +192,10 @@ main(int argc, char *argv[])
 	songs[songcount] = NULL;
 
 	while (!feof(stdin)) {
+#pragma GCC diagnostic ignored "-Wunused-result"
+		//TODO: handle error case.
 		fscanf(stdin, "%24c %254[^\n] ", date_str, name);
+#pragma GCC diagostic pop
 		date_str[24]='\0';
 		date = scanlocaltime(date_str);
 

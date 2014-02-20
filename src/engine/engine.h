@@ -4,13 +4,6 @@
 #include "config/config.h"
 #include "songdata/songdata.h"
 
-typedef enum{
-  engine_paused,
-  engine_playing,
-  engine_stoped,
-  engine_unitialized
-} EngineState;
-
 typedef struct
 {
 	int eq_30;      /* equalizer gains -100..100   */

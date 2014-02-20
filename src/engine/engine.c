@@ -317,64 +317,6 @@ void engine_frwd ( int mill , int expFactor)
 	engine_fwd(mill, expFactor, 0);
 }
 
-void engine_eq ( Equalizer * eq )
-{
-	xine_set_param ( stream, XINE_PARAM_EQ_30HZ, eq->eq_30 );
-	xine_set_param ( stream, XINE_PARAM_EQ_60HZ, eq->eq_60 );
-	xine_set_param ( stream, XINE_PARAM_EQ_125HZ, eq->eq_125 );
-	xine_set_param ( stream, XINE_PARAM_EQ_250HZ, eq->eq_250 );
-	xine_set_param ( stream, XINE_PARAM_EQ_500HZ, eq->eq_500 );
-	xine_set_param ( stream, XINE_PARAM_EQ_1000HZ, eq->eq_1000 );
-	xine_set_param ( stream, XINE_PARAM_EQ_2000HZ, eq->eq_2000 );
-	xine_set_param ( stream, XINE_PARAM_EQ_4000HZ, eq->eq_4000 );
-	xine_set_param ( stream, XINE_PARAM_EQ_8000HZ, eq->eq_8000 );
-	xine_set_param ( stream, XINE_PARAM_EQ_16000HZ, eq->eq_16000 );
-}
-
-//Rva 100 = 100% = no change 0<->200
-void engine_rva ( int rva )
-{
-	if ( rva >= 0 && rva <= 200 )
-	{
-		xine_set_param ( stream, XINE_PARAM_AUDIO_AMP_LEVEL, rva );
-	}
-}
-
-//vol = 0 .. 100
-void engine_volume ( int vol )
-{
-	if ( vol >= 0 && vol <= 100 )
-	{
-		xine_set_param ( stream, XINE_PARAM_AUDIO_VOLUME, vol );
-		volume = vol;
-	}
-}
-
-void engine_volume_up ( int ammount )
-{
-	if ( ammount >= 0 && ammount <= 100 )
-	{
-		volume += ammount;
-		if ( volume > 100 )
-		{
-			volume = 100;
-		}
-		engine_volume ( volume );
-	}
-}
-
-void engine_volume_down ( int ammount )
-{
-	if ( ammount >= 0 && ammount <= 100 )
-	{
-		volume -= ammount;
-		if ( volume < 0 )
-		{
-			volume = 0;
-		}
-		engine_volume ( volume );
-	}
-}
 
 void engine_shutdown ( void )
 {

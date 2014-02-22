@@ -42,7 +42,6 @@ EngineState engine_state = engine_unitialized;
 
 //Song data:
 int length = 0;
-int volume = 100;
 char * current_song;
 
 
@@ -193,17 +192,13 @@ void engine_init ( Config * init_conf)
 
 	// Create a new stream object
 	stream = xine_stream_new ( engine, ap, NULL );
-
 	meta_stream = xine_stream_new ( engine, NULL, NULL );
 
 	//TODO in CFG zetten??
 	xine_set_param ( stream, XINE_PARAM_EARLY_FINISHED_EVENT, 1 );
 
 	queue = xine_event_new_queue ( stream );
-
 	xine_event_create_listener_thread ( queue, event_callback, NULL );
-
-	volume = xine_get_param ( stream, XINE_PARAM_AUDIO_VOLUME );
 
 	engine_state = engine_stoped;
 }
@@ -366,16 +361,19 @@ int engine_get_length ( void )
 
 static char * ltrim(char *s)
 {
-  while(isspace(*s)) s++;
-  return s;
+	while(isspace(*s)) 
+		s++;
+	
+	return s;
 }
 
 static char * rtrim(char *s)
 {
-  char * back = s + strlen(s);
-  while(isspace(*--back));
-  *(back+1) = '\0';
-  return s;
+	char * back = s + strlen(s);
+	while(isspace(*--back));
+		 *(back+1) = '\0';
+	
+  	return s;
 }
 
 

@@ -42,10 +42,10 @@ int main(int argc, char *argv[]) {
 	 * Do ALL the inits here
 	 */
 	log_init();
-	conf = config_init();
-	engine_init(conf);
-	mp3list = songdata_init(conf, conf->colors);
-	playlist = controller_init(conf);
+	config_init();
+	engine_init( );
+	mp3list = songdata_init( );
+	playlist = controller_init( );
 	gui_init();	
 	plugin_init();
 	

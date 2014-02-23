@@ -5,6 +5,7 @@
 #include "gui/gui.h"
 #include "mjs.h"
 #include "log.h"
+#include "config/config.h"
 #include "http_controller.h"
 
 #include <stdio.h>
@@ -14,7 +15,7 @@
 #include <time.h>
 
 
-Config * conf;
+extern Config * conf;
 
 static struct sigaction handler;
 static FILE *logfile;
@@ -290,9 +291,8 @@ add_to_playlist ( songdata *list, songdata_song *position, songdata_song *file )
 	return;
 }
 
-songdata * controller_init (Config * init_config)
+songdata * controller_init ( )
 {
-	conf = init_config;
 	playlist = malloc ( sizeof ( songdata ) );
     memset(playlist, 0, sizeof(songdata));
 	playlist->head = NULL;

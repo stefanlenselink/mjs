@@ -1,7 +1,6 @@
 #ifndef _songdata_h
 #define _songdata_h
 
-#include "config/config.h"
 #include <unistd.h>
 #include <stdlib.h>
 typedef struct _dirstack
@@ -77,7 +76,7 @@ char *	dirstack_fullpath ( void );
 char *	dirstack_filename ( void );
 int	dirstack_empty ( void );
 
-songdata * songdata_init ( Config * conf,  int init_colors[] );
+songdata * songdata_init ( );
 void songdata_randomize(songdata *);
 void songdata_shutdown ( void );
 

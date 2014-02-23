@@ -1,13 +1,14 @@
 #include "disk_songdata.h"
 #include "songdata.h"
 #include "engine/engine.h"
+#include "config/config.h"
 #include "gui/gui.h"
 #include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
 #include <dirent.h>
 
-Config * conf;
+extern Config * conf;
 
 char * split_filename(char * filename) {
 	char *part;
@@ -298,8 +299,6 @@ void disk_songdata_read_mp3_list_dir ( songdata * list, const char * directory, 
 	return;
 }
 
-void disk_songdata_init(Config * thisconf){
-	conf = thisconf;
-}
-void disk_songdata_shutdown(){}
+void disk_songdata_init( ){}
+void disk_songdata_shutdown( ){}
 

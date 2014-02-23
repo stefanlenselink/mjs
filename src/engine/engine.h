@@ -1,12 +1,10 @@
 #ifndef _engine_h
 #define _engine_h
 
-#include "config/config.h"
 #include "songdata/songdata.h"
 
-
 //Utility
-void engine_init ( Config * conf );
+void engine_init ( void );
 void engine_shutdown ( void );
 int engine_extention_is_supported( char * );
 

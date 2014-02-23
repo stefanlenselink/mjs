@@ -4,8 +4,6 @@
 #include "songdata/songdata.h"
 #include "gui/gui.h"
 
-#include "config/config.h"
-
 #include <signal.h>
 #include <errno.h>
 
@@ -27,7 +25,7 @@ void	add_to_playlist ( songdata *, songdata_song *, songdata_song * );
 songdata	*read_playlist ( songdata *, const char * );
 
 
-songdata * controller_init (Config *);
+songdata * controller_init ();
 void controller_shutdown ( void );
 void controller_playlist_move_up();
 void controller_playlist_move_down();

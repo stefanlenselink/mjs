@@ -1,6 +1,8 @@
 #include "defs.h"
 #include "songdata.h"
 #include "disk_songdata.h"
+#include "config/config.h"
+
 #include "log.h"
 
 #include "gui/gui.h"
@@ -37,7 +39,7 @@
 	|******abspath*****|
 */
 
-Config * conf;
+extern Config * conf;
 /* colors */
 int * colors;
 
@@ -313,13 +315,11 @@ songdata_song * songdata_next_valid ( songdata * list, songdata_song * file, int
 	return file;
 }
 
-songdata * songdata_init ( Config * init_conf, int init_colors[] )
+songdata * songdata_init ( )
 {
-	conf = init_conf;
-	colors = init_colors;
-    log_init();
+	colors = conf->colors;
 
-    disk_songdata_init(init_conf);
+    disk_songdata_init();
 
 	mp3list = ( songdata * ) malloc( sizeof ( songdata ) );
     memset(mp3list, 0, sizeof(songdata));

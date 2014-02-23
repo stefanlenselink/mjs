@@ -16,8 +16,6 @@
 #include "log.h"
 #include "utils.h"
 
-//MJS config.
-Config * conf;
 
 //libxine variables.
 static xine_t * engine; // Main libxine object
@@ -62,10 +60,8 @@ static char * engine_load_meta_info_update_field( char *, xine_stream_t *, int )
 //*********************************
 // Utility functions
 //
-void engine_init ( Config * init_conf)
+void engine_init ( )
 {
-	conf = init_conf;
-
 	// Create our libxine engine, and initialise it
 	engine = xine_new();
 	xine_init ( engine );

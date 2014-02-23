@@ -8,6 +8,7 @@ libmjs_la_SOURCES = \
 	songdata/disk_songdata.c \
 	gui/gui.c \
 	log.c \
+	utils.c \
 	songdata/songdata.c \
 	controller/json.c \
 	controller/http_controller.c \

@@ -17,6 +17,7 @@
 #include "controller/controller.h"
 #include "gui/gui.h"
 #include "log.h"
+#include "utils.h"
 
 //MJS config.
 Config * conf;
@@ -359,23 +360,6 @@ int engine_get_length ( void )
 	return length / 1000;
 }
 
-static char * ltrim(char *s)
-{
-	while(isspace(*s)) 
-		s++;
-	
-	return s;
-}
-
-static char * rtrim(char *s)
-{
-	char * back = s + strlen(s);
-	while(isspace(*--back));
-		 *(back+1) = '\0';
-	
-  	return s;
-}
-
 
 static char * engine_load_meta_info_update_field(char * old, xine_stream_t *stream, int info)
 {
@@ -383,31 +367,33 @@ static char * engine_load_meta_info_update_field(char * old, xine_stream_t *stre
 	if(tmp == NULL || !strlen(tmp))
 		return NULL;
 	
-	char * edit = strdup(tmp);
-	char * clean = ltrim(rtrim(edit));
+	//Allowed because strtrim returns old pointer ;).
+	char * clean = strtrim(strdup(tmp));
+	
 	if(old != NULL)
 		free(old);
 
 	char * result = strdup(clean);
-	free(edit);
+	free(clean);
+
 	return result;
 }
 
-static void engine_load_meta_info_from_stream(songdata_song * file, xine_stream_t * str)
+static void engine_load_meta_info_from_stream(songdata_song * file, xine_stream_t * stream)
 {
-	char * tmp = engine_load_meta_info_update_field(file->title, str, XINE_META_INFO_TITLE);
+	char * tmp = engine_load_meta_info_update_field(file->title, stream, XINE_META_INFO_TITLE);
 	if(tmp)
 		file->title = tmp;
 	
-	tmp = engine_load_meta_info_update_field(file->artist, str, XINE_META_INFO_ARTIST);
+	tmp = engine_load_meta_info_update_field(file->artist, stream, XINE_META_INFO_ARTIST);
 	if(tmp)
 		file->artist = tmp;
 	
-	tmp = engine_load_meta_info_update_field(file->album, str, XINE_META_INFO_ALBUM);
+	tmp = engine_load_meta_info_update_field(file->album, stream, XINE_META_INFO_ALBUM);
 	if(tmp)
 		file->album = tmp;
 	
-	tmp = engine_load_meta_info_update_field(file->genre, str, XINE_META_INFO_GENRE);
+	tmp = engine_load_meta_info_update_field(file->genre, stream, XINE_META_INFO_GENRE);
 	if(tmp)
 		file->genre = tmp;
 	

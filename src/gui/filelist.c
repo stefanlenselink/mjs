@@ -5,6 +5,9 @@
 #include <string.h>
 #include <time.h>
 
+extern songdata * mp3list;
+extern songdata * playlist;
+
 songdata_song *previous_selected;
 static char typed_letters[11] = "\0"; // letters previously typed when jumping
 static time_t typed_letters_last_activity; // timeout for previously typed letters

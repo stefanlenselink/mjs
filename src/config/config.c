@@ -57,8 +57,8 @@ void config_shutdown ()
 	config_shutdown_window(conf->playback_window);
 	free ( conf );
 }
-Config *
-config_init ( void )
+
+void config_init ( void )
 {
 	char fname[256], *p;
 	/*
@@ -121,7 +121,7 @@ config_init ( void )
 	if(conf->statefile[1]=='\0')
 		strcpy(conf->statefile, "");
 
-	return conf;
+	return;
 }
 
 static void parseConfig ( Config * conf, char * fname )

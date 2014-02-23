@@ -41,11 +41,11 @@ int main(int argc, char *argv[]) {
 	/**
 	 * Do ALL the inits here
 	 */
-	log_init();
 	config_init();
+	log_init();
 	engine_init( );
-	mp3list = songdata_init( );
-	playlist = controller_init( );
+	songdata_init( );
+	controller_init( );
 	gui_init();	
 	plugin_init();
 	

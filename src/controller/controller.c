@@ -16,6 +16,7 @@
 
 
 extern Config * conf;
+songdata * playlist;
 
 static struct sigaction handler;
 static FILE *logfile;

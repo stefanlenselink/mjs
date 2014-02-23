@@ -1,6 +1,8 @@
 #include "gui.h"
 #include "engine/engine.h"
 
+extern songdata * playlist;
+
 static int last_elapsed = 1; //Foull the guys
 
 void gui_init_playback(void) {

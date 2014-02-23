@@ -96,7 +96,7 @@ typedef struct _config
 	WindowConfig playback_window;
 } Config;
 
-Config * config_init ( void );
+void config_init ( void );
 void config_shutdown ();
 
 #endif /* _config_h */

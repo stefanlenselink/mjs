@@ -3,11 +3,8 @@
 
 #include "defs.h"
 #include "config/config.h"
-#include "songdata/songdata.h"
 
-Config *conf;
-songdata *mp3list;
-songdata *playlist;
+extern Config * conf; //Initialized in config/config.c
 
 void bailout(int sig);
 

@@ -1,6 +1,5 @@
 #include "gui.h"
 
-#include "mjs.h"
 #include "songdata/songdata.h"
 #include "controller/controller.h"
 #include "engine/engine.h"
@@ -12,6 +11,11 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <string.h>
+
+
+extern songdata * playlist;
+extern songdata * mp3list;
+
 
 void gui_init_curs(void) {
 	curs_set(0);

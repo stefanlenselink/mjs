@@ -49,6 +49,8 @@
 #include "songdata/disk_songdata.h"
 #include <microhttpd.h>
 
+extern songdata * playlist;
+
 struct MHD_Daemon *http_daemon;
 
 songdata_song * http_song_by_uid(char *);

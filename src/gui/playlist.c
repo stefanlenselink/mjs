@@ -1,6 +1,8 @@
 #include "gui.h"
 #include "controller/controller.h"
 
+extern songdata * playlist;
+
 void gui_init_playlist(void) {
 	playlist_window = window_new();
 	playlist_window->list = playlist;

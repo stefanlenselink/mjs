@@ -103,12 +103,7 @@ char * controller_process_to_next_song ( void )
 	controller_update_statefile();
     return return_path;
 }
-int controller_has_next_song( void ){
-  if(!playlist || !playlist->playing){
-    return 0;
-  }
-  return playlist->playing->next != NULL;
-}
+
 void controller_jump_to_song ( songdata_song *next )
 {
 	if ( !next )
@@ -292,7 +287,7 @@ add_to_playlist ( songdata *list, songdata_song *position, songdata_song *file )
 	return;
 }
 
-songdata * controller_init ( )
+void controller_init( void )
 {
 	playlist = malloc ( sizeof ( songdata ) );
     memset(playlist, 0, sizeof(songdata));
@@ -303,7 +298,7 @@ songdata * controller_init ( )
     if (conf->logfile)
     	logfile = fopen(conf->logfile, "a");
 
-	return playlist;
+	return;
 }
 
 void controller_shutdown ( void )

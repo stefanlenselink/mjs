@@ -83,7 +83,7 @@ void gui_input_playlist(int c) {
 			// remove selected from playlist
 			if (playlist->selected) {
 				if (playlist->playing == playlist->selected && playlist->playing->next != NULL) {
-					controller_next(playlist);
+					controller_next();
 				} else if (playlist->playing == playlist->selected && playlist->playing->next == NULL) {
 					controller_stop();
 				}

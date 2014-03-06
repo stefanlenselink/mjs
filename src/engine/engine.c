@@ -45,7 +45,6 @@ static float windFactor = 1.0;
 static struct timespec sleepTS;
 
 
-/* Private internal functions */
 //Playback private helpers:
 static void engine_fwd( int, int, char );
 static void xine_open_and_play( char * );
@@ -56,8 +55,7 @@ static void event_callback( void *, const xine_event_t * );
 static void engine_load_meta_info_from_stream( songdata_song *, xine_stream_t * );
 static char * engine_load_meta_info_update_field( char *, xine_stream_t *, int );
 
-
-//*********************************
+//***************************************************
 // Utility functions
 //
 void engine_init ( )
@@ -113,7 +111,7 @@ int engine_extention_is_supported( char * ext )
 }
 
 
-//************************************
+//***************************************************
 //Engine playback controls.
 //
 void engine_stop ( void )
@@ -329,7 +327,7 @@ static void event_callback(void *user_data, const xine_event_t *event) {
 }
 
 
-//*****************************
+//***************************************************
 // Engine state information.
 //
 int engine_is_paused(void)
@@ -368,7 +366,7 @@ int engine_get_length ( void )
 }
 
 
-//******************************
+//***************************************************
 // Metadata
 //
 void engine_load_meta_info(songdata_song * file)

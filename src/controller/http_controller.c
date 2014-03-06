@@ -246,7 +246,7 @@ char * http_get_playlist()
 char * http_get_song_uid(songdata_song *song)
 {
     char input[1024];
-    snprintf(input, 1024, "%p", song);
+    snprintf(input, 1024, "%p", (void *) song);
     return strdup(input);
 }
 

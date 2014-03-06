@@ -24,7 +24,7 @@ static FILE *logfile;
 static void controller_update_whereplaying ( void );
 static void controller_update_statefile ( void );
 
-void controller_next()
+void controller_next( void )
 {
 	songdata_song *ftmp = playlist->playing;
 
@@ -38,7 +38,7 @@ void controller_next()
 	controller_jump_to_song ( ftmp );
 }
 
-void controller_prev()
+void controller_prev( void )
 {
 	songdata_song *ftmp = playlist->playing;
 
@@ -129,7 +129,7 @@ void controller_jump_to_song ( songdata_song *next )
 	controller_update_statefile();
 }
 
-void controller_play_pause(void)
+void controller_play_pause( void )
 {
   if(engine_is_paused()){
     playlist->playing->flags &= ~F_PAUSED;
@@ -149,7 +149,7 @@ void controller_play_pause(void)
   gui_update_playback();
 }
 
-void controller_stop()
+void controller_stop( void )
 {
 	if ( playlist->playing )
 	{
@@ -161,7 +161,7 @@ void controller_stop()
 	gui_update_playback();
 	controller_update_statefile();
 }
-void controller_clear_playlist()
+void controller_clear_playlist( void )
 {
   if (gui_ask_yes_no(CLEARPLAYLIST))
   {
@@ -176,7 +176,7 @@ void controller_clear_playlist()
     update_panels ();
   }
 }
-void controller_shuffle_playlist(){
+void controller_shuffle_playlist( void ){
   if (gui_ask_yes_no(SHUFFLE))
   {
     songdata_randomize(playlist);
@@ -191,12 +191,11 @@ void controller_exit(){
   }
 }
 
-void controller_reload_search_results(){
+void controller_reload_search_results( void ){
   songdata_reload_search_results();
 }
 
-void
-add_to_playlist_recursive ( songdata *list, songdata_song *position, songdata_song *file )
+void add_to_playlist_recursive ( songdata *list, songdata_song *position, songdata_song *file )
 {
 	char *prevpwd = NULL;
 	songdata *templist = NULL;
@@ -229,8 +228,7 @@ add_to_playlist_recursive ( songdata *list, songdata_song *position, songdata_so
 	free ( prevpwd );
 }
 
-void
-add_to_playlist ( songdata *list, songdata_song *position, songdata_song *file )
+void add_to_playlist ( songdata *list, songdata_song *position, songdata_song *file )
 {
 	songdata_song *newfile;
 	char *p;
@@ -342,8 +340,7 @@ void controller_save_playlist(char * file)
 }
 
 
-void
-controller_playlist_move_up()
+void controller_playlist_move_up( void )
 {
 	songdata_song *f1,*f2,*f3,*f4;
 
@@ -371,8 +368,7 @@ controller_playlist_move_up()
 	return;
 }
 
-void
-controller_playlist_move_down()
+void controller_playlist_move_down( void )
 {
 	songdata_song *f1,*f2,*f3,*f4;
 

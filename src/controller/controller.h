@@ -7,9 +7,6 @@
 #include <signal.h>
 #include <errno.h>
 
-#define STOPPED 0
-#define PLAYING 1
-#define PAUSED 2
 
 //Utility
 void controller_init( void );

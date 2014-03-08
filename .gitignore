@@ -47,3 +47,4 @@ install-sh
 missing
 .settings
 m4/
+tests/check_mjs

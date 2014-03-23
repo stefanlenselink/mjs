@@ -21,27 +21,28 @@
 	count -> pointer to int
 
 	mp3path = /pub/mp3/
+    
+	With genre:
+    |*************************fullpath*****************************|
+    /pub/mp3/Pop/Cranberries/Bury the hatchet/01 Animal instinct.mp3
+             |*************path*************| |*****filename***|
+             |*| |*Artist**| |*****Album****|
+             |
+             \-Genre
 
-	|*************************fullpath*****************************|
-	/pub/mp3/Pop/Cranberries/Bury the hatchet/01 Animal instinct.mp3
-	         |*************path*************| |*****filename***|
-		 |*| |*Artist**| |*****Album****|
-		  |
-		  \-Genre
+	|**************abspath******************|
 
-	|**************abspath**************|
-
-	|***************fullpath*************|
-	/pub/mp3/Cranberries/Bury the hatchet/
-	         |************path**********|
-			     |***filename***|
-		|*relpath**|
-	|******abspath*****|
+	
+	Without genre
+    |***************fullpath*************|
+    /pub/mp3/Cranberries/Bury the hatchet/01 Animal instinct.mp3
+             |************path**********| |***filename***|
+    |******abspath**********************|
 */
 
 extern Config * conf;
 /* colors */
-int * colors;
+static int * colors;
 
 songdata *mp3list;
 

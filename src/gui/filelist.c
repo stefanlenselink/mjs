@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "window.h"
 #include "controller/controller.h"
+#include "songdata/dirstack.h"
 
 #include <string.h>
 #include <time.h>

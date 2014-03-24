@@ -1,12 +1,15 @@
 #include "disk_songdata.h"
 #include "songdata.h"
+#include "dirstack.h"
 #include "engine/engine.h"
 #include "config/config.h"
 #include "gui/gui.h"
+
 #include <sys/stat.h>
 #include <string.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <unistd.h>
 
 extern Config * conf;
 

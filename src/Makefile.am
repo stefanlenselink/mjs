@@ -3,7 +3,6 @@ libmjs_la_SOURCES = \
 	engine/engine.c \
 	config/config.c \
 	songdata/dirstack.c \
-	songdata/song.c \
 	controller/controller.c \
 	songdata/disk_songdata.c \
 	gui/gui.c \

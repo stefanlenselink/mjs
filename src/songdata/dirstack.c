@@ -1,63 +1,67 @@
-#include "songdata.h"
+#include "dirstack.h"
+
 #include <string.h>
+#include <stdlib.h>
+
 static dirstack *dirstack_top = NULL;
- /**
- *
- * Dirstack functions...
- *
-  */
-void
-dirstack_push ( const char *fullpath, const char *filename )
+
+int dirstack_empty ( void )
 {
-  dirstack *tmp = malloc( sizeof ( dirstack ) );
-  memset(tmp, 0, sizeof(dirstack));
-  tmp->fullpath = strdup ( fullpath );
-  tmp->filename = strdup ( filename );
-  tmp->prev = dirstack_top;
-  dirstack_top = tmp;
+	if ( dirstack_top )
+		return 0;
+	else
+		return 1;
 }
 
-char *
-    dirstack_fullpath ( void )
+void dirstack_push ( const char *fullpath, const char *filename )
 {
-  if ( dirstack_top )
-    return dirstack_top->fullpath;
-  else
-    abort();
-  return NULL; //This will never happen
+	dirstack *tmp = malloc( sizeof ( dirstack ) );
+	memset(tmp, 0, sizeof(dirstack));
+	
+	tmp->fullpath = strdup ( fullpath );
+	tmp->filename = strdup ( filename );
+	tmp->prev = dirstack_top;
+	
+	dirstack_top = tmp;
 }
 
-char *
-    dirstack_filename ( void )
+void dirstack_pop ( void )
 {
-  if ( dirstack_top )
-    return dirstack_top->filename;
-  else
-    abort();
-  return NULL; //This will never happen
+	dirstack *tmp;
+	if ( dirstack_top )
+	{
+		tmp = dirstack_top;
+		free ( tmp->fullpath );
+		free ( tmp->filename );
+		dirstack_top = tmp->prev;
+		free ( tmp );
+	}
+	else
+	{
+		abort();
+	}
 }
 
-int
-    dirstack_empty ( void )
+char * dirstack_fullpath ( void )
 {
-  if ( dirstack_top )
-    return 0;
-  else
-    return 1;
+	if ( dirstack_top )
+		return dirstack_top->fullpath;
+	else
+		abort();
+
+	return NULL; //This will never happen
 }
 
-void
-    dirstack_pop ( void )
+char * dirstack_filename ( void )
 {
-  dirstack *tmp;
-  if ( dirstack_top )
-  {
-    tmp = dirstack_top;
-    free ( tmp->fullpath );
-    free ( tmp->filename );
-    dirstack_top = tmp->prev;
-    free ( tmp );
-  }
-  else
-    abort();
+	if ( dirstack_top )
+		return dirstack_top->filename;
+	else
+		abort();
+	
+	return NULL; //This will never happen
 }
+
+
+
+

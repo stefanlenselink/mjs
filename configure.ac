@@ -1,5 +1,5 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT([mjs],[4.1])
+AC_INIT([mjs],[4.2])
 LT_INIT[dlopen]
 
 AC_PREREQ([2.69])

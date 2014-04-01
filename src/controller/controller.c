@@ -6,10 +6,11 @@
 #include "mjs.h"
 #include "log.h"
 #include "config/config.h"
-#include "http_controller.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h> 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <time.h>
@@ -35,8 +36,6 @@ void controller_init( void )
 	playlist->head = NULL;
 	songdata_clear( playlist );
 
-	http_controller_init(conf);
-
     if( conf->logfile )
     	logfile = fopen( conf->logfile, "a" );
 
@@ -44,7 +43,6 @@ void controller_init( void )
 
 void controller_shutdown ( void )
 {
-	http_controller_shutdown();
 	songdata_clear( playlist );
 	free ( playlist );
 

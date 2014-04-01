@@ -1,10 +1,12 @@
-#include "mjs.h"
 #include "plugin.h"
 #include "log.h"
+#include "config/config.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <dlfcn.h>
+
+extern Config * conf;
 
 static int plugins_num;
 static Plugin *plugins;

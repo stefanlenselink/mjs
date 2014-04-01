@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "mjs.h"
 #include "plugin/plugin.h"
 #include "controller/controller.h"
 #include "log.h"
@@ -32,6 +31,9 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
+#include "config/config.h"
+
+extern Config * conf;
 
 static int fd;
 static pthread_t thread;

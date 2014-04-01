@@ -10,7 +10,6 @@ libmjs_la_SOURCES = \
 	utils.c \
 	songdata/songdata.c \
 	controller/json.c \
-	controller/http_controller.c \
 	gui/window.c \
 	gui/filelist.c \
 	gui/playlist.c \
@@ -19,6 +18,7 @@ libmjs_la_SOURCES = \
 	gui/bar.c \
 	plugin/plugin.c \
 	plugin/f12automaat.c \
+	plugin/http_controller.c \
 	mjs.c
 libmjs_la_CFLAGS=$(apreq_includes) -std=c11 -Wall -Werror -D_GNU_SOURCE -D_LARGEFILE64_SOURCE
 

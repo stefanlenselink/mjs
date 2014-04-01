@@ -1,10 +1,12 @@
 #include "mjs.h"
 #include "window.h"
 #include "songdata/songdata.h"
-
+#include "config/config.h"
 #include "gui.h"
 
 #include <string.h>
+
+extern Config * conf;
 
 Window *window_new(void) {
 	Window *window = calloc(1, sizeof (Window));

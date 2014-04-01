@@ -1,9 +1,12 @@
 #include "gui.h"
+#include "config/config.h"
 
 #include <time.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/time.h>
+
+extern Config * conf;
 
 static int progress_length;
 static int progress_progress;

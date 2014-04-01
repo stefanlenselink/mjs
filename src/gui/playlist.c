@@ -2,6 +2,7 @@
 #include "controller/controller.h"
 
 extern songdata * playlist;
+extern Config * conf;
 
 void gui_init_playlist(void) {
 	playlist_window = window_new();

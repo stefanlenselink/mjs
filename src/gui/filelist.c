@@ -2,12 +2,14 @@
 #include "window.h"
 #include "controller/controller.h"
 #include "songdata/dirstack.h"
+#include "config/config.h"
 
 #include <string.h>
 #include <time.h>
 
 extern songdata * mp3list;
 extern songdata * playlist;
+extern Config * conf;
 
 songdata_song *previous_selected;
 static char typed_letters[11] = "\0"; // letters previously typed when jumping

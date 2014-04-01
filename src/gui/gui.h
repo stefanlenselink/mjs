@@ -1,7 +1,6 @@
 #ifndef _gui_h
 #define _gui_h
 
-#include "mjs.h"
 #include "window.h"
 
 void gui_init(void);

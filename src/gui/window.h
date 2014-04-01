@@ -2,6 +2,7 @@
 #define _window_h
 
 #include "songdata/songdata.h"
+#include "config/config.h"
 
 #include <ncurses.h>
 #include <panel.h>

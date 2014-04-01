@@ -1,1 +1,1 @@
-SUBDIRS=src tests tools
+SUBDIRS=src tools

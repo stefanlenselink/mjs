@@ -1,3 +1,5 @@
+AM_LDFLAGS=-no-install
+
 TESTS = check_mjs
 bin_PROGRAMS = check_mjs
 check_PROGRAMS = check_mjs

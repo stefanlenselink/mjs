@@ -18,6 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "plugin/plugin.h"
+#include "json.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,21 +42,15 @@
 #include <time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <microhttpd.h>
 
-#include "mjs.h"
-#include "controller/json.h"
 #include "controller/controller.h"
 #include "engine/engine.h"
 #include "songdata/disk_songdata.h"
-#include <microhttpd.h>
 
 extern songdata * playlist;
 
 static struct MHD_Daemon *http_daemon;
-
-//only functions that should be called outside this unit.
-void http_controller_init();
-void http_controller_shutdown();
 
 static songdata_song * http_song_by_uid(char *);
 static int http_controller_request(void *, struct MHD_Connection *, const char *,
@@ -85,7 +80,7 @@ static char * http_delete_playlist_item(char *);
 
 
 
-void http_controller_init() {
+void http_controller_init(void) {
     http_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, 8080, NULL, NULL, &http_controller_request, NULL, MHD_OPTION_END);
 }
 

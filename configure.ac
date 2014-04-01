@@ -23,7 +23,6 @@ AC_CHECK_HEADER([ncurses.h], [], AC_MSG_ERROR([Couldn't find ncurses headers.]))
 AC_CHECK_HEADER([panel.h], [], AC_MSG_ERROR([Couldn't find panel headers.]))
 AC_CHECK_HEADER([xine.h], [], AC_MSG_ERROR([Couldn't find libxine headers.]))
 AC_CHECK_HEADER([pthread.h], [], AC_MSG_ERROR([Couldn't find pthread headers.]))
-AC_CHECK_HEADER([dlfcn.h], [], AC_MSG_ERROR([Couldn't find dlfcn headers.]))
 AC_CHECK_PROGS(apreq2config, apreq2-config, true)
 
 if test "$apreq2config" = "apreq2-config"; then
@@ -37,8 +36,6 @@ fi
 AC_CHECK_LIB(xine, xine_init, , AC_MSG_ERROR([Couldn't find xine library]), -lxine )
 AC_CHECK_LIB(ncursesw, wadd_wch, , AC_MSG_ERROR([Couldn't find ncursesw library]), -lncursesw -ldl)
 AC_CHECK_LIB(panelw, refresh, , AC_MSG_ERROR([Couldn't find panel library]), -lpanel)
-AC_CHECK_LIB(microhttpd, MHD_start_daemon, , AC_MSG_ERROR([Couldn't find microhttpd library]), -lmicrohttpd)
-AC_CHECK_LIB(pthread, pthread_create, , AC_MSG_ERROR([Couldn't find pthread library]), -lpthread)
 AC_CHECK_LIB(dl, dlclose, , AC_MSG_ERROR([Couldn't find dlfcn library]), -ldl)
 AC_CHECK_LIB(apreq2, apreq_encode, , AC_MSG_ERROR([Couldn't find apreq2 library]), `apreq2-config --link-ld`)
 

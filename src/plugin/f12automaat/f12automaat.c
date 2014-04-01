@@ -20,6 +20,7 @@
 
 #include "plugin/plugin.h"
 #include "controller/controller.h"
+#include "config/config.h"
 #include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +32,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
-#include "config/config.h"
 
 extern Config * conf;
 

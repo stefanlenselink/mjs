@@ -6,7 +6,7 @@
 #include "engine/engine.h"
 #include "config/config.h"
 #include "log.h"
-#include "plugin/plugin.h"
+//#include "plugin/plugin.h"
 
 #include <string.h>
 #include <signal.h>
@@ -47,7 +47,7 @@ int main(int argc, char *argv[]) {
 	songdata_init( );
 	controller_init( );
 	gui_init();	
-	plugin_init();
+	//plugin_init();
 	
 	//engine_jump_to("/home/hidde/Music/intro.mp3");
 	log_debug("MJS started!!\n");
@@ -72,7 +72,7 @@ void bailout(int sig) {
 		break;
 	}
 
-	plugin_shutdown();
+	//plugin_shutdown();
 	gui_shutdown();	
 	engine_shutdown();
 	songdata_shutdown();

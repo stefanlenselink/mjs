@@ -28,6 +28,7 @@ Makefile.in
 /config.sub
 /configure
 /configure.scan
+/compile
 tracefile
 src/mjs4
 tools/mjscount

@@ -1,6 +1,8 @@
 #ifndef _defs_h
 #define _defs_h
 
+#include <config.h>
+
 /* Max length of any field */
 #define MAXLEN		500
 

@@ -38,5 +38,5 @@ AC_CHECK_LIB(apreq2, apreq_encode, , AC_MSG_ERROR([Could not find apreq2 library
 # Checks for library functions.
 AC_FUNC_MALLOC
 
-AC_CONFIG_FILES(Makefile src/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile tools/Makefile)
 AC_OUTPUT

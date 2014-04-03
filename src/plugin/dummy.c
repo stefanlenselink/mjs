@@ -1,4 +1,3 @@
-#include "mjs.h"
 #include "gui/gui.h"
 #include "plugin/plugin.h"
 

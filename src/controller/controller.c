@@ -3,7 +3,7 @@
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "gui/gui.h"
-#include "mjs.h"
+#include "utils.h"
 #include "log.h"
 #include "config/config.h"
 

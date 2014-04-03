@@ -9,6 +9,7 @@
 *.cache/
 *.dirstamp
 .libs/
+*.trs
 tags
 /ar-lib
 /test-driver

@@ -11,10 +11,12 @@ AM_INIT_AUTOMAKE([-Wall -Wno-extra-portability -Werror subdir-objects foreign])
 AC_LANG([C])
 AC_PROG_CC
 AC_PROG_INSTALL
-
 AM_PROG_CC_C_O
 
 AC_PREFIX_DEFAULT(/usr)
+
+dnl Check for CHECK library
+PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
 AC_HEADER_STDC
 AC_CHECK_HEADER([ncurses.h], [], AC_MSG_ERROR([Could not find ncurses headers.]))
@@ -38,5 +40,5 @@ AC_CHECK_LIB(apreq2, apreq_encode, , AC_MSG_ERROR([Could not find apreq2 library
 # Checks for library functions.
 AC_FUNC_MALLOC
 
-AC_CONFIG_FILES(Makefile src/Makefile tools/Makefile)
+AC_CONFIG_FILES(Makefile src/Makefile tools/Makefile tests/Makefile)
 AC_OUTPUT

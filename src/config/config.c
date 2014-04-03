@@ -26,7 +26,6 @@ static void config_shutdown_window(WindowConfig);
 static void parseConfig ( Config *, char * );
 static void set_option ( Config *, char *, char * );
 static int break_line( const char *, char *, char *, char * );
-static void add_plugin( Config *, char * );
 
 //Color private helpers
 static int merge_colors( int, int );
@@ -77,8 +76,7 @@ void config_init ( void )
     conf->menubar_window.format = NULL;
     conf->playback_window.format = NULL;
 	conf->plugins = NULL;
-	conf->plugins_num = 0;
-	conf->plugin_dir = NULL;
+	conf->plugindir = NULL;
     conf->serial_device = NULL;
     conf->c_flags = C_FADVANCE;
     conf->statefile[1] = '\0';
@@ -204,10 +202,10 @@ static void set_option ( Config * conf, char *option, char *value )
 		strncpy ( conf->resultsfile, value, sizeof ( conf->resultsfile ) - 1 );
 	else if ( !strcasecmp ( option, "playlistpath" ) )
 		strncpy ( conf->playlistpath, value, sizeof ( conf->playlistpath ) - 1 );
-	else if (strcasecmp(option, "plugin") == 0)
-		add_plugin(conf, value);
-	else if (strcasecmp(option, "plugin_dir") == 0)
-		conf->plugin_dir = strdup(value);
+	else if ( !strcasecmp(option, "plugins") )
+		conf->plugins = strdup(value);
+	else if ( !strcasecmp(option, "plugindir") )
+		conf->plugindir = strdup(value);
 	else if ( !strcasecmp ( option, "serial_device" ) )
 		conf->serial_device = strdup(value);
 	else if ( !strcasecmp ( option, "output_device" ) )
@@ -310,14 +308,6 @@ static int break_line ( const char *line, char *keyword, char *param, char *valu
 		*s++ = *p++;
 	return 3;
 }
-
-static void add_plugin( Config * conf, char *plugin )
-{
-	conf->plugins_num++;
-	conf->plugins = realloc(conf->plugins, conf->plugins_num * sizeof(char *));
-	conf->plugins[conf->plugins_num - 1] = strdup(plugin);
-}
-
 
 //***************************************************
 // Color handling.

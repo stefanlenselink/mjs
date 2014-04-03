@@ -1,3 +1,5 @@
+SUBDIRS = plugin
+
 AM_CPPFLAGS = -D_GNU_SOURCE -D_LARGEFILE64_SOURCE
 AM_CFLAGS = -std=c11
 
@@ -19,6 +21,7 @@ libmjs_la_SOURCES = \
 	gui/info.c \
 	gui/playback.c \
 	gui/bar.c \
+	plugin/plugin.c \
 	mjs.c
 libmjs_la_CFLAGS = $(XINE_CFLAGS) $(CURSES_CFLAGS) $(APREQ2_CFLAGS)
 libmjs_la_LDFLAGS = $(XINE_LIBS) $(CURSES_LIBS) $(APREQ2_LIBS)

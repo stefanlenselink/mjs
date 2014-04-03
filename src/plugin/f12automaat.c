@@ -83,7 +83,7 @@ void f12automaat_poll(void) {
 }
 
 void *f12automaat_thread(void * arg){
-	log_debug("MJS f12automaat started!\n");
+	log_debug("f12automaat: started!\n");
 	
 	while(1){
 		f12automaat_poll();
@@ -100,6 +100,8 @@ void f12automaat_init(void) {
 		fcntl(fd, F_SETFL, 0);
 		//Start the thread
 		pthread_create(&thread, NULL, f12automaat_thread, NULL);
+	} else {
+		log_debug_format("f12automaat: can't open serial device: %s\n", conf->serial_device);
 	}
 }
 

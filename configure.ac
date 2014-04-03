@@ -36,6 +36,7 @@ AC_CHECK_LIB(xine, xine_init, , AC_MSG_ERROR([Could not find xine library]), -lx
 AC_CHECK_LIB(ncursesw, wadd_wch, , AC_MSG_ERROR([Could not find ncursesw library]), -lncursesw -ldl)
 AC_CHECK_LIB(panelw, refresh, , AC_MSG_ERROR([Could not find panel library]), -lpanel)
 AC_CHECK_LIB(apreq2, apreq_encode, , AC_MSG_ERROR([Could not find apreq2 library]), `apreq2-config --link-ld`)
+AC_CHECK_LIB(microhttpd, MHD_start_daemon, , AC_MSG_ERROR([Could not find microhttpd library]), -lmicrohttpd)
 
 # Checks for library functions.
 AC_FUNC_MALLOC

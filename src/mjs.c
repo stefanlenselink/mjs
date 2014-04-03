@@ -1,6 +1,7 @@
 #include "defs.h"
 #include "mjs.h"
 #include "controller/controller.h"
+#include "plugin/http_controller/http_controller.h"
 #include "gui/gui.h"
 #include "songdata/songdata.h"
 #include "engine/engine.h"
@@ -38,6 +39,7 @@ int main(int argc, char *argv[]) {
 	engine_init( );
 	songdata_init( );
 	controller_init( );
+	http_controller_init();
 	gui_init();	
 	//plugin_init();
 	

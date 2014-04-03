@@ -16,7 +16,9 @@ libmjs_la_SOURCES = \
 	gui/playlist.c \
 	gui/info.c \
 	gui/playback.c \
-	gui/bar.c
+	gui/bar.c\
+	plugin/http_controller/http_controller.c\
+	plugin/http_controller/json.c
 libmjs_la_CFLAGS=$(apreq_includes) -std=c11 -Wall -Werror -D_GNU_SOURCE -D_LARGEFILE64_SOURCE
 
 bin_PROGRAMS=mjs4

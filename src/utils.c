@@ -5,7 +5,7 @@
 #include "engine/engine.h"
 #include "config/config.h"
 #include "log.h"
-//#include "plugin/plugin.h"
+#include "plugin/plugin.h"
 
 #include <string.h>
 #include <signal.h>
@@ -86,7 +86,7 @@ void bailout(int sig) {
 		break;
 	}
 
-	//plugin_shutdown();
+	plugin_shutdown();
 	gui_shutdown();	
 	engine_shutdown();
 	songdata_shutdown();

@@ -18,3 +18,6 @@ set playlistpath		/pub/mp3/Playlists
 # Use directory based genre system 
 set use_genre			true
 
+# plugins: list of plugins, separated by a comma
+#set plugins			dummy,f12automaat
+set plugindir			/usr/lib/mjs

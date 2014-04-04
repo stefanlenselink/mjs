@@ -1,3 +1,5 @@
+SUBDIRS = plugin
+
 AM_CPPFLAGS = -D_GNU_SOURCE -D_LARGEFILE64_SOURCE
 AM_CFLAGS = -std=c11
 
@@ -18,15 +20,13 @@ libmjs_la_SOURCES = \
 	gui/playlist.c \
 	gui/info.c \
 	gui/playback.c \
-	gui/bar.c\
-	plugin/http_controller/http_controller.c\
-	plugin/http_controller/json.c
-libmjs_la_CFLAGS = $(XINE_CFLAGS) $(CURSES_CFLAGS) $(APREQ2_CFLAGS) $(MICROHTTPD_CFLAGS)
-libmjs_la_LDFLAGS = $(XINE_LIBS) $(CURSES_LIBS) $(APREQ2_LIBS) $(MICROHTTPD_LIBS)
+	gui/bar.c \
+	plugin/plugin.c
+libmjs_la_CFLAGS = $(XINE_CFLAGS) $(CURSES_CFLAGS) $(APREQ2_CFLAGS)
+libmjs_la_LDFLAGS = $(XINE_LIBS) $(CURSES_LIBS) $(APREQ2_LIBS)
 
 bin_PROGRAMS=mjs4
 
 mjs4_SOURCES = \
 	mjs.c
 mjs4_LDADD=libmjs.la
-mjs4_LDFLAGS=-static

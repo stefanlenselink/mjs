@@ -1,14 +1,13 @@
 #include "defs.h"
 #include "mjs.h"
 #include "controller/controller.h"
-#include "plugin/http_controller/http_controller.h"
 #include "gui/gui.h"
 #include "songdata/songdata.h"
 #include "engine/engine.h"
 #include "config/config.h"
 #include "log.h"
 #include "utils.h"
-//#include "plugin/plugin.h"
+#include "plugin/plugin.h"
 
 #include <string.h>
 #include <signal.h>
@@ -39,9 +38,8 @@ int main(int argc, char *argv[]) {
 	engine_init( );
 	songdata_init( );
 	controller_init( );
-	http_controller_init();
 	gui_init();	
-	//plugin_init();
+	plugin_init();
 	
 	//engine_jump_to("/home/hidde/Music/intro.mp3");
 	log_debug("MJS started!!\n");
@@ -51,5 +49,3 @@ int main(int argc, char *argv[]) {
 
 	return 0;
 }
-
-

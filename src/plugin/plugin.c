@@ -24,11 +24,13 @@ void plugin_init(void) {
 	do {
 		log_debug_format("Loading plugin: %s\n", plugin_name);
 
+#pragma GCC diagnostic ignored "-Wunused-result"
 		if (conf->plugindir != NULL) {
 			asprintf(&filename, "%s/%s.so", conf->plugindir, plugin_name);
 		} else {
 			asprintf(&filename, "%s.so", plugin_name);
 		}
+#pragma GCC diagnostic pop
 
 		plugin.handle = dlopen(filename, RTLD_NOW);
 		free(filename);

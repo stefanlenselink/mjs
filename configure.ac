@@ -24,6 +24,9 @@ PKG_CHECK_MODULES([MICROHTTPD], [libmicrohttpd])
 dnl Check for CHECK library
 PKG_CHECK_MODULES([CHECK], [check >= 0.9.4])
 
+AC_CHECK_HEADER([dlfcn.h], [], AC_MSG_ERROR([Could not find dlfcn headers.]))
+AC_CHECK_LIB(dl, dlclose, , AC_MSG_ERROR([Could not find dlfcn library]), -ldl)
+
 AC_MSG_CHECKING([for APREQ2])
 AS_IF([which apreq2-config &> /dev/null],
   [
@@ -35,7 +38,7 @@ AS_IF([which apreq2-config &> /dev/null],
   ],
   [
     AC_MSG_RESULT([no])
-    AC_MSG_ERROR([Couldn't find apreq2-config, please install the apreq2 library and headers.])
+    AC_MSG_ERROR([Could not find apreq2-config, please install the apreq2 library and headers.])
   ]
 )
 

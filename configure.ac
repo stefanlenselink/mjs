@@ -5,6 +5,7 @@ AC_PREREQ([2.69])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_FILES([Makefile src/Makefile tools/Makefile tests/Makefile])
+AC_CONFIG_HEADERS([config.h])
 AC_PREFIX_DEFAULT([/usr])
 
 AM_INIT_AUTOMAKE([-Wall -Wno-extra-portability -Werror subdir-objects foreign])

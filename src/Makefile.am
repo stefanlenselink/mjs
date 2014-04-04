@@ -1,8 +1,8 @@
 SUBDIRS = plugin
 
-AM_CPPFLAGS = -D_GNU_SOURCE -D_LARGEFILE64_SOURCE -Wall -Werror
-AM_CFLAGS = -std=c11
-AM_LDFLAGS = -static
+AM_CPPFLAGS = -D_GNU_SOURCE -D_LARGEFILE64_SOURCE
+AM_CFLAGS = -std=c11 -Wall -Werror
+AM_LDFLAGS = -static -export-dynamic
 
 lib_LTLIBRARIES = libmjs.la
 

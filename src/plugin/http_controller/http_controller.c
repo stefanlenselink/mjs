@@ -48,6 +48,7 @@
 #include "controller/controller.h"
 #include "engine/engine.h"
 #include "songdata/disk_songdata.h"
+#include "log.h"
 
 extern songdata * playlist;
 
@@ -82,6 +83,7 @@ static char * http_delete_playlist_item(char *);
 
 
 void http_controller_init(void) {
+	log_debug("HTTP Controller starting!");
     http_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, 8080, NULL, NULL, &http_controller_request, NULL, MHD_OPTION_END);
 }
 

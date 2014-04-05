@@ -69,7 +69,7 @@ typedef struct _config
 	char output[256];
 	char snd_system[256];
 	char * plugins;
-	char * plugindir;
+	char * pluginpath;
 	char * serial_device;
 	int c_flags;
 #define C_PADVANCE 	0x0001

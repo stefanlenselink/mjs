@@ -76,7 +76,7 @@ void config_init ( void )
     conf->menubar_window.format = NULL;
     conf->playback_window.format = NULL;
 	conf->plugins = NULL;
-	conf->plugindir = NULL;
+	conf->pluginpath = NULL;
     conf->serial_device = NULL;
     conf->c_flags = C_FADVANCE;
     conf->statefile[1] = '\0';
@@ -204,8 +204,8 @@ static void set_option ( Config * conf, char *option, char *value )
 		strncpy ( conf->playlistpath, value, sizeof ( conf->playlistpath ) - 1 );
 	else if ( !strcasecmp(option, "plugins") )
 		conf->plugins = strdup(value);
-	else if ( !strcasecmp(option, "plugindir") )
-		conf->plugindir = strdup(value);
+	else if ( !strcasecmp(option, "pluginpath") )
+		conf->pluginpath = strdup(value);
 	else if ( !strcasecmp ( option, "serial_device" ) )
 		conf->serial_device = strdup(value);
 	else if ( !strcasecmp ( option, "output_device" ) )

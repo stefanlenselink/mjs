@@ -87,7 +87,7 @@ void *f12automaat_thread(void * arg){
 	
 	while(1){
 		f12automaat_poll();
-		usleep(1000);
+		sleep(1);
 	}
 }
 

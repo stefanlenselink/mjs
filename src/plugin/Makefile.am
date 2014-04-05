@@ -14,4 +14,4 @@ httpcontroller_la_SOURCES = \
 	http_controller/http_controller.c\
 	http_controller/json.c
 httpcontroller_la_CFLAGS = $(MICROHTTPD_CFLAGS) $(AM_CFLAGS)
-httpcontroller_la_LDFLAGS = $(MICROHTTPD_LDFLAGS) $(AM_LDFLAGS) 
+httpcontroller_la_LDFLAGS = $(AM_LDFLAGS) $(MICROHTTPD_LIBS) 

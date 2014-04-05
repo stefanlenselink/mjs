@@ -18,31 +18,9 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "plugin/plugin.h"
-#include "http_controller.h"
 #include "json.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdarg.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <stddef.h>
-#include <pthread.h>
-#include <sys/select.h>
-#include <sys/types.h>
-#include <sys/time.h>
-#include <sys/stat.h>
-#include <sys/msg.h>
-#include <sys/mman.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <time.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
 #include <microhttpd.h>
 
 #include "controller/controller.h"

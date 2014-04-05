@@ -1,5 +1,6 @@
 #include "gui/gui.h"
 #include "plugin/plugin.h"
+#include "log.h"
 
 void dummy_init(void) {
 	log_debug("MJS dummmy plugin started!\n");

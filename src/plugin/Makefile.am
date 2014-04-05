@@ -1,4 +1,5 @@
 AM_CPPFLAGS = -I$(top_srcdir)/src
+AM_CFLAGS = -std=c11 -Wall -Werror
 AM_LDFLAGS = -module -export-symbols-regex '^_plugin_(init|shutdown)'
 
 plugindir = $(libdir)/mjs

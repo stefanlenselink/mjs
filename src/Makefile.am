@@ -23,11 +23,14 @@ libmjs_la_SOURCES = \
 	gui/playback.c \
 	gui/bar.c \
 	plugin/plugin.c
-libmjs_la_CFLAGS = $(XINE_CFLAGS) $(CURSES_CFLAGS) $(APREQ2_CFLAGS)
-libmjs_la_LDFLAGS = $(XINE_LIBS) $(CURSES_LIBS) $(APREQ2_LIBS)
+libmjs_la_CFLAGS = $(AM_CFLAGS) $(XINE_CFLAGS) $(CURSES_CFLAGS) $(APREQ2_CFLAGS)
+libmjs_la_LDFLAGS = $(AM_LDFLAGS) $(XINE_LIBS) $(CURSES_LIBS) $(APREQ2_LIBS)
 
 bin_PROGRAMS=mjs4
 
 mjs4_SOURCES = \
 	mjs.c
+mjs4_CFLAGS = $(AM_CFLAGS)
+mjs4_LDFLAGS = $(AM_LDFLAGS)
 mjs4_LDADD=libmjs.la
+

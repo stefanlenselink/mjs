@@ -82,7 +82,7 @@ static char * http_delete_playlist_item(char *);
 
 
 void http_controller_init(void) {
-	log_debug("HTTP Controller starting!");
+	log_debug("http_controller: started!\n");
     http_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, 8080, NULL, NULL, &http_controller_request, NULL, MHD_OPTION_END);
 }
 

@@ -6,11 +6,14 @@ set mp3dir			/pub/mp3
 # logfile: path to the file in which to save played mp3 titles
 set logfile			/pub/mp3/mp3.log
 
+# debugfile: path to the file where debug info is saved
+set debugfile		/tmp/mjs/mp3.debug
+
 # statefile: path to the file in which to save te playing mp3 title
 set statefile			/pub/mp3/mp3.active
 
 # resultsfile: path to the file we grab our searchresults from
-set resultsfile			/tmp/findresults
+set resultsfile			/tmp/mjs/results.mjs
 
 # playlistpath: path to the directory where we save our playlists
 set playlistpath		/pub/mp3/Playlists

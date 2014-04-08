@@ -34,6 +34,7 @@ Makefile.in
 tracefile
 src/mjs4
 tools/mjscount
+tools/mjsconfig
 .autotools
 .project
 .cproject

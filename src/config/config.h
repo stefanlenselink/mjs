@@ -63,6 +63,7 @@ typedef struct _config
 	char mp3path[256];
 	char statefile[256];
 	char logfile[256];
+	char *debugfile;
 	char resultsfile[256];
 	char playlistpath[256];
 	char bottomtext[256];

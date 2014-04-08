@@ -198,6 +198,8 @@ static void set_option ( Config * conf, char *option, char *value )
 		strncpy ( conf->statefile, value, sizeof ( conf->statefile ) - 1 );
 	else if ( !strcasecmp ( option, "logfile" ) )
 		strncpy ( conf->logfile, value, sizeof ( conf->logfile ) - 1 );
+	else if ( !strcasecmp(option, "debugfile") )
+			conf->debugfile = strdup(value);
 	else if ( !strcasecmp ( option, "resultsfile" ) )
 		strncpy ( conf->resultsfile, value, sizeof ( conf->resultsfile ) - 1 );
 	else if ( !strcasecmp ( option, "playlistpath" ) )

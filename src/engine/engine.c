@@ -257,7 +257,7 @@ static void xine_open_and_play(char * file)
 		sprintf(file_uri, "%s", file);
 	}
 	xine_close ( stream );
-	log_debug(file_uri);
+	log_debug_format("engine: %s\n", file_uri);
 
 	if(!xine_open ( stream, file_uri)){
 		return;
@@ -278,7 +278,6 @@ static void xine_open_and_play(char * file)
 		nanosleep(&sleepTS,NULL); //Just try until you get some usefull info
 		count++;
 		if(count>5) break;
-		//log_debug("Sleeping");
 	}
 }
 

@@ -1,4 +1,4 @@
 #!/bin/sh
-MP3DIR=${MP3DIR:=/pub/mp3}
+MP3DIR=${MP3DIR:=`mjsconfig -b mp3dir`}
 
 locate -d ${MP3DIR}/mp3.db -i -n 150 $1 | grep '.mp3$' > $2

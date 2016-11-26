@@ -36,9 +36,10 @@ void controller_init( void )
 	playlist->head = NULL;
 	songdata_clear( playlist );
 
-    if( conf->logfile )
-    	logfile = fopen( conf->logfile, "a" );
-
+	if( conf->logfile ) {
+		logfile = fopen( conf->logfile, "a" );
+		setlinebuf(logfile);
+	}
 }
 
 void controller_shutdown ( void )
@@ -57,7 +58,6 @@ char * controller_process_to_next_song ( void )
 	if (logfile) {
 		timevalue = time(NULL);
 		fprintf(logfile, "%.24s %s\n", ctime(&timevalue), playlist->playing->fullpath);
-		fsync(fileno(logfile));
 	}
 
     if ( !playlist->playing->next )

@@ -14,14 +14,22 @@ static Plugin *plugins;
 
 void plugin_init(void) {
 	Plugin plugin;
+	char *plugins_str;
+	char *plugins_str_saveptr;
 	char *plugin_name;
 	char *filename;
 
 	plugins_num = 0;
 	plugins = NULL;
 
-	plugin_name = strtok(conf->plugins, ",");
-	do {
+	plugins_str = conf->plugins;
+
+	if (!plugins_str)
+		return;
+
+	while ((plugin_name = strtok_r(plugins_str, ",", &plugins_str_saveptr)) != NULL) {
+		plugins_str = NULL;
+
 		log_debug_format("Loading plugin: %s\n", plugin_name);
 
 #pragma GCC diagnostic ignored "-Wunused-result"
@@ -60,7 +68,7 @@ void plugin_init(void) {
 		plugins = (Plugin *)realloc(plugins, sizeof (Plugin) * (plugins_num + 1));
 		plugins[plugins_num] = plugin;
 		plugins_num++;
-	} while ((plugin_name = strtok(NULL, ",")) != NULL);
+	}
 }
 
 void plugin_shutdown(void) {

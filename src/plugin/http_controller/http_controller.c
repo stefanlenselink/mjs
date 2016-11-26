@@ -295,13 +295,11 @@ static char * http_get_song_json(songdata_song *song)
 
     char *tag = song->tag;
     if(tag == NULL)
-	    tag = strdup("");
+	    tag = "";
 
     snprintf(file, 1024, "{\"uid\":\"%s\", \"location\":\"%s\", \"tag\":\"%s\"}", uid, song->fullpath, tag);
     free(uid);
-    free(tag);
     uid = NULL;
-    tag = NULL;
     return strdup(file);
 }
 

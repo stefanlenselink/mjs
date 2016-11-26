@@ -38,7 +38,8 @@ void controller_init( void )
 
 	if( conf->logfile ) {
 		logfile = fopen( conf->logfile, "a" );
-		setlinebuf(logfile);
+		if (logfile != NULL)
+			setlinebuf(logfile);
 	}
 }
 

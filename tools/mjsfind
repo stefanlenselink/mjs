@@ -1,4 +1,4 @@
 #!/bin/sh
 MP3DIR=${MP3DIR:=`mjsconfig -b mp3dir`}
 
-grep -i $1 ${MP3DIR}/index | head -n 150 | sed -e "s#^#$MP3DIR/#g" > $2
+grep -i $1 ${MP3DIR}/index | head -n 150 > $2

@@ -21,46 +21,36 @@
 #define COMMENT '#'
 #define YESNO(s) (s[0] == 'y' || s[0] == 't' || s[0] == '1' || s[0] == 'Y' || s[0] == 'T')
 
-static Config *set_option ( Config *, char *, char * );
-static int merge_colors ( int, int );
-static int str2color ( char * );
-static void set_color ( char *, char * );
-static void set_window_defaults ( void );
-static void set_color_defaults ( void );
-static void set_window ( WindowConfig *, char *, char * );
-static int break_line ( const char *, char *, char *, char * );
-static void parseConfig ( Config * conf, char * fname );
+//Utility private helpers
 static void config_shutdown_window(WindowConfig);
-int * colors;
+static void parseConfig ( Config *, char * );
+static void set_option ( Config *, char *, char * );
+static int break_line( const char *, char *, char *, char * );
 
+//Color private helpers
+static int merge_colors( int, int );
+static int str2color( char * );
+static void set_color_defaults( void );
+static void set_color( char *, char * );
+
+//Window private helpers
+static void set_window_defaults( void );
+static void set_window( WindowConfig *, char *, char * );
+static int window_calc( char * );
+
+
+static int * colors;
+
+//GLOBAL config struct.
 Config * conf;
 
-static void config_shutdown_window(WindowConfig win)
-{
-	if(win.format){
-		free(win.format);
-	}
-	if(win.title_dfl){
-		free(win.title_dfl);
-	}
-	if(win.title_fmt){
-		free(win.title_fmt);
-	}
-}
 
-void config_shutdown ()
+//***************************************************
+// Utility
+//
+void config_init ( void )
 {
-	config_shutdown_window(conf->files_window);
-	config_shutdown_window(conf->info_window);
-	config_shutdown_window(conf->play_window);
-	config_shutdown_window(conf->menubar_window);
-	config_shutdown_window(conf->playback_window);
-	free ( conf );
-}
-Config *
-config_init ( void )
-{
-	char fname[256], *p;
+	char fname[256], *path;
 	/*
 	 * make sure this is all null before we go open some unknown file
 	 */
@@ -86,31 +76,33 @@ config_init ( void )
     conf->menubar_window.format = NULL;
     conf->playback_window.format = NULL;
 	conf->plugins = NULL;
-	conf->plugins_num = 0;
-	conf->plugin_dir = NULL;
+	conf->pluginpath = NULL;
     conf->serial_device = NULL;
     conf->c_flags = C_FADVANCE;
     conf->statefile[1] = '\0';
     
 	strncpy ( conf->mpgpath, MPGPATH, 255 );
+
 	colors = conf->colors;
-	memset ( colors, 0, sizeof ( colors ) );
+	memset ( colors, 0, sizeof( int ) * NUM_COLORS );
 	set_window_defaults ();
 	set_color_defaults ();
-	memset ( fname, 0, sizeof ( fname ) );
-
-	if ( ( p = getenv ( "MJSRC" ) ) )
+	
+	memset ( fname, 0, sizeof( fname ) );
+	if ( (path = getenv( "MJSRC" )) )
 	{
-		strncpy ( fname, p, sizeof ( fname ) - 1 );
+		strncpy ( fname, path, sizeof ( fname ) - 1 );
 		parseConfig ( conf, fname );
-	}
-	memset ( fname, 0, sizeof ( fname ) );
-	snprintf ( fname, sizeof ( fname ) - 1, "%s/.mjsrc", getenv ( "HOME" ) );
-	parseConfig ( conf, fname );
-	memset ( fname, 0, sizeof ( fname ) );
-	snprintf ( fname, sizeof ( fname ) - 1, "/etc/mjsrc" );
-	parseConfig ( conf, fname );
-//defaults :
+	} 
+	memset( fname, 0, sizeof ( fname ) );
+	snprintf( fname, sizeof ( fname ) - 1, "%s/.mjsrc", getenv ("HOME") );
+	parseConfig( conf, fname );
+
+	memset( fname, 0, sizeof ( fname ) );
+	snprintf( fname, sizeof ( fname ) - 1, "/etc/mjsrc" );
+	parseConfig( conf, fname );
+
+	//defaults :
 	if ( conf->output[1]=='\0' && conf->snd_system[1]=='\0' )
 		strcpy ( conf->output,"/dev/dsp\0" );
 	if ( conf->mpgpath[1]=='\0' )
@@ -120,7 +112,30 @@ config_init ( void )
 	if(conf->statefile[1]=='\0')
 		strcpy(conf->statefile, "");
 
-	return conf;
+	return;
+}
+
+void config_shutdown ()
+{
+	config_shutdown_window(conf->files_window);
+	config_shutdown_window(conf->info_window);
+	config_shutdown_window(conf->play_window);
+	config_shutdown_window(conf->menubar_window);
+	config_shutdown_window(conf->playback_window);
+	free ( conf );
+}
+
+static void config_shutdown_window(WindowConfig win)
+{
+	if(win.format){
+		free(win.format);
+	}
+	if(win.title_dfl){
+		free(win.title_dfl);
+	}
+	if(win.title_fmt){
+		free(win.title_fmt);
+	}
 }
 
 static void parseConfig ( Config * conf, char * fname )
@@ -165,18 +180,10 @@ static void parseConfig ( Config * conf, char * fname )
 	fclose ( cfg );
 }
 
-void add_plugin(Config *conf, char *plugin) {
-	conf->plugins_num++;
-	conf->plugins = realloc(conf->plugins, conf->plugins_num * sizeof(char *));
-	conf->plugins[conf->plugins_num - 1] = strdup(plugin);
-}
-
 /*
  * All configurable parameters go here
  */
-
-static Config *
-set_option ( Config * conf, char *option, char *value )
+static void set_option ( Config * conf, char *option, char *value )
 {
 	char *p;
 	if ( !strcasecmp ( option, "mpgpath" ) )
@@ -191,14 +198,16 @@ set_option ( Config * conf, char *option, char *value )
 		strncpy ( conf->statefile, value, sizeof ( conf->statefile ) - 1 );
 	else if ( !strcasecmp ( option, "logfile" ) )
 		strncpy ( conf->logfile, value, sizeof ( conf->logfile ) - 1 );
+	else if ( !strcasecmp(option, "debugfile") )
+			conf->debugfile = strdup(value);
 	else if ( !strcasecmp ( option, "resultsfile" ) )
 		strncpy ( conf->resultsfile, value, sizeof ( conf->resultsfile ) - 1 );
 	else if ( !strcasecmp ( option, "playlistpath" ) )
 		strncpy ( conf->playlistpath, value, sizeof ( conf->playlistpath ) - 1 );
-	else if (strcasecmp(option, "plugin") == 0)
-		add_plugin(conf, value);
-	else if (strcasecmp(option, "plugin_dir") == 0)
-		conf->plugin_dir = strdup(value);
+	else if ( !strcasecmp(option, "plugins") )
+		conf->plugins = strdup(value);
+	else if ( !strcasecmp(option, "pluginpath") )
+		conf->pluginpath = strdup(value);
 	else if ( !strcasecmp ( option, "serial_device" ) )
 		conf->serial_device = strdup(value);
 	else if ( !strcasecmp ( option, "output_device" ) )
@@ -269,69 +278,43 @@ set_option ( Config * conf, char *option, char *value )
 		if ( errno )
 			conf->refresh_interval = 60;
 	}
-	return conf;
+	return;
 }
 
-
-static int
-str2color ( char *color )
+static int break_line ( const char *line, char *keyword, char *param, char *value )
 {
-	while ( color[0] == ' ' )	// remove whitespace at start
-		color++;
-	if ( !strncasecmp ( color, "black",5 ) )
-		return BLACK;
-	else if ( !strncasecmp ( color, "red",3 ) )
-		return RED;
-	else if ( !strncasecmp ( color, "green",5 ) )
-		return GREEN;
-	else if ( !strncasecmp ( color, "brown",5 ) )
-		return BROWN;
-	else if ( !strncasecmp ( color, "blue",4 ) )
-		return BLUE;
-	else if ( !strncasecmp ( color, "magenta",7 ) )
-		return MAGENTA;
-	else if ( !strncasecmp ( color, "cyan",4 ) )
-		return CYAN;
-	else if ( !strncasecmp ( color, "grey",4 ) )
-		return GREY;
-	else if ( !strncasecmp ( color, "b_black",7 ) )
-		return B_BLACK;
-	else if ( !strncasecmp ( color, "b_red",5 ) )
-		return B_RED;
-	else if ( !strncasecmp ( color, "b_green",7 ) )
-		return B_GREEN;
-	else if ( !strncasecmp ( color, "yellow",6 ) )
-		return YELLOW;
-	else if ( !strncasecmp ( color, "b_blue",6 ) )
-		return B_BLUE;
-	else if ( !strncasecmp ( color, "b_magenta",9 ) )
-		return B_MAGENTA;
-	else if ( !strncasecmp ( color, "b_cyan",6 ) )
-		return B_CYAN;
-	else if ( !strncasecmp ( color, "white",5 ) )
-		return WHITE;
-	return GREY;
+	char *p = ( char * ) line, *s = keyword;
+	int i = 0;
+
+	while ( isspace ( *p ) )
+		p++;
+	if ( !*p )
+		return 0;
+	while ( i++ < 256 && !isspace ( *p ) )
+		*s++ = *p++;
+	while ( isspace ( *p ) )
+		p++;
+	if ( !*p )
+		return 1;
+	i = 0;
+	s = param;
+	while ( i++ < 256 && !isspace ( *p ) )
+		*s++ = *p++;
+	while ( isspace ( *p ) )
+		p++;
+	if ( !*p )
+		return 2;
+	i = 0;
+	s = value;
+	while ( i++ < 256 && isprint ( *p ) )
+		*s++ = *p++;
+	return 3;
 }
 
-static int
-merge_colors ( int fore, int back )
-{
-	/*
-	 * make sure they aren't dumb enough to use a bold background, and
-	 * attempt to correct for it.
-	 */
-	if ( back > GREY )
-		back &= ~A_BOLD;
-	if ( fore == GREY && back == BLACK )
-		return COLOR_PAIR ( 0 );
-	else if ( fore == BLACK && back == BLACK )
-		return COLOR_PAIR ( 56 );
-	else
-		return ( fore << 11 | back << 8 );
-}
-
-static void
-set_color ( char *color, char *value )
+//***************************************************
+// Color handling.
+//
+static void set_color( char *color, char *value )
 {
 	char *fore = value;
 	char *back = strchr ( value, ':' );
@@ -429,13 +412,104 @@ set_color ( char *color, char *value )
 		    merge_colors ( BLACK, str2color ( fore ) );
 }
 
+static void set_color_defaults ( void )
+{
+	colors[WIN_ACTIVE] = merge_colors ( B_RED, BLACK );
+	colors[WIN_INACTIVE] = merge_colors ( B_BLUE, BLACK );
+	colors[WIN_INACTIVE_TITLE] = merge_colors ( B_BLUE, BLACK );
+	colors[WIN_INACTIVE_SCROLL] = merge_colors ( BLUE, BLACK );
+	colors[WIN_INACTIVE_SCROLLBAR] = merge_colors ( B_BLUE, BLACK );
+	colors[WIN_ACTIVE_TITLE] = merge_colors ( B_RED, BLACK );
+	colors[WIN_ACTIVE_SCROLL] = merge_colors ( RED, BLACK );
+	colors[WIN_ACTIVE_SCROLLBAR] = merge_colors ( B_RED, BLACK );
+
+	colors[FILE_UNSELECTED] = merge_colors ( B_BLUE, BLACK );
+	colors[FILE_SELECTED] = merge_colors ( B_BLUE, RED );
+	colors[FILE_UNSELECTED_DIRECTORY] = merge_colors ( B_BLUE, BLACK );
+	colors[FILE_SELECTED_DIRECTORY] = merge_colors ( B_BLUE, RED );
+	colors[FILE_WINDOW] = merge_colors ( BLACK, BLACK );
+
+	colors[PLAY_UNSELECTED] = merge_colors ( B_BLUE, BLACK );
+	colors[PLAY_SELECTED] = merge_colors ( B_BLUE, RED );
+	colors[PLAY_UNSELECTED_PLAYING] = merge_colors ( B_RED, BLUE );
+	colors[PLAY_SELECTED_PLAYING] = merge_colors ( B_RED, RED );
+	colors[PLAY_WINDOW] = merge_colors ( BLACK, BLACK );
+
+	colors[INFO_TEXT] = merge_colors ( B_BLUE, BLACK );
+	colors[INFO_WINDOW] = merge_colors ( BLACK, BLACK );
+
+	colors[MENU_TEXT] = merge_colors ( B_BLUE, BLACK );
+	colors[MENU_WINDOW] = merge_colors ( BLACK, BLACK );
+
+	colors[PLAYBACK_TEXT] = merge_colors ( B_BLUE, BLACK );
+	colors[PLAYBACK_WINDOW] = merge_colors ( BLACK, BLACK );
+}
+
+static int str2color( char *color )
+{
+	while ( color[0] == ' ' )	// remove whitespace at start
+		color++;
+	if ( !strncasecmp ( color, "black",5 ) )
+		return BLACK;
+	else if ( !strncasecmp ( color, "red",3 ) )
+		return RED;
+	else if ( !strncasecmp ( color, "green",5 ) )
+		return GREEN;
+	else if ( !strncasecmp ( color, "brown",5 ) )
+		return BROWN;
+	else if ( !strncasecmp ( color, "blue",4 ) )
+		return BLUE;
+	else if ( !strncasecmp ( color, "magenta",7 ) )
+		return MAGENTA;
+	else if ( !strncasecmp ( color, "cyan",4 ) )
+		return CYAN;
+	else if ( !strncasecmp ( color, "grey",4 ) )
+		return GREY;
+	else if ( !strncasecmp ( color, "b_black",7 ) )
+		return B_BLACK;
+	else if ( !strncasecmp ( color, "b_red",5 ) )
+		return B_RED;
+	else if ( !strncasecmp ( color, "b_green",7 ) )
+		return B_GREEN;
+	else if ( !strncasecmp ( color, "yellow",6 ) )
+		return YELLOW;
+	else if ( !strncasecmp ( color, "b_blue",6 ) )
+		return B_BLUE;
+	else if ( !strncasecmp ( color, "b_magenta",9 ) )
+		return B_MAGENTA;
+	else if ( !strncasecmp ( color, "b_cyan",6 ) )
+		return B_CYAN;
+	else if ( !strncasecmp ( color, "white",5 ) )
+		return WHITE;
+	return GREY;
+}
+
+static int merge_colors ( int fore, int back )
+{
+	/*
+	 * make sure they aren't dumb enough to use a bold background, and
+	 * attempt to correct for it.
+	 */
+	if ( back > GREY )
+		back &= ~A_BOLD;
+	if ( fore == GREY && back == BLACK )
+		return COLOR_PAIR ( 0 );
+	else if ( fore == BLACK && back == BLACK )
+		return COLOR_PAIR ( 56 );
+	else
+		return ( fore << 11 | back << 8 );
+}
+
+
+//*************************************************
+// Window handling.
+//
 /*
  * Return the value of expression e. * Evaluation is left to right and
  * opererators + - / * are supported. * 'w' and 'h' are replaced by the
  * screen width and height. * -1 is returned on error.
  */
-static int
-window_calc ( char *e )
+static int window_calc ( char *e )
 {
 	int result = 0, tmp = 0, op = 0;
 	char *s = NULL;
@@ -496,8 +570,7 @@ window_calc ( char *e )
 	return result;
 }
 
-static void
-set_window ( WindowConfig * win, char *param, char *value )
+static void set_window ( WindowConfig * win, char *param, char *value )
 {
 	int *p = NULL, result;
 
@@ -551,8 +624,7 @@ set_window ( WindowConfig * win, char *param, char *value )
 }
 
 
-static void
-set_window_defaults ( void )
+static void set_window_defaults ( void )
 {
 	conf->files_window.height = LINES - 1;
 	conf->files_window.width = COLS / 2;
@@ -595,67 +667,6 @@ set_window_defaults ( void )
 	conf->playback_window.format = NULL;
 }
 
-static void
-set_color_defaults ( void )
-{
-	colors[WIN_ACTIVE] = merge_colors ( B_RED, BLACK );
-	colors[WIN_INACTIVE] = merge_colors ( B_BLUE, BLACK );
-	colors[WIN_INACTIVE_TITLE] = merge_colors ( B_BLUE, BLACK );
-	colors[WIN_INACTIVE_SCROLL] = merge_colors ( BLUE, BLACK );
-	colors[WIN_INACTIVE_SCROLLBAR] = merge_colors ( B_BLUE, BLACK );
-	colors[WIN_ACTIVE_TITLE] = merge_colors ( B_RED, BLACK );
-	colors[WIN_ACTIVE_SCROLL] = merge_colors ( RED, BLACK );
-	colors[WIN_ACTIVE_SCROLLBAR] = merge_colors ( B_RED, BLACK );
 
-	colors[FILE_UNSELECTED] = merge_colors ( B_BLUE, BLACK );
-	colors[FILE_SELECTED] = merge_colors ( B_BLUE, RED );
-	colors[FILE_UNSELECTED_DIRECTORY] = merge_colors ( B_BLUE, BLACK );
-	colors[FILE_SELECTED_DIRECTORY] = merge_colors ( B_BLUE, RED );
-	colors[FILE_WINDOW] = merge_colors ( BLACK, BLACK );
 
-	colors[PLAY_UNSELECTED] = merge_colors ( B_BLUE, BLACK );
-	colors[PLAY_SELECTED] = merge_colors ( B_BLUE, RED );
-	colors[PLAY_UNSELECTED_PLAYING] = merge_colors ( B_RED, BLUE );
-	colors[PLAY_SELECTED_PLAYING] = merge_colors ( B_RED, RED );
-	colors[PLAY_WINDOW] = merge_colors ( BLACK, BLACK );
 
-	colors[INFO_TEXT] = merge_colors ( B_BLUE, BLACK );
-	colors[INFO_WINDOW] = merge_colors ( BLACK, BLACK );
-
-	colors[MENU_TEXT] = merge_colors ( B_BLUE, BLACK );
-	colors[MENU_WINDOW] = merge_colors ( BLACK, BLACK );
-
-	colors[PLAYBACK_TEXT] = merge_colors ( B_BLUE, BLACK );
-	colors[PLAYBACK_WINDOW] = merge_colors ( BLACK, BLACK );
-}
-
-static int
-break_line ( const char *line, char *keyword, char *param, char *value )
-{
-	char *p = ( char * ) line, *s = keyword;
-	int i = 0;
-
-	while ( isspace ( *p ) )
-		p++;
-	if ( !*p )
-		return 0;
-	while ( i++ < 256 && !isspace ( *p ) )
-		*s++ = *p++;
-	while ( isspace ( *p ) )
-		p++;
-	if ( !*p )
-		return 1;
-	i = 0;
-	s = param;
-	while ( i++ < 256 && !isspace ( *p ) )
-		*s++ = *p++;
-	while ( isspace ( *p ) )
-		p++;
-	if ( !*p )
-		return 2;
-	i = 0;
-	s = value;
-	while ( i++ < 256 && isprint ( *p ) )
-		*s++ = *p++;
-	return 3;
-}

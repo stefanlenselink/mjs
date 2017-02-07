@@ -9,6 +9,10 @@
 *.cache/
 *.dirstamp
 .libs/
+*.trs
+tags
+/ar-lib
+/test-driver
 /aclocal.m4
 /depcomp
 /install-sh
@@ -16,6 +20,7 @@
 /ltmain.sh
 /missing
 /stamp-h1
+/build-aux
 Makefile
 Makefile.in
 /config.guess
@@ -25,9 +30,11 @@ Makefile.in
 /config.sub
 /configure
 /configure.scan
+/compile
 tracefile
 src/mjs4
-tools/src/mjscount
+tools/mjscount
+tools/mjsconfig
 .autotools
 .project
 .cproject
@@ -42,9 +49,6 @@ configure
 depcomp
 install-sh
 missing
-src/Makefile
-src/Makefile.in
-tools/src/Makefile
-tools/src/Makefile.in
 .settings
 m4/
+tests/check_mjs

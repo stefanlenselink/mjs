@@ -1,4 +1,8 @@
 #include "gui.h"
+#include "controller/controller.h"
+
+extern songdata * playlist;
+extern Config * conf;
 
 void gui_init_playlist(void) {
 	playlist_window = window_new();
@@ -80,7 +84,7 @@ void gui_input_playlist(int c) {
 			// remove selected from playlist
 			if (playlist->selected) {
 				if (playlist->playing == playlist->selected && playlist->playing->next != NULL) {
-					controller_next(playlist);
+					controller_next();
 				} else if (playlist->playing == playlist->selected && playlist->playing->next == NULL) {
 					controller_stop();
 				}

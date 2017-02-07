@@ -18,9 +18,10 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#include "mjs.h"
 #include "plugin/plugin.h"
 #include "controller/controller.h"
+#include "config/config.h"
+#include "log.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -31,6 +32,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <pthread.h>
+
+extern Config * conf;
 
 static int fd;
 static pthread_t thread;
@@ -80,11 +83,11 @@ void f12automaat_poll(void) {
 }
 
 void *f12automaat_thread(void * arg){
-	log_debug("MJS f12automaat started!\n");
+	log_debug("f12automaat: started!\n");
 	
 	while(1){
 		f12automaat_poll();
-		usleep(1000);
+		sleep(1);
 	}
 }
 
@@ -97,6 +100,8 @@ void f12automaat_init(void) {
 		fcntl(fd, F_SETFL, 0);
 		//Start the thread
 		pthread_create(&thread, NULL, f12automaat_thread, NULL);
+	} else {
+		log_debug_format("f12automaat: can't open serial device: %s\n", conf->serial_device);
 	}
 }
 

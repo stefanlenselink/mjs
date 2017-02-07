@@ -2,6 +2,7 @@
 #define _window_h
 
 #include "songdata/songdata.h"
+#include "config/config.h"
 
 #include <ncurses.h>
 #include <panel.h>
@@ -63,6 +64,7 @@ void window_init(Window *window, WindowName name, WindowConfig *config);
 void window_activate(Window *window);
 void window_deactivate(Window *window);
 void window_input(Window *window, int c);
+void window_input_list(Window *window, int c);
 void window_draw_title(Window *window);
 void window_draw_border(Window *window);
 void window_draw_scrollbar(Window *window);

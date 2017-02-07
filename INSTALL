@@ -1,12 +1,11 @@
 Quick installation
 ==================
 
-1) Run "./bootstrap", if you got the source from git. (or autoreconf && automake --add-missing)
- 1053  ./configure 
+1) Run "autoreconf -i", if you got the source from git.
 2) Run "./configure".
 3) Run "make".
 4) Run "make install" as root.
-5) Create a configuration file (example provided as EXAMPLE in
-   $HOME/.mjsrc.
-6) enjoy!
-
+5) Create a global configuration file /etc/mjsrc or a private ~/.mjsrc.
+   For example:
+     "cat doc/example/mjsrc doc/example/mjsrc-colors-green > ~/.mjsrc"
+6) Enjoy!

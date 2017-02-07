@@ -17,9 +17,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-
-#include "http_controller.h"
-#include "controller/controller.h"
+#include "plugin/plugin.h"
+#include "json.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,27 +42,57 @@
 #include <time.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
-#include <controller/json.h>
-#include <songdata/disk_songdata.h>
 #include <microhttpd.h>
 
-struct MHD_Daemon *http_daemon;
+#include "controller/controller.h"
+#include "engine/engine.h"
+#include "songdata/disk_songdata.h"
+#include "log.h"
 
-songdata_song * http_song_by_uid(char *);
+extern songdata * playlist;
 
-void http_controller_init(Config * cnf) {
+static struct MHD_Daemon *http_daemon;
+
+static songdata_song * http_song_by_uid(char *);
+static int http_controller_request(void *, struct MHD_Connection *, const char *,
+        const char *, const char *,
+        const char *, size_t *, void **);
+
+static int http_controller_headers(void * cls, enum MHD_ValueKind kind, const char * key, const char * value);
+
+static char * http_json_extract(json_value * data, char * attribute);
+
+static char * http_get_song_uid(songdata_song *);
+static char * http_get_song_json(songdata_song *);
+static char * http_get_playlist_item(char *);
+
+static char * http_post_status(json_value *);
+static char * http_post_playlist(json_value *);
+static char * http_post_current(json_value *);
+static char * http_post_playlist_item(char *, json_value *);
+
+static char * http_get_index();
+static char * http_get_status();
+static char * http_get_playlist();
+static char * http_get_current();
+
+static void http_delete_playlist();
+static char * http_delete_playlist_item(char *);
+
+
+
+void http_controller_init(void) {
+	log_debug("http_controller: started!\n");
     http_daemon = MHD_start_daemon(MHD_USE_SELECT_INTERNALLY, 8080, NULL, NULL, &http_controller_request, NULL, MHD_OPTION_END);
 }
 
 void http_controller_shutdown(void) {
 	MHD_stop_daemon(http_daemon);
 }
+PLUGIN_REGISTER(http_controller_init, http_controller_shutdown);
 
-void http_poll(void) {
-}
 
-int http_controller_request(void *cls, struct MHD_Connection *connection,
+static int http_controller_request(void *cls, struct MHD_Connection *connection,
         const char *url,
         const char *method, const char *version,
         const char *upload_data,
@@ -155,7 +184,7 @@ int http_controller_request(void *cls, struct MHD_Connection *connection,
     return ret;
 }
 
-int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
+static int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key, const char *value)
 {
     if(!strcmp(key, "Content-Length"))
     {
@@ -166,7 +195,7 @@ int http_controller_headers(void *cls, enum MHD_ValueKind kind, const char *key,
     return MHD_YES;
 }
 
-char * http_get_playlist_item(char *url)
+static char * http_get_playlist_item(char *url)
 {
     char *uid = url + 10;
 
@@ -177,7 +206,7 @@ char * http_get_playlist_item(char *url)
     return http_get_song_json(song);
 }
 
-char * http_get_current()
+static char * http_get_current()
 {
     if(!playlist->playing)
         return strdup("{}");
@@ -194,7 +223,7 @@ char * http_get_current()
     return strdup(result);
 }
 
-char * http_get_status()
+static char * http_get_status()
 {
     if(!playlist->playing)
         return strdup("{\"status\":\"stopped\"}");
@@ -205,7 +234,7 @@ char * http_get_status()
     return strdup("{\"status\":\"paused\"}");
 }
 
-char * http_get_playlist()
+static char * http_get_playlist()
 {
     char *builder = strdup("{\"files\":[");
 
@@ -240,14 +269,14 @@ char * http_get_playlist()
     return result;
 }
 
-char * http_get_song_uid(songdata_song *song)
+static char * http_get_song_uid(songdata_song *song)
 {
     char input[1024];
-    snprintf(input, 1024, "%p", song);
+    snprintf(input, 1024, "%p", (void *) song);
     return strdup(input);
 }
 
-songdata_song * http_song_by_uid(char *uid)
+static songdata_song * http_song_by_uid(char *uid)
 {
     songdata_song *current = playlist->head;
     while(current != NULL)
@@ -259,17 +288,22 @@ songdata_song * http_song_by_uid(char *uid)
     return NULL;
 }
 
-char * http_get_song_json(songdata_song *song)
+static char * http_get_song_json(songdata_song *song)
 {
     char *uid = http_get_song_uid(song);
     char file[1024];
-    snprintf(file, 1024, "{\"uid\":\"%s\", \"location\":\"%s\"}", uid, song->fullpath);
+
+    char *tag = song->tag;
+    if(tag == NULL)
+	    tag = "";
+
+    snprintf(file, 1024, "{\"uid\":\"%s\", \"location\":\"%s\", \"tag\":\"%s\"}", uid, song->fullpath, tag);
     free(uid);
     uid = NULL;
     return strdup(file);
 }
 
-char * http_json_extract(json_value *data, char * attribute)
+static char * http_json_extract(json_value *data, char * attribute)
 {
     int i;
     json_value * value = NULL;
@@ -293,7 +327,7 @@ char * http_json_extract(json_value *data, char * attribute)
     return str;
 }
 
-char * http_delete_playlist_item(char *url)
+static char * http_delete_playlist_item(char *url)
 {
     char *uid = url + 10; //Skip /playlist/
 
@@ -306,11 +340,14 @@ char * http_delete_playlist_item(char *url)
     return strdup("");
 }
 
-char * http_post_playlist_item(char *url, json_value *data)
+static char * http_post_playlist_item(char *url, json_value *data)
 {
     char *location = http_json_extract(data, "location");
+    char *tag = http_json_extract(data, "tag");
     if(location == NULL)
 	    return NULL;
+    if(tag == NULL)
+	    tag = strdup("");
 
     char *uid = url + 10; //Skip /playlist/
 
@@ -326,17 +363,19 @@ char * http_post_playlist_item(char *url, json_value *data)
     newsong->filename = strdup(filename);
     newsong->path = strdup(path);
     newsong->title = strdup(filename);
+    newsong->tag = tag;
 
     free(location);
-    free(path);
     location = NULL;
 
+    free(path);
+    path = NULL;
     songdata_add(playlist, song, newsong);
 
     return NULL;
 }
 
-char * http_post_status(json_value *data)
+static char * http_post_status(json_value *data)
 {
     char * str = http_json_extract(data, "status");
 
@@ -360,7 +399,7 @@ char * http_post_status(json_value *data)
     return strdup("");
 }
 
-char * http_post_current(json_value *data)
+static char * http_post_current(json_value *data)
 {
     char *uid = http_json_extract(data, "uid");
 
@@ -372,9 +411,15 @@ char * http_post_current(json_value *data)
     return NULL;
 }
 
-char * http_post_playlist(json_value *data)
+static char * http_post_playlist(json_value *data)
 {
     char *fullpath = http_json_extract(data, "location");
+    char *tag = http_json_extract(data, "tag");
+    if(fullpath == NULL)
+		return NULL;
+
+    if(tag == NULL)
+		tag = strdup("");
 
     char *filename = strdup(fullpath);
     char *path = split_filename(filename);
@@ -384,6 +429,7 @@ char * http_post_playlist(json_value *data)
     newsong->filename = strdup(filename);
     newsong->path = strdup(path);
     newsong->title = strdup(filename);
+    newsong->tag = tag;
 
     free(path);
 
@@ -392,7 +438,7 @@ char * http_post_playlist(json_value *data)
     return NULL;
 }
 
-void http_delete_playlist()
+static void http_delete_playlist()
 {
     controller_stop();
     songdata_clear ( playlist );
@@ -401,7 +447,7 @@ void http_delete_playlist()
     update_panels ();
 }
 
-char* http_get_index()
+static char * http_get_index()
 {
     return strdup(
             "<!DOCTYPE html>\n"
@@ -432,10 +478,10 @@ char* http_get_index()
             "\n"
             "<h3>POST /playlist</h3>\n"
             "<p><pre>Content-type: application/json\n"
-            "{ \"location\": \"/path/to/file.mp3\" }</pre>\n"
-            "Creates a new file at the end of the playlist and redirects to the created file.<br>\n"
-            "<strong>Test:</strong><br><input type=\"text\" id=\"postplaylistinput\">\n"
-            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist', data: JSON.stringify({'location':$('#postplaylistinput').val() }), contentType: 'application/json'}); return false;\">post</a>\n"
+            "{ \"location\": \"/path/to/file.mp3\", \"tag\": \"tag1\" }</pre>\n"
+            "Creates a new file at the end of the playlist.<br>\n"
+            "<strong>Test:</strong><br><input type=\"text\" id=\"postplaylistinput\">, tag: <input type=\"text\" id=\"postplaylisttag\">\n"
+            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist', data: JSON.stringify({'location':$('#postplaylistinput').val(), 'tag':$('#postplaylisttag').val()}), contentType: 'application/json'}); return false;\">post</a>\n"
             "</p>\n"
             "\n"
             "<h3>DELETE /playlist</h3>\n"
@@ -467,11 +513,11 @@ char* http_get_index()
             "\n"
             "<h3>POST /playlist/<strong><em>uid</em></strong></h3>\n"
             "<p><pre>Content-type: application/json\n"
-            "{ \"location\": \"/path/to/file.mp3\" }</pre>\n"
+            "{ \"location\": \"/path/to/file.mp3\", \"tag\":\"tag2\" }</pre>\n"
             "Inserts a file before the selected file and redirects to the new resource.<br>\n"
             "URL example: /playlist/67dd3588-d684-11e1-b877-0001805c669b<br>\n"
-            "<strong>Test:</strong><br><input type=\"text\" id=\"postfileinput1\">, path: <input type=\"text\" id=\"postfileinput2\">\n"
-            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist/' + $('#postfileinput1').val(), data: JSON.stringify({'location':$('#postfileinput2').val() }), contentType: 'application/json'}); return false;\">post</a>\n"
+            "<strong>Test:</strong><br><input type=\"text\" id=\"postfileinput1\">, path: <input type=\"text\" id=\"postfileinput2\">, tag: <input type=\"text\" id=\"postfileinput3\">\n"
+            "<a href=\"#\" onclick=\"$.ajax({type: 'POST', url: '/playlist/' + $('#postfileinput1').val(), data: JSON.stringify({'location':$('#postfileinput2').val() , 'tag':$('#postfileinput3').val() }), contentType: 'application/json'}); return false;\">post</a>\n"
             "</p>\n"
             "\n"
             "<h2>Current file</h2>\n"

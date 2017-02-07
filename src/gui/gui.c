@@ -1,9 +1,9 @@
 #include "gui.h"
 
-#include "mjs.h"
 #include "songdata/songdata.h"
 #include "controller/controller.h"
-#include "engine/engine.h"
+#include "config/config.h"
+#include "engine/engine.h" //TODO: Get rid of this.
 
 #include <curses.h>
 #include <term.h>
@@ -12,6 +12,11 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <string.h>
+
+
+extern songdata * playlist;
+extern songdata * mp3list;
+extern Config * conf;
 
 void gui_init_curs(void) {
 	curs_set(0);

@@ -1,4 +1,9 @@
 #include "gui.h"
+#include "engine/engine.h"
+#include "config/config.h"
+
+extern songdata * playlist;
+extern Config * conf;
 
 static int last_elapsed = 1; //Foull the guys
 

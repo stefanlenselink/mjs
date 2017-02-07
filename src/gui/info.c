@@ -1,4 +1,7 @@
 #include "gui.h"
+#include "config/config.h"
+
+extern Config * conf;
 
 void gui_init_info(void) {
 	info_window = window_new();

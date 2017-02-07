@@ -1,7 +1,6 @@
 #ifndef _gui_h
 #define _gui_h
 
-#include "mjs.h"
 #include "window.h"
 
 void gui_init(void);
@@ -19,6 +18,7 @@ void gui_progress_animate(void);
 void gui_progress_value(int pcts);
 void gui_progress_stop(void);
 void gui_shutdown(void);
+void gui_update(void);
 
 // private
 Window *active_window;

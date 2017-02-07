@@ -1,52 +1,73 @@
-#include "mjs.h"
 #include "plugin.h"
+#include "log.h"
+#include "config/config.h"
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include <dlfcn.h>
+
+extern Config * conf;
 
 static int plugins_num;
 static Plugin *plugins;
 
 void plugin_init(void) {
-	int i;
+	Plugin plugin;
+	char *plugins_str;
+	char *plugins_str_saveptr;
+	char *plugin_name;
 	char *filename;
-	
-	plugins_num = conf->plugins_num;
-	plugins = calloc(plugins_num, sizeof(Plugin));
-	
-	for (i = 0; i < plugins_num; i++) {
-		log_debug_format("Loading plugin: %s\n", conf->plugins[i]);
-		
-		if (conf->plugin_dir != NULL) {
-			asprintf(&filename, "%s/%s.so", conf->plugin_dir, conf->plugins[i]);
+
+	plugins_num = 0;
+	plugins = NULL;
+
+	plugins_str = conf->plugins;
+
+	if (!plugins_str)
+		return;
+
+	while ((plugin_name = strtok_r(plugins_str, ",", &plugins_str_saveptr)) != NULL) {
+		plugins_str = NULL;
+
+		log_debug_format("Loading plugin: %s\n", plugin_name);
+
+#pragma GCC diagnostic ignored "-Wunused-result"
+		if (conf->pluginpath != NULL) {
+			asprintf(&filename, "%s/%s.so", conf->pluginpath, plugin_name);
 		} else {
-			asprintf(&filename, "%s.so", conf->plugins[i]);
+			asprintf(&filename, "%s.so", plugin_name);
 		}
-		plugins[i].handle = dlopen(filename, RTLD_NOW);
+#pragma GCC diagnostic pop
+
+		plugin.handle = dlopen(filename, RTLD_NOW);
 		free(filename);
-		if (plugins[i].handle == NULL) {
+		if (plugin.handle == NULL) {
 			log_debug_format("Cant load plugin: error: %s.\n", dlerror());
 			continue;
 		}
 		
-		plugins[i].init = dlsym(plugins[i].handle, "_plugin_init");
-		if (plugins[i].init == NULL) {
+		plugin.init = dlsym(plugin.handle, "_plugin_init");
+		if (plugin.init == NULL) {
 			log_debug_format("Cant find symbol _plugin_init: error: %s\n", dlerror());
-			dlclose(plugins[i].handle);
-			plugins[i].handle = NULL;
+			dlclose(plugin.handle);
 			continue;
 		}
 		
-		plugins[i].shutdown = dlsym(plugins[i].handle, "_plugin_shutdown");
-		if (plugins[i].init == NULL) {
+		plugin.shutdown = dlsym(plugin.handle, "_plugin_shutdown");
+		if (plugin.shutdown == NULL) {
 			log_debug_format("Cant find symbol _plugin_shutdown: error: %s\n", dlerror());
-			dlclose(plugins[i].handle);
-			plugins[i].handle = NULL;
+			dlclose(plugin.handle);
 			continue;
 		}
 		
 		// init plugin
-		(*plugins[i].init)();
+		(*plugin.init)();
+
+		// keep plugin struct
+		plugins = (Plugin *)realloc(plugins, sizeof (Plugin) * (plugins_num + 1));
+		plugins[plugins_num] = plugin;
+		plugins_num++;
 	}
 }
 
@@ -54,10 +75,6 @@ void plugin_shutdown(void) {
 	int i;
 	
 	for (i = 0; i < plugins_num; i++) {
-		if (plugins[i].handle == NULL) {
-			continue;
-		}
-		
 		// shutdown plugin
 		(*plugins[i].shutdown)();
 		

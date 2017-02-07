@@ -1,9 +1,12 @@
 #include "gui.h"
+#include "config/config.h"
 
 #include <time.h>
 #include <string.h>
 #include <signal.h>
 #include <sys/time.h>
+
+extern Config * conf;
 
 static int progress_length;
 static int progress_progress;
@@ -81,8 +84,6 @@ int gui_ask_yes_no(char *question) {
 }
 
 int gui_ask(char *question, char *answer) {
-	int c;
-	
 	gui_draw_question(question);
 	echo();
 	wgetnstr(bar_window->win, answer, 512);

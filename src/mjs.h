@@ -2,12 +2,6 @@
 #define _mjs_h
 
 #include "defs.h"
-#include "config/config.h"
-#include "songdata/songdata.h"
-
-Config *conf;
-songdata *mp3list;
-songdata *playlist;
 
 void bailout(int sig);
 
